@@ -1,0 +1,15 @@
+{
+  "originHash" : "2802e28aaf919af97fdabe9f7ae6435d687a556a3542cc109c74139061f13a1d",
+  "pins" : [
+    {
+      "identity" : "auerbachlook",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joshuaauerbachwatson/AuerbachLook.git",
+      "state" : {
+        "revision" : "29773d7bb926b3b7f5e6265eef2eb0f427c603cf",
+        "version" : "1.0.21"
+      }
+    }
+  ],
+  "version" : 3
+}
