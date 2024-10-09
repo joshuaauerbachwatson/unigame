@@ -84,9 +84,8 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     func send(_ gameState : GameState) {
         if session.connectedPeers.count > 0 {
             Logger.log("Sending new game state")
-            let encoder = JSONEncoder()
             do {
-                let encoded = try encoder.encode(gameState)
+                let encoded = gameState.encoded()
                 try session.send(encoded, toPeers: session.connectedPeers, with: .reliable)
             } catch let error {
                 delegate?.error(error, false)
@@ -176,13 +175,8 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         Logger.log("didReceiveData: \(data)")
         if let delegate = self.delegate {
-            let decoder = JSONDecoder()
-            do {
-                let gameState = try decoder.decode(GameState.self, from: data)
-                delegate.gameChanged(gameState)
-            } catch let error {
-                Logger.log("Error decoding game state: " + error.localizedDescription)
-            }
+            let gameState = GameState(data)
+            delegate.gameChanged(gameState)
         }
     }
 

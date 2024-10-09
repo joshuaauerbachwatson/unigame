@@ -16,20 +16,30 @@
 
 import UIKit
 
-// Represents the state of a game from the perspective of unigame-core.  Does not declare details specific to the
-// Setup or Playing tabs, but there is a Codable 'playingArea' member which presumably contains that information.
+// Represents the state of a game from the perspective of unigame-core.  This really comes down to which player is
+// sending and which is active (ie, whose turn it is).  The "real" game state is in the gameInfo field, which is
+// opaque in this context.
 
-struct GameState : Codable, Equatable {
-    let playingArea : Data   // The already-encoded playing area
+struct GameState: Equatable {
     let sendingPlayer : Int  // The index of the player constructing the GameState
     let activePlayer: Int    // The index of the player whose turn it is (== previous except when yielding)
-    let areaSize : CGSize    // The size of the playing area of the transmitting player (for rescaling with unlike-sized devices)
-
+    let gameInfo : Data      // The state of play in the specific game being played
+    
+    init(_ encoded: Data) {
+        sendingPlayer = Int(encoded[0])
+        activePlayer = Int(encoded[1])
+        gameInfo = encoded.suffix(from: 2)
+    }
+    
     // Conform to Equatable protocol
     static func == (lhs: GameState, rhs: GameState) -> Bool {
-        return lhs.playingArea == rhs.playingArea
+        return lhs.gameInfo == rhs.gameInfo
         && lhs.sendingPlayer == rhs.sendingPlayer
         && lhs.activePlayer == rhs.activePlayer
-        && lhs.areaSize == rhs.areaSize
+    }
+    
+    // Returns an encoded GameState
+    func encoded() -> Data {
+        return Data([UInt8(sendingPlayer), UInt8(activePlayer) ]) + gameInfo
     }
 }

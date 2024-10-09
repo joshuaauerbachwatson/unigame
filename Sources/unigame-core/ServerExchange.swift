@@ -108,13 +108,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
 
     // Send a new game state (part of Communicator protocol)
     func send(_ gameState: GameState) {
-        var data: Data
-        do {
-            data = try encoder.encode(gameState)
-        } catch {
-            delegate.error(error, false)
-            return
-        }
+        var data = gameState.encoded()
         var buffer: Data = Data([MessageType.Game.code])
         buffer.append(data)
         Logger.log("Sending game state message of length \(buffer.count)")
@@ -218,13 +212,8 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     
     // Decodes and then processes received game state
     private func deliverReceivedState(_ data: Data) {
-        do {
-            let received = try JSONDecoder().decode(GameState.self, from: data)
-            processReceivedState(received)
-        } catch {
-            Logger.log("Got decoding error: \(error)")
-            delegate.error(error, false)
-        }
+        let received = GameState(data)
+        processReceivedState(received)
     }
     
     // Decodes and then processes received player list
