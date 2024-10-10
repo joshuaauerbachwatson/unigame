@@ -23,7 +23,6 @@ import AuerbachLook
 
 // The protocol implemented by all Communicator implementations
 protocol Communicator {
-    var isChatAvailable: Bool { get }
     func sendChatMsg(_ mag: String)
     func send(_ gameState: GameState)
     func shutdown(_ dueToError: Bool)
@@ -31,12 +30,44 @@ protocol Communicator {
 
 // The protocol for the delegate (callbacks)
 protocol CommunicatorDelegate {
-    var  tokenProvider: TokenProvider { get }
+    var  tokenProvider: TokenProvider { get } // Only used by server-based communicator
     func newPlayerList(_ numPlayers: Int, _ players: [Player])
     func gameChanged(_ gameState: GameState)
     func error(_ error: Error, _ deleteGame: Bool)
     func lostPlayer(_ lost: Player)
     func newChatMsg(_ msg: String)
+}
+
+// One-byte message types for use in messages.
+// The server-based communicator uses all four to discriminate incoming websocket traffic.
+// Both communicators use .Chat and .Game to discriminate sent and received messages.
+enum MessageType: Unicode.Scalar, CaseIterable {
+    case Chat = "C", Game = "G", Players = "P", LostPlayer = "L"
+    var code: UInt8 {
+        return UInt8(rawValue.value)
+    }
+
+var display: String {
+        switch self {
+        case .Chat:
+            return "CHAT"
+        case .Game:
+            return "GAME"
+        case .Players:
+            return "PLAYER LIST"
+        case .LostPlayer:
+            return "LOST PLAYER"
+        }
+    }
+     
+    static func from(rawValue: Unicode.Scalar) ->MessageType? {
+        return allCases.filter({ $0.rawValue == rawValue }).first
+    }
+    
+    static func from(code: UInt8) ->MessageType? {
+        let rawValue = Unicode.Scalar(code)
+        return from(rawValue: rawValue)
+    }
 }
 
 // Global function to create a communicator of given kind

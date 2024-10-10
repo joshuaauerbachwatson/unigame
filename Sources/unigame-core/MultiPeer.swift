@@ -42,12 +42,18 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     // The delegate, with which we communicate critical events
     private let delegate : CommunicatorDelegate?
     
-    // The MultiPeer communicator does not support chat
-    var isChatAvailable = false
-    
-    func sendChatMsg(_ mag: String) {
-        Logger.log("sendChatMsg should not be called on MultiPeerCommunicator")
-        // Perhaps this should be fatal sincd the button should have been hidden?
+    // Send a chat message to all peers
+    func sendChatMsg(_ msg: String) {
+        if session.connectedPeers.count > 0 {
+            Logger.log("Sending new chat message")
+            do {
+                var buffer: Data = Data([MessageType.Chat.code])
+                buffer.append(Data(msg.utf8))
+                try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
+            } catch let error {
+                delegate?.error(error, false)
+            }
+        }
     }
     
     // The session as a lazily initialized private property
@@ -85,8 +91,9 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
         if session.connectedPeers.count > 0 {
             Logger.log("Sending new game state")
             do {
-                let encoded = gameState.encoded()
-                try session.send(encoded, toPeers: session.connectedPeers, with: .reliable)
+                var buffer: Data = Data([MessageType.Game.code])
+                buffer.append(gameState.encoded())
+                try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
             } catch let error {
                 delegate?.error(error, false)
             }
@@ -173,10 +180,25 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
 
     // React to incoming data
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        Logger.log("didReceiveData: \(data)")
-        if let delegate = self.delegate {
-            let gameState = GameState(data)
+        guard let type = MessageType.from(code: data[0]) else {
+            Logger.log("Received message of unknown type \(data[0])")
+            return
+        }
+        Logger.log("Received message of type: \(type.display)")
+        guard let delegate = self.delegate else {
+            Logger.log("Incoming message ignored, no delegate")
+            return
+        }
+        let body = data.suffix(from: 1)
+        switch type {
+        case .Game:
+            let gameState = GameState(body)
             delegate.gameChanged(gameState)
+        case .Chat:
+            let newMsg = String(decoding: data, as: UTF8.self)
+            delegate.newChatMsg(newMsg)
+        default:
+            Logger.log("No handling defined in MultiPeer communicator for type \(type.display)")
         }
     }
 

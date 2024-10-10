@@ -29,36 +29,6 @@ fileprivate let numPlayersKey  = "NumPlayers"
 fileprivate let websocketURL   = "wss://unigame-befsi.ondigitalocean.app/websocket"
 fileprivate let ignoredReceiveErrors: [Int] = [ Int(ENOTCONN), Int(ECANCELED) ]
 
-// One-byte message types for the differnt kinds of messages we can receive on the web socket
-enum MessageType: Unicode.Scalar, CaseIterable {
-    case Chat = "C", Game = "G", Players = "P", LostPlayer = "L"
-    var code: UInt8 {
-        return UInt8(rawValue.value)
-    }
-
-    var display: String {
-        switch self {
-        case .Chat:
-            return "CHAT"
-        case .Game:
-            return "GAME"
-        case .Players:
-            return "PLAYER LIST"
-        case .LostPlayer:
-            return "LOST PLAYER"
-        }
-    }
-     
-    static func from(rawValue: Unicode.Scalar) ->MessageType? {
-        return allCases.filter({ $0.rawValue == rawValue }).first
-    }
-    
-    static func from(code: UInt8) ->MessageType? {
-        let rawValue = Unicode.Scalar(code)
-        return from(rawValue: rawValue)
-    }
-}
-
 // This communicator uses websocket communication with the server.  Things that may be sent to the server
 //  -- chat messages
 //  -- new game states
@@ -70,11 +40,6 @@ enum MessageType: Unicode.Scalar, CaseIterable {
 // The connection to the server may also be shutdown, which has consequences for the game as viewed by the
 // server and other players.
 final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocketDelegate, @unchecked Sendable {
-    // Chat is available with this communicator.  True, it is only available when the communicator is connected.
-    // But, a Communicator connects on construction and should be rendered inaccessible on failure or termination of
-    // a game.
-    let isChatAvailable = true
-    
     // Internal state
     private let gameToken: String
     private let accessToken: String
@@ -108,9 +73,8 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
 
     // Send a new game state (part of Communicator protocol)
     func send(_ gameState: GameState) {
-        var data = gameState.encoded()
         var buffer: Data = Data([MessageType.Game.code])
-        buffer.append(data)
+        buffer.append(gameState.encoded())
         Logger.log("Sending game state message of length \(buffer.count)")
         let message = URLSessionWebSocketTask.Message.data(buffer)
         webSocketTask.send(message) { error in
