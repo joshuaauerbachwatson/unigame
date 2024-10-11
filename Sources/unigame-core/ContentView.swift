@@ -58,5 +58,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView(setup: DummySetup(), playing: DummyPlaying())
-        .environment(UnigameModel())
+        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
 }

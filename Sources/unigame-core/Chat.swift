@@ -62,5 +62,5 @@ struct Chat: View {
 
 #Preview {
     Chat()
-        .environment(UnigameModel())
+        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
 }

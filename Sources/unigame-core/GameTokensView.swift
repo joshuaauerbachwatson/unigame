@@ -74,5 +74,5 @@ struct GameTokensView: View {
     UserDefaults.standard.set(tokens, forKey: SavedTokensKey)
     UserDefaults.standard.set("wox", forKey: GameTokenKey)
     return GameTokensView()
-        .environment(UnigameModel())
+        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
 }

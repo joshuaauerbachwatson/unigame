@@ -57,5 +57,5 @@ struct PlayerLabels: View {
 
 #Preview {
     PlayerLabels()
-        .environment(UnigameModel())
+        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
 }
