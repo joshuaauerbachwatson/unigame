@@ -45,8 +45,6 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     private let accessToken: String
     private let player: Player
     private let delegate: CommunicatorDelegate
-    private let encoder: JSONEncoder
-    private let decoder: JSONDecoder
     private var webSocketTask: URLSessionWebSocketTask! // Initialized after super call
 
     private var lastGameState: GameState? = nil
@@ -57,8 +55,6 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
         self.gameToken = gameToken
         self.player = player
         self.delegate = delegate
-        self.encoder = JSONEncoder()
-        self.decoder = JSONDecoder()
         super.init()
         self.webSocketTask = connectWebsocket(game: gameToken, player: player, accessToken: accessToken)
     }
