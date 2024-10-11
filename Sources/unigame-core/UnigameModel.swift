@@ -23,9 +23,20 @@ enum UnigamePhase {
     case Players, Setup, Playing
 }
 
-// Temp placeholder for TokenProvider.
-// TODO We need to figure out how to thread everything through in the end.
+// A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
+// Unless you provide a valid initialization argument derived from Auth0, this dummy will _not_ support
+// communication with the server.  You _can_ provide a valid token as an initializer argument in order
+// to test the server path, but if that value is used in a #Preview clause be very careful not to commit
+// it publicly.
 struct DummyTokenProvider: TokenProvider {
+    let credentials: Credentials
+
+    init(accessToken: String? = nil) {
+        let token = accessToken ?? "Dummy access token"
+        let date = Date(timeIntervalSinceNow: 400 * 24 * 60 * 60)
+        credentials = Credentials(accessToken: token, expiresIn: date)
+    }
+
     func login(_ handler: @escaping (Credentials?, (any LocalizedError)?) -> ()) {
         let ans = Credentials(accessToken: "Dummy access token", expiresIn: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
         handler(ans, nil)
@@ -45,38 +56,20 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
 @Observable
-final class UnigameModel: CommunicatorDelegate {
-    // TODO fill in these delegate stubs, possibly moving to different source file.
-    func newPlayerList(_ numPlayers: Int, _ players: [Player]) {
+final class UnigameModel {
+    // The token provider, used by the server-based communicator only and only when fresh credentials are needed.
+    // Defined by the CommunicatorDelegate but declared here rather than the extension because it is a stored
+    // property and initialized in the main init.
+    var tokenProvider: any TokenProvider
 
-    }
-    
-    func gameChanged(_ gameState: GameState) {
-
-    }
-    
-    func error(_ error: any Error, _ deleteGame: Bool) {
-
-    }
-    
-    func lostPlayer(_ lost: Player) {
-
-    }
-    
-    func newChatMsg(_ msg: String) {
-
-    }
-    
-    var tokenProvider: any TokenProvider = DummyTokenProvider()
-    
-    // Access to UserDefaults settings.
+   // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
     var userName: String = {
         if let ans = UserDefaults.standard.string(forKey: UserNameKey), ans != "" {
             return ans
         }
         // Need to set UserDefaults manually in initializer since didSet will not be called.
-        let ans = fakeNames.randomElement()! // fakeNames is not empty, hence the force unwrap is safe
+        let ans = fakeNames.randomElement()! // fakeNames is staticly non-empty, hence the force unwrap is safe
         UserDefaults.standard.set(ans, forKey: UserNameKey)
         return ans
     }() {
@@ -130,7 +123,7 @@ final class UnigameModel: CommunicatorDelegate {
         return thisPlayer == activePlayer
     }
 
-    // The Communicator (nil until player search begins; remains non-nil through player searach and during actual play)
+    // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
     var communicator : Communicator? = nil
 
     // Indicates that play has begun.  If communicator is non-nil and playBegun is false, the player list is still being
@@ -173,7 +166,8 @@ final class UnigameModel: CommunicatorDelegate {
     }
     
     // Start out in the "new game" state
-    init() {
+    init(tokenProvider: TokenProvider) {
+        self.tokenProvider = tokenProvider
         newGame()
     }
     
@@ -211,5 +205,29 @@ final class UnigameModel: CommunicatorDelegate {
                 Logger.logFatalError("makeCommunicator got unexpected response")
             }
         }
+    }
+}
+
+// The CommunicatorDelegate portion of the logic
+extension UnigameModel: CommunicatorDelegate {
+    // TODO fill in these delegate stubs
+    func newPlayerList(_ numPlayers: Int, _ players: [Player]) {
+
+    }
+    
+    func gameChanged(_ gameState: GameState) {
+
+    }
+    
+    func error(_ error: any Error, _ deleteGame: Bool) {
+
+    }
+    
+    func lostPlayer(_ lost: Player) {
+
+    }
+    
+    func newChatMsg(_ msg: String) {
+
     }
 }
