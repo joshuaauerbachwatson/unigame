@@ -22,7 +22,7 @@ import AuerbachLook
 
 class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserDelegate,
                              MCNearbyServiceBrowserDelegate, MCSessionDelegate {
-    // The local "peer id" (a function of the Player)
+    // The local "peer id" (encodes the full identity of the player (name and order)
     private let peerId : MCPeerID
     
     // The advertiser object

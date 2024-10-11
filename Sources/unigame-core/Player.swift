@@ -22,7 +22,8 @@ import AuerbachLook
 // The order determines the order in which players appear in the player list and governs the succession of
 // play.  The player with the lowest order number is always the leader and always "plays first".  But, since
 // the leader configures the game, he may yield after configuring and before making an actual move, causing the
-// player just after him to play first.   A Player structure is not Codable per se but has a simple serialization
+// player just after him to play first.
+// A Player structure is Comparable on its order field.  It is not Codable per se but has a simple serialization
 // deserialization for transmission purposes.
 struct Player : Equatable, Comparable {
     let name : String
@@ -37,6 +38,7 @@ struct Player : Equatable, Comparable {
     // Initializer to deserialize a token in a transmitted player list
     // A colon separates the base64 encoded name from the order string, which must represent non-zero
     // UInt32.  Note that if the coded string was properly formed, the initializer should succeed.
+    // This should be true with high probability since humans are not involved in the coding.
     init?(_ coded: String) {
         guard let sep = coded.lastIndex(of: ":") else { return nil }
         let encodedName = String(coded.prefix(upTo: sep))
@@ -65,7 +67,7 @@ struct Player : Equatable, Comparable {
         return "\(name)(\(String(order)))"
     }
 
-    // Compare two players to determine ordering of a player list
+    // Compare two players to determine ordering of a player list.  This enables proper sorting of the list.
     static func < (lhs: Player, rhs: Player) -> Bool {
         return lhs.order < rhs.order
     }
