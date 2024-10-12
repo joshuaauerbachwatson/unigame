@@ -25,23 +25,38 @@ struct ContentView: View {
             GeometryReader { metrics in
                 VStack {
                     HStack {
+                        Label("Players:", systemImage: "person.3.sequence")
+                        PlayerLabels()
+                    }
+                    HStack {
                         NavigationLink {
                             Chat()
                         } label: {
                             Label("Expand chat", systemImage: "person.3.sequence")
                             .disabled(model.communicator == nil)
                         }
-                        PlayerLabels()
+                        Spacer()
+                        Button("End Game", systemImage: "xmark.circle.fill") {
+                            model.newGame()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.roundedRectangle)
+                        .disabled(model.communicator == nil)
+                        Spacer()
                         NavigationLink {
                             Help()
                         } label: {
                             Label("Help", systemImage: "questionmark.circle")
                         }
-                    }.padding()
-                        .border(.black, width: 3)
-                    Chat()
-                        .frame(height: metrics.size.height * 0.15)
-                        .disabled(model.communicator == nil)
+                    }
+                    VStack {
+                        Text("Chat:").font(.title)
+                        Chat()
+                            .frame(height: metrics.size.height * 0.10)
+                            .disabled(model.communicator == nil)
+                    }
+                    .padding()
+                    .border(.blue, width: 3)
                     switch (model.phase) {
                     case .Players:
                         Players()
@@ -58,5 +73,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView(setup: DummySetup(), playing: DummyPlaying())
-        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
+        .environment(UnigameModel(tokenProvider: DummyTokenProvider(accessToken: nil)))
 }
