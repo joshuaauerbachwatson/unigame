@@ -58,8 +58,17 @@ class CredentialStore {
         }
     }
     
+    // Store a new set of credentials
+    func store(_ creds: Credentials) -> Bool {
+        let encoder = JSONEncoder()
+        guard let encoded = try? encoder.encode(creds) else { return false }
+        let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile).path
+        FileManager.default.createFile(atPath: storageFile, contents: encoded, attributes: nil)
+        return true
+    }
+    
     // Perform login iff there are not already valid credentials present.
-    // Since the actual log handshake is asynchronous, the processing that requires the credentials
+    // Since the actual login handshake is asynchronous, the processing that requires the credentials
     // should take place in the handler up to the next point where user interaction is required.
     // Errors here do not terminate the app but report the error and leave credentials at nil.
     // The app should still be usable but only in solitaire or "Nearby Only" mode.
@@ -71,7 +80,14 @@ class CredentialStore {
             handler(already, nil)
             return
         }
-        // Do actual login`
-        provider.login(handler)
+        // Do actual login, storing the result if successful
+        provider.login { (creds, err) in
+            if let creds = creds {
+                if !self.store(creds) {
+                    Logger.log("Failed to store apparently valid credentials when performing login")
+                }
+            }
+            handler(creds, err)
+        }
     }
 }

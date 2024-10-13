@@ -24,21 +24,10 @@ enum UnigamePhase {
 }
 
 // A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
-// Unless you provide a valid initialization argument derived from Auth0, this dummy will _not_ support
-// communication with the server.  You _can_ provide a valid token as an initializer argument in order
-// to test the server path, but if that value is used in a #Preview clause be very careful not to commit
-// it publicly.
+// This does _not_ support communication with the server.
 struct DummyTokenProvider: TokenProvider {
-    let credentials: Credentials
-
-    init(accessToken: String? = nil) {
-        let token = accessToken ?? "Dummy access token"
-        let date = Date(timeIntervalSinceNow: 400 * 24 * 60 * 60)
-        credentials = Credentials(accessToken: token, expiresIn: date)
-    }
-
     func login(_ handler: @escaping (Credentials?, (any LocalizedError)?) -> ()) {
-        let ans = Credentials(accessToken: "Dummy access token", expiresIn: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
+        let ans = Credentials(accessToken: "", expiresIn: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
         handler(ans, nil)
     }
 }
