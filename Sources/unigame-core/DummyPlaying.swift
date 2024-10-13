@@ -35,6 +35,10 @@ struct DummyPlaying: View {
     }
 }
 
+func DummyGameHandler(_ data: Data)-> LocalizedError? {
+    return nil
+}
+
 #Preview {
     DummyPlaying()
 }

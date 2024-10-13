@@ -67,5 +67,5 @@ struct Players: View {
     UserDefaults.standard.setValue(true, forKey: LeadPlayerKey)
     UserDefaults.standard.setValue(2, forKey: NumPlayersKey)
     return Players()
-        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
+        .environment(UnigameModel())
 }

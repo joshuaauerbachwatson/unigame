@@ -16,43 +16,41 @@
 
 import SwiftUI
 
-fileprivate let description = """
-This tab should contain the (unigame standard game-agnostic)
-chat dialog, to be used when the primary focus is on
-chatting.  A small chat area may also appear in other
-tabs.
-"""
-
 struct Chat: View {
-    @Environment(UnigameModel.self) var modelData
+    @Environment(UnigameModel.self) var model
     @State private var message = ""
+    let lineLimit: Int?
 
     var body: some View {
-        @Bindable var modelData = modelData
-        
         VStack {
-            TextField("message to send", text: $message)
-            HStack {
-                Spacer()
-                Button(action: sendTouched) {
-                    Text("Send")
+            GeometryReader { metrics in
+                VStack {
+                    HStack {
+                        Button(action: sendTouched) {
+                            Text("Send")
+                        }
+                        TextField("message to send", text: $message)
+                    }
+                    ScrollViewReader { reader in
+                        ScrollView {
+                            Text(model.chatTranscript)
+                                .lineLimit(lineLimit)
+                                .id("textId")
+                                .frame(width: metrics.size.width)
+                                .padding()
+                                .border(.black, width: 3)
+                        }
+                        .onChange(of: model.chatTranscript, initial: true) {
+                            reader.scrollTo("textId", anchor: .bottom)
+                        }
+                    }
                 }
-                Spacer()
-                Button(action: doneTouched) {
-                    Text("Done")
-                }
-                Spacer()
             }
-            TextEditor(text: $modelData.chatTranscript)
-                .lineLimit(nil)
-                .padding()
-                    .border(.black, width: 3)
-            Spacer()
         }
     }
     
     private func sendTouched() {
-        modelData.communicator?.sendChatMsg(message)
+        model.communicator?.sendChatMsg(message)
     }
     
     private func doneTouched() {
@@ -61,6 +59,6 @@ struct Chat: View {
 }
 
 #Preview {
-    Chat()
-        .environment(UnigameModel(tokenProvider: DummyTokenProvider()))
+    Chat(lineLimit: nil)
+        .environment(UnigameModel())
 }

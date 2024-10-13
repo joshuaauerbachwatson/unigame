@@ -60,7 +60,13 @@ final class UnigameModel {
     // The token provider, used by the server-based communicator only and only when fresh credentials are needed.
     // Defined by the CommunicatorDelegate but declared here rather than the extension because it is a stored
     // property and initialized in the main init.
-    var tokenProvider: any TokenProvider
+    let tokenProvider: any TokenProvider
+    
+    // The callback to use when there is new setup information
+    let setupHandler: (Data) -> LocalizedError?
+
+    // The callback to use when there is new game information
+    let gameHandler: (Data) -> LocalizedError?
 
    // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
@@ -153,6 +159,24 @@ final class UnigameModel {
         return .Playing
     }
     
+    // For error alert presentation
+    var errorMessage: String? = nil
+    var showingError: Bool = false
+    var errorIsTerminal: Bool = false
+    func displayError(_ msg: String, terminal: Bool = false) {
+        errorMessage = msg
+        errorIsTerminal = terminal
+        showingError = true
+    }
+    func resetError() {
+        showingError = false
+        errorMessage = nil
+        if errorIsTerminal {
+            errorIsTerminal = false
+            newGame()
+        }
+    }
+    
     // Reset to new game
     func newGame() {
         players = [Player(userName, leadPlayer)]
@@ -166,9 +190,17 @@ final class UnigameModel {
     }
     
     // Start out in the "new game" state
-    init(tokenProvider: TokenProvider) {
+    init(tokenProvider: TokenProvider, setupHandler: @escaping (Data)->LocalizedError?,
+         gameHandler: @escaping (Data)->LocalizedError?) {
         self.tokenProvider = tokenProvider
+        self.setupHandler = setupHandler
+        self.gameHandler = gameHandler
         newGame()
+    }
+    
+    // Dummy initializer for previews etc.
+    convenience init() {
+        self.init(tokenProvider: DummyTokenProvider(), setupHandler: DummySetupHandler, gameHandler: DummyGameHandler)
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.  If leadPlayer is true,
@@ -199,8 +231,7 @@ final class UnigameModel {
                 Logger.log("Got back valid communicator")
                 self.communicator = communicator
             } else if let error = error {
-                // TODO this should be a popup
-                Logger.log("Could not establish communication: \(error.localizedDescription)")
+                self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
             } else {
                 Logger.logFatalError("makeCommunicator got unexpected response")
             }
@@ -209,25 +240,93 @@ final class UnigameModel {
 }
 
 // The CommunicatorDelegate portion of the logic
+fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
 extension UnigameModel: CommunicatorDelegate {
-    // TODO fill in these delegate stubs
-    func newPlayerList(_ numPlayers: Int, _ players: [Player]) {
-
+    // Respond to a new player list during game initiation.  We do not use this call later for lost players;
+    // we use `lostPlayer` for that.  The received players array is already properly sorted.
+    func newPlayerList(_ newNumPlayers: Int, _ newPlayers: [Player]) {
+        Logger.log("newPlayerList received, newNumPlayers=\(newNumPlayers), \(newPlayers.count) players present")
+        self.players = newPlayers
+        if players.count > 0 { // Should always be true, probably, but give communicators some slack
+            // Recalculate thisPlayer based on new list
+            guard let thisPlayer = players.firstIndex(where: {$0.name == userName})
+            else {
+                Logger.log("The player for this app is not in the received player list")
+                return
+            }
+            self.thisPlayer = thisPlayer
+            
+            // Manage incoming numPlayers.  Ignore it if leader.  For others, store it but 0 means unknown.
+            if !leadPlayer {
+                numPlayers = newNumPlayers
+            }
+            if numPlayers > 0 {
+                // Check whether we now have the right number of players.  It is an error to have too many.
+                // If we have exactly the right number, check that there is exactly one lead player and indicate an error
+                // if there is none or more than one.  If that test is passed, indicate that play can begin.
+                if numPlayers < players.count {
+                    displayError("Too Many Players", terminal: true)
+                    return
+                } else if numPlayers == players.count {
+                    for player in 0..<numPlayers {
+                        if players[player].order == 1 {
+                            if player > 0 {
+                                displayError("Too Many Leaders", terminal: true)
+                                return
+                            }
+                        } else if player == 0 {
+                            displayError("No Lead Player", terminal: true)
+                            return
+                        }
+                    }
+                    // Player list is complete with exactly one lead player
+                    playBegun = true
+                    Logger.log("Player list complete, play begun")
+                } // else player list not complete
+            } // else we don't know the number of players yet
+        } // else this call does not provide any players
     }
-    
+
+    // Handle a new game state
     func gameChanged(_ gameState: GameState) {
-
+        if gameState.sendingPlayer == thisPlayer {
+            // Don't accept remote game state updates that you originated yourself.
+            Logger.log("Rejected incoming game state during own turn")
+            return
+        }
+        if !playBegun {
+            Logger.log("Play has not begun so not processing game state")
+            return
+        }
+        if let setup = gameState.setup, !leadPlayer {
+            Logger.log("Still in initial setup, processing setup information")
+            let err = setupHandler(setup)
+            if let err = err {
+                displayError(err.localizedDescription, terminal: false)
+                return
+            }
+        }
+        let err = gameHandler(gameState.gameInfo)
+        if let err = err {
+            displayError(err.localizedDescription, terminal: false)
+            return
+        }
     }
     
+    // Handle an error detected by the communicator
     func error(_ error: any Error, _ deleteGame: Bool) {
-
+        displayError(error.localizedDescription, terminal: deleteGame)
     }
-    
+
+    // Handle lost player notification
     func lostPlayer(_ lost: Player) {
-
+        Logger.log("Lost player \(lost.display)")
+        let lostPlayerMessage = String(format: LostPlayerTemplate, lost.display)
+        displayError(lostPlayerMessage, terminal: true)
     }
     
+    // Handle incoming chat message
     func newChatMsg(_ msg: String) {
-
+        chatTranscript = chatTranscript == "" ? msg : chatTranscript + "\n" + msg
     }
 }

@@ -21,6 +21,7 @@ struct ContentView: View {
     let setup: any View
     let playing: any View
     var body: some View {
+        @Bindable var model = model
         NavigationStack {
             GeometryReader { metrics in
                 VStack {
@@ -30,7 +31,7 @@ struct ContentView: View {
                     }
                     HStack {
                         NavigationLink {
-                            Chat()
+                            Chat(lineLimit: nil)
                         } label: {
                             Label("Expand chat", systemImage: "person.3.sequence")
                             .disabled(model.communicator == nil)
@@ -51,7 +52,7 @@ struct ContentView: View {
                     }
                     VStack {
                         Text("Chat:").font(.title)
-                        Chat()
+                        Chat(lineLimit: 5)
                             .frame(height: metrics.size.height * 0.10)
                             .disabled(model.communicator == nil)
                     }
@@ -68,10 +69,15 @@ struct ContentView: View {
                 }
             }
         }
+        .alert("Error", isPresented: $model.showingError) {
+            Button("OK") {
+                model.resetError()
+            }
+        }
    }
 }
 
 #Preview {
     ContentView(setup: DummySetup(), playing: DummyPlaying())
-        .environment(UnigameModel(tokenProvider: DummyTokenProvider(accessToken: nil)))
+        .environment(UnigameModel())
 }
