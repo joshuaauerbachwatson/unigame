@@ -22,7 +22,7 @@ struct ContentView: View {
     let playing: any View
     var body: some View {
         @Bindable var model = model
-        NavigationStack {
+        NavigationStack(path: $model.presentedViews) {
             GeometryReader { metrics in
                 VStack {
                     HStack {
@@ -30,9 +30,7 @@ struct ContentView: View {
                         PlayerLabels()
                     }
                     HStack {
-                        NavigationLink {
-                            Chat()
-                        } label: {
+                        NavigationLink(value: "chat") {
                             Label("Chat", systemImage: "person.3.sequence")
                             .disabled(model.communicator == nil)
                         }
@@ -44,10 +42,18 @@ struct ContentView: View {
                         .buttonBorderShape(.roundedRectangle)
                         .disabled(model.communicator == nil)
                         Spacer()
-                        NavigationLink {
-                            Help()
-                        } label: {
+                        NavigationLink(value: "help") {
                             Label("Help", systemImage: "questionmark.circle")
+                        }
+                    }
+                    .navigationDestination(for: String.self) { value in
+                        switch value {
+                        case "chat":
+                            Chat()
+                        case "help":
+                            Help()
+                        default:
+                            EmptyView()
                         }
                     }
                     .padding()
@@ -72,6 +78,15 @@ struct ContentView: View {
             if model.errorIsTerminal {
                 Text("Game ending")
             }
+        }
+        .alert("Incoming chat message", isPresented: $model.chatTranscriptChanged) {
+            Button("Ok", action: {})
+            Button("Open chat") {
+                presentedViews.append("chat")
+            }
+        } message: {
+            // "no message" case should not occur but let's not crash the app
+            Text(model.chatTranscript?.last ?? "Error: there is no message")
         }
    }
 }
