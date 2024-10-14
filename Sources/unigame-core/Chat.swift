@@ -19,9 +19,10 @@ import SwiftUI
 struct Chat: View {
     @Environment(UnigameModel.self) var model
     @State private var message = ""
-    let lineLimit: Int?
 
     var body: some View {
+        Text("Chat With Other Players")
+            .font(.largeTitle)
         VStack {
             GeometryReader { metrics in
                 VStack {
@@ -31,14 +32,18 @@ struct Chat: View {
                         }
                         TextField("message to send", text: $message)
                     }
+                    .padding()
+                    .border(.black, width: 3)
                     ScrollViewReader { reader in
                         ScrollView {
-                            Text(model.chatTranscript)
-                                .lineLimit(lineLimit)
-                                .id("textId")
-                                .frame(width: metrics.size.width)
-                                .padding()
-                                .border(.black, width: 3)
+                            let placeHolder = ["No messages yet"]
+                            ForEach(model.chatTranscript ?? placeHolder, id: \.self) { line in
+                                Text(line)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .id("textId")
+                            .frame(width: metrics.size.width)
+                            .padding()
                         }
                         .onChange(of: model.chatTranscript, initial: true) {
                             reader.scrollTo("textId", anchor: .bottom)
@@ -59,6 +64,8 @@ struct Chat: View {
 }
 
 #Preview {
-    Chat(lineLimit: nil)
-        .environment(UnigameModel())
+    let model = UnigameModel()
+    model.chatTranscript = ["Hi there", "This is a chat message"]
+    return Chat()
+        .environment(model)
 }

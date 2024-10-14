@@ -130,7 +130,7 @@ final class UnigameModel {
     var setupIsComplete = false
     
     // The transcript of the ongoing chat
-    var chatTranscript = ""
+    var chatTranscript: [String]? = nil
     
     // Indicates that chat is enabled
     var chatEnabled: Bool {
@@ -174,7 +174,7 @@ final class UnigameModel {
         communicator = nil
         playBegun = false
         setupIsComplete = false
-        chatTranscript = ""
+        chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
     }
     
@@ -316,6 +316,10 @@ extension UnigameModel: CommunicatorDelegate {
     
     // Handle incoming chat message
     func newChatMsg(_ msg: String) {
-        chatTranscript = chatTranscript == "" ? msg : chatTranscript + "\n" + msg
+        if chatTranscript == nil {
+            chatTranscript = [msg]
+        } else {
+            chatTranscript!.append(msg)
+        }
     }
 }

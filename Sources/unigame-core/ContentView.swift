@@ -31,9 +31,9 @@ struct ContentView: View {
                     }
                     HStack {
                         NavigationLink {
-                            Chat(lineLimit: nil)
+                            Chat()
                         } label: {
-                            Label("Expand chat", systemImage: "person.3.sequence")
+                            Label("Chat", systemImage: "person.3.sequence")
                             .disabled(model.communicator == nil)
                         }
                         Spacer()
@@ -49,12 +49,6 @@ struct ContentView: View {
                         } label: {
                             Label("Help", systemImage: "questionmark.circle")
                         }
-                    }
-                    VStack {
-                        Text("Chat:").font(.title)
-                        Chat(lineLimit: 5)
-                            .frame(height: metrics.size.height * 0.10)
-                            .disabled(model.communicator == nil)
                     }
                     .padding()
                     .border(.blue, width: 3)
