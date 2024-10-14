@@ -67,6 +67,11 @@ struct ContentView: View {
             Button("OK") {
                 model.resetError()
             }
+        } message: {
+            Text(model.errorMessage ?? "Unknown Error")
+            if model.errorIsTerminal {
+                Text("Game ending")
+            }
         }
    }
 }
