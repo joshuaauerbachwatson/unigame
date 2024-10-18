@@ -16,10 +16,10 @@
 
 import SwiftUI
 
-struct ContentView: View {
+public struct ContentView: View {
     @Environment(UnigameModel.self) var model
     let gameHandle: any GameHandle
-    var body: some View {
+    public var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
             GeometryReader { metrics in

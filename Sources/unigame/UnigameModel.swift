@@ -36,7 +36,7 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
 @Observable
-final class UnigameModel {
+public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
     let gameHandle: any GameHandle
 
