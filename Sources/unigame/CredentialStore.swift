@@ -25,8 +25,8 @@ fileprivate let CredentialsFile = "credentials"
 // we don't need Auth0 login details here because those will be app-specific.  So, we use our own structure
 // which is not the Auth0 credentials structure.
 public struct Credentials: Codable {
-    let accessToken: String
-    let expiresIn: Date
+    public let accessToken: String
+    public let expiresIn: Date
 }
 
 // A provider for the token.  This must do some sort of Auth0 login to get a valid token, but different apps
