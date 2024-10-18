@@ -18,7 +18,13 @@ import SwiftUI
 
 public struct ContentView: View {
     @Environment(UnigameModel.self) var model
+
     let gameHandle: any GameHandle
+
+    public init(gameHandle: any GameHandle) {
+        self.gameHandle = gameHandle
+    }
+
     public var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
