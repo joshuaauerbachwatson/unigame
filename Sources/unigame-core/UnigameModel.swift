@@ -23,15 +23,6 @@ enum UnigamePhase {
     case Players, Setup, Playing
 }
 
-// A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
-// This does _not_ support communication with the server.
-struct DummyTokenProvider: TokenProvider {
-    func login(_ handler: @escaping (Credentials?, (any LocalizedError)?) -> ()) {
-        let ans = Credentials(accessToken: "", expiresIn: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
-        handler(ans, nil)
-    }
-}
-
 // Random names for users who never set their own identity
 fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla", "Aden Nichols", "Aliyah Dennis",
                               "Emanuel Vargas", "Andrea Caldwell", "Rylan Hines", "Poppy Barber", "Solomon Terrell",
@@ -46,16 +37,8 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
 
 @Observable
 final class UnigameModel {
-    // The token provider, used by the server-based communicator only and only when fresh credentials are needed.
-    // Defined by the CommunicatorDelegate but declared here rather than the extension because it is a stored
-    // property and initialized in the main init.
-    let tokenProvider: any TokenProvider
-    
-    // The callback to use when there is new setup information
-    let setupHandler: (Data) -> LocalizedError?
-
-    // The callback to use when there is new game information
-    let gameHandler: (Data) -> LocalizedError?
+    // The handle to the specific game, providing details which the core model does not.
+    let gameHandle: any GameHandle
 
    // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
@@ -184,18 +167,22 @@ final class UnigameModel {
         ensureNumPlayers()
     }
     
-    // Start out in the "new game" state
-    init(tokenProvider: TokenProvider, setupHandler: @escaping (Data)->LocalizedError?,
-         gameHandler: @escaping (Data)->LocalizedError?) {
-        self.tokenProvider = tokenProvider
-        self.setupHandler = setupHandler
-        self.gameHandler = gameHandler
+    // Yield to next player
+    func yield() {
+        // TODO needs more work because this needs to be integrated with transmission of a new gameState with
+        // gameInfo provided by the unigame-core's consumer (a specific game).
+        newGame() // TEMP
+    }
+    
+    // Main initializer.  The GameModel is supplied and things start out in the "new game" state
+    init(gameHandle: GameHandle){
+        self.gameHandle = gameHandle
         newGame()
     }
     
     // Dummy initializer for previews etc.
     convenience init() {
-        self.init(tokenProvider: DummyTokenProvider(), setupHandler: DummySetupHandler, gameHandler: DummyGameHandler)
+        self.init(gameHandle: DummyGameHandle())
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.  If leadPlayer is true,
@@ -232,11 +219,44 @@ final class UnigameModel {
             }
         }
     }
+    
+    // Indiate "turn over" for this player (yielding) with final state data
+    func yield(_ data: Data) {
+        let newActivePlayer = (thisPlayer + 1) % players.count
+        transmitState(data, newActivePlayer: newActivePlayer)
+        activePlayer = newActivePlayer
+    }
+    
+    // Transmit interim results during setup.  Used only by the setup view, which is only shown to the lead player
+    func transmitSetup(_ data: Data) {
+        transmit(activePlayer: activePlayer, setup: true, gameInfo: data)
+    }
+    
+    // Transmit interim state with or without yielding.  Used only by the playing view
+    // Yielding should be done via the yield function which, yes, calls this function.
+    func transmitState(_ data: Data, newActivePlayer: Int? = nil) {
+        let activePlayer = newActivePlayer ?? self.activePlayer
+        transmit(activePlayer: activePlayer, setup: false, gameInfo: data)
+    }
+
+    // Transmit subroutine
+    private func transmit(activePlayer: Int, setup: Bool, gameInfo: Data) {
+        guard let communicator = self.communicator, thisPlayersTurn else {
+            return // Make it possible to call this without worrying.
+        }
+        let gameState =
+            GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, setup: setup, gameInfo: gameInfo)
+        communicator.send(gameState)
+    }
 }
 
 // The CommunicatorDelegate portion of the logic
 fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
 extension UnigameModel: CommunicatorDelegate {
+    var tokenProvider: any TokenProvider {
+        return gameHandle.tokenProvider
+    }
+    
     // Respond to a new player list during game initiation.  We do not use this call later for lost players;
     // we use `lostPlayer` for that.  The received players array is already properly sorted.
     func newPlayerList(_ newNumPlayers: Int, _ newPlayers: [Player]) {
@@ -286,23 +306,14 @@ extension UnigameModel: CommunicatorDelegate {
     func gameChanged(_ gameState: GameState) {
         if gameState.sendingPlayer == thisPlayer {
             // Don't accept remote game state updates that you originated yourself.
-            Logger.log("Rejected incoming game state during own turn")
+            Logger.log("Rejected incoming game state that originated with this player")
             return
         }
         if !playBegun {
             Logger.log("Play has not begun so not processing game state")
             return
         }
-        if let setup = gameState.setup, !leadPlayer {
-            Logger.log("Still in initial setup, processing setup information")
-            let err = setupHandler(setup)
-            if let err = err {
-                displayError(err.localizedDescription, terminal: false)
-                return
-            }
-        }
-        let err = gameHandler(gameState.gameInfo)
-        if let err = err {
+        if let err = gameHandle.stateChanged(gameState.gameInfo, setup: gameState.setup && !leadPlayer) {
             displayError(err.localizedDescription, terminal: false)
             return
         }

@@ -23,11 +23,11 @@ import UIKit
 struct GameState: Equatable {
     let sendingPlayer : Int  // The index of the player constructing the GameState
     let activePlayer: Int    // The index of the player whose turn it is (== previous except when yielding)
-    let setup: Data?         // Information relevant to the setup view (opaque here)
-    let gameInfo : Data      // Information relevant to the playing view
+    let setup: Bool          // Indicates that gameInfo contains setup information as opposed to playing information
+    let gameInfo : Data      // The information being transmitted, meaningful to the game actually being played
     
     // Since I provided a hand-crafted init below, I have to also provide the usually auto-generated one
-    init(sendingPlayer: Int, activePlayer: Int, setup: Data?, gameInfo: Data) {
+    init(sendingPlayer: Int, activePlayer: Int, setup: Bool, gameInfo: Data) {
         self.sendingPlayer = sendingPlayer
         self.activePlayer = activePlayer
         self.setup = setup
@@ -37,17 +37,8 @@ struct GameState: Equatable {
     init(_ encoded: Data) {
         sendingPlayer = Int(encoded[0])
         activePlayer = Int(encoded[1])
-        let setupLen = Int(encoded[3])
-        var infoStart: Int
-        if setupLen == 0 {
-            setup = nil
-            infoStart = 4
-        } else {
-            infoStart = 4 + setupLen
-            setup = encoded[4..<infoStart]
-            
-        }
-        gameInfo = encoded.suffix(from: infoStart)
+        setup = encoded[3] != 0
+        gameInfo = encoded.suffix(from: 4)
     }
     
     // Conform to Equatable protocol
@@ -60,10 +51,6 @@ struct GameState: Equatable {
     
     // Returns an encoded GameState
     func encoded() -> Data {
-        if let setupLen = setup?.count {
-            return Data([UInt8(sendingPlayer), UInt8(activePlayer), UInt8(setupLen)]) + setup! + gameInfo
-        } else {
-            return Data([UInt8(sendingPlayer), UInt8(activePlayer), UInt8(0)]) + gameInfo
-        }
+        return Data([UInt8(sendingPlayer), UInt8(activePlayer), UInt8(setup ? 1 : 0)]) + gameInfo
     }
 }

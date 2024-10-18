@@ -18,8 +18,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(UnigameModel.self) var model
-    let setup: any View
-    let playing: any View
+    let gameHandle: any GameHandle
     var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
@@ -31,7 +30,7 @@ struct ContentView: View {
                     }
                     HStack {
                         NavigationLink(value: "chat") {
-                            Label("Chat", systemImage: "person.3.sequence")
+                            Label("Chat", systemImage: "ellipsis.message")
                             .disabled(model.communicator == nil)
                         }
                         Spacer()
@@ -62,9 +61,9 @@ struct ContentView: View {
                     case .Players:
                         Players()
                     case .Setup:
-                        Setup(contents: setup)
+                        Setup(gameHandle: gameHandle)
                     case .Playing:
-                        Playing(contents: playing)
+                        Playing(gameHandle: gameHandle)
                     }
                 }
             }
@@ -82,7 +81,7 @@ struct ContentView: View {
         .alert("Incoming chat message", isPresented: $model.chatTranscriptChanged) {
             Button("Ok", action: {})
             Button("Open chat") {
-                presentedViews.append("chat")
+                model.presentedViews.append("chat")
             }
         } message: {
             // "no message" case should not occur but let's not crash the app
@@ -92,6 +91,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(setup: DummySetup(), playing: DummyPlaying())
+    ContentView(gameHandle: DummyGameHandle())
         .environment(UnigameModel())
 }

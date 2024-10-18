@@ -35,10 +35,6 @@ struct DummySetup: View {
     }
 }
 
-func DummySetupHandler(_ data: Data) -> LocalizedError? {
-    return nil
-}
-
 #Preview {
     DummySetup()
 }
