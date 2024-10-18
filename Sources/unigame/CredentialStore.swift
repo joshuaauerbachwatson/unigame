@@ -24,14 +24,14 @@ fileprivate let CredentialsFile = "credentials"
 // The stored credentials.  Although the token must be valid for Auth0 (which is used by the server)
 // we don't need Auth0 login details here because those will be app-specific.  So, we use our own structure
 // which is not the Auth0 credentials structure.
-struct Credentials: Codable {
+public struct Credentials: Codable {
     let accessToken: String
     let expiresIn: Date
 }
 
 // A provider for the token.  This must do some sort of Auth0 login to get a valid token, but different apps
 // will use different Auth0 application profiles (and perhaps even different tenants (TBD).
-protocol TokenProvider {
+public protocol TokenProvider {
     func login(_ handler: @escaping (Credentials?, LocalizedError?)->())
 }
 

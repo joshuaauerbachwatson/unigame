@@ -17,7 +17,7 @@
 import SwiftUI
 
 // Each game that uses unigame-model must provide its implementation of this protocol
-protocol GameHandle {
+public protocol GameHandle {
     var tokenProvider: any TokenProvider { get }
     func stateChanged(_ data: Data, setup: Bool)->LocalizedError?
     func encodeState(setup: Bool) -> Data

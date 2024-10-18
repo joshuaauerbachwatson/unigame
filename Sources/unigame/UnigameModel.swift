@@ -156,7 +156,7 @@ public final class UnigameModel {
     }
     
     // Reset to new game
-    func newGame() {
+    public func newGame() {
         players = [Player(userName, leadPlayer)]
         thisPlayer = 0
         activePlayer = 0
@@ -168,14 +168,14 @@ public final class UnigameModel {
     }
     
     // Yield to next player
-    func yield() {
+    public func yield() {
         // TODO needs more work because this needs to be integrated with transmission of a new gameState with
         // gameInfo provided by the unigame-core's consumer (a specific game).
         newGame() // TEMP
     }
     
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
-    init(gameHandle: GameHandle){
+    public init(gameHandle: GameHandle){
         self.gameHandle = gameHandle
         newGame()
     }
