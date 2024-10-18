@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "unigame-core",
+    name: "unigame",
     platforms: [
         .iOS(.v17)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "unigame-core",
-            targets: ["unigame-core"]),
+            name: "unigame",
+            targets: ["unigame"]),
     ],
     dependencies: [
         .package(url: "https://github.com/joshuaauerbachwatson/AuerbachLook.git", from: "1.0.21") ],
@@ -20,7 +20,7 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "unigame-core",
+            name: "unigame",
             dependencies: [
                 .product(name: "AuerbachLook", package: "auerbachlook")
             ]),
