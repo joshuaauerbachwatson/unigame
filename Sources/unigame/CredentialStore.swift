@@ -27,6 +27,10 @@ fileprivate let CredentialsFile = "credentials"
 public struct Credentials: Codable {
     public let accessToken: String
     public let expiresIn: Date
+    public init(accessToken: String, expiresIn: Date) {
+        self.accessToken = accessToken
+        self.expiresIn = expiresIn
+    }
 }
 
 // A provider for the token.  This must do some sort of Auth0 login to get a valid token, but different apps
