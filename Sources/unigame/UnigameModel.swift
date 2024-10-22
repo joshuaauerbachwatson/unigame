@@ -167,13 +167,6 @@ public final class UnigameModel {
         ensureNumPlayers()
     }
     
-    // Yield to next player
-    public func yield() {
-        // TODO needs more work because this needs to be integrated with transmission of a new gameState with
-        // gameInfo provided by the unigame-core's consumer (a specific game).
-        newGame() // TEMP
-    }
-    
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
     public init(gameHandle: GameHandle){
         self.gameHandle = gameHandle
