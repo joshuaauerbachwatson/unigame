@@ -31,8 +31,9 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     // The browser object
     private let serviceBrowser : MCNearbyServiceBrowser
     
-    // The gameToken (used to keep unrelated groups in proximity from interfering)
-    private let gameToken : String
+    // The service name (used to keep unrelated groups in proximity from interfering).  This is generated from the
+    // "game token" by converting underscores to hyphens and truncating at 15 characters.
+    private let serviceName : String
     
     // The number of players.  In the leader instance, this is set to its true value during initialization.
     // For non-leaders, it is initially zero (meaning unknown) and is learned as part of discoveryInfo sent by
@@ -68,15 +69,15 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
         self.delegate = delegate
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
-        self.gameToken = gameToken
+        self.serviceName = toServiceName(gameToken)
         var info: [String:String]? = nil
         if player.order == UInt32(1) { // leader
             let numPlayers = UserDefaults.standard.integer(forKey: NumPlayersKey)
             self.numPlayers = numPlayers
             info = [ NumPlayersKey : String(numPlayers)]
         }
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: gameToken)
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: gameToken)
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: serviceName)
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: serviceName)
         super.init()
         serviceBrowser.delegate = self
         serviceAdvertiser.delegate = self
@@ -217,5 +218,11 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
                  withError error: Error?) {
         Logger.log("didFinishReceivingResourceWithName")
     }
+}
 
+// Translate a game token (which can be longer than 15 characters and contain underscores) into a legal
+// service name.
+fileprivate func toServiceName(_ gameToken: String) -> String {
+    let shorter = gameToken.count > 15 ? String(gameToken.prefix(15)) : gameToken
+    return shorter.replacingOccurrences(of: "_", with: "-")
 }
