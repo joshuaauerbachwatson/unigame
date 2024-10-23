@@ -126,9 +126,6 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     }
 
     // React to found peer
-    // Note: This code invites any peer automatically. The MCBrowserViewController class
-    // could be used to scan for peers and invite them manually.  The more general question is
-    // whether we support more than one multipeer group for this app in the same "vicinity" (currently not).
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         Logger.log("Peer found: \(peerID)")
         browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
