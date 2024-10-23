@@ -19,12 +19,6 @@ import SwiftUI
 public struct ContentView: View {
     @Environment(UnigameModel.self) var model
 
-    let gameHandle: any GameHandle
-
-    public init(gameHandle: any GameHandle) {
-        self.gameHandle = gameHandle
-    }
-
     public var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
@@ -67,9 +61,9 @@ public struct ContentView: View {
                     case .Players:
                         Players()
                     case .Setup:
-                        Setup(gameHandle: gameHandle)
+                        Setup()
                     case .Playing:
-                        Playing(gameHandle: gameHandle)
+                        Playing()
                     }
                 }
             }
@@ -97,6 +91,6 @@ public struct ContentView: View {
 }
 
 #Preview {
-    ContentView(gameHandle: DummyGameHandle())
+    ContentView()
         .environment(UnigameModel())
 }

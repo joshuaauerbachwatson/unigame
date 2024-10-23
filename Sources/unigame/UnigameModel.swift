@@ -38,7 +38,7 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
 @Observable
 public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
-    let gameHandle: any GameHandle
+    public let gameHandle: any GameHandle
 
    // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
@@ -213,30 +213,31 @@ public final class UnigameModel {
         }
     }
     
-    // Indiate "turn over" for this player (yielding) with final state data
-    func yield(_ data: Data) {
+    // Indicate "turn over" for this player (yielding) with final state data
+    func yield() {
         let newActivePlayer = (thisPlayer + 1) % players.count
-        transmitState(data, newActivePlayer: newActivePlayer)
+        transmitState(newActivePlayer: newActivePlayer)
         activePlayer = newActivePlayer
     }
     
     // Transmit interim results during setup.  Used only by the setup view, which is only shown to the lead player
-    func transmitSetup(_ data: Data) {
-        transmit(activePlayer: activePlayer, setup: true, gameInfo: data)
+    func transmitSetup() {
+        transmit(activePlayer: activePlayer, setup: true)
     }
     
     // Transmit interim state with or without yielding.  Used only by the playing view
     // Yielding should be done via the yield function which, yes, calls this function.
-    func transmitState(_ data: Data, newActivePlayer: Int? = nil) {
+    func transmitState(newActivePlayer: Int? = nil) {
         let activePlayer = newActivePlayer ?? self.activePlayer
-        transmit(activePlayer: activePlayer, setup: false, gameInfo: data)
+        transmit(activePlayer: activePlayer, setup: false)
     }
 
     // Transmit subroutine
-    private func transmit(activePlayer: Int, setup: Bool, gameInfo: Data) {
+    private func transmit(activePlayer: Int, setup: Bool) {
         guard let communicator = self.communicator, thisPlayersTurn else {
             return // Make it possible to call this without worrying.
         }
+        let gameInfo = gameHandle.encodeState(setup: setup)
         let gameState =
             GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, setup: setup, gameInfo: gameInfo)
         communicator.send(gameState)

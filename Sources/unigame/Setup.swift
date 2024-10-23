@@ -18,17 +18,16 @@ import SwiftUI
 
 struct Setup: View {
     @Environment(UnigameModel.self) var model
-    let gameHandle: any GameHandle
     var body: some View {
         Button("Setup Complete", systemImage: "hand.wave") {
-            model.transmitSetup(gameHandle.encodeState(setup: true))
+            model.transmitSetup()
             model.setupIsComplete = true
         }.buttonStyle(.borderedProminent)
-        AnyView(gameHandle.setupView)
+        AnyView(model.gameHandle.setupView)
     }
 }
 
 #Preview {
-    Setup(gameHandle: DummyGameHandle())
+    Setup()
         .environment(UnigameModel())
 }

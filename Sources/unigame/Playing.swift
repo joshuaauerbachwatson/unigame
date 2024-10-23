@@ -18,17 +18,16 @@ import SwiftUI
 
 struct Playing: View {
     @Environment(UnigameModel.self) var model
-    let gameHandle: any GameHandle
     var body: some View {
         Button("End My Turn", systemImage: "hand.wave") {
-            model.yield(gameHandle.encodeState(setup: false))
+            model.yield()
         }.buttonStyle(.borderedProminent)
             .disabled(!model.thisPlayersTurn)
-        AnyView(gameHandle.playingView)
+        AnyView(model.gameHandle.playingView)
     }
 }
 
 #Preview {
-    Playing(gameHandle: DummyGameHandle())
+    Playing()
         .environment(UnigameModel())
 }
