@@ -18,6 +18,8 @@ import SwiftUI
 
 public struct ContentView: View {
     @Environment(UnigameModel.self) var model
+    
+    public init() {}
 
     public var body: some View {
         @Bindable var model = model
