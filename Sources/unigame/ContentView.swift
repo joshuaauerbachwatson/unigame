@@ -33,8 +33,8 @@ public struct ContentView: View {
                     HStack {
                         NavigationLink(value: "chat") {
                             Label("Chat", systemImage: "ellipsis.message")
-                            .disabled(model.communicator == nil)
                         }
+                        .disabled(model.communicator == nil)
                         Spacer()
                         Button("End Game", systemImage: "xmark.circle.fill") {
                             model.newGame()
