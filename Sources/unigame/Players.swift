@@ -44,7 +44,7 @@ struct Players: View {
             if model.leadPlayer {
                 HStack {
                     Stepper(value: $model.numPlayers,
-                            in: 0...6) {
+                            in: model.gameHandle.numPlayerRange) {
                         Text("\(model.numPlayers) players")
                     }.padding().border(.black)
                     scope

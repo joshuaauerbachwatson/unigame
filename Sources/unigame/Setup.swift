@@ -23,7 +23,8 @@ struct Setup: View {
             model.transmitSetup()
             model.setupIsComplete = true
         }.buttonStyle(.borderedProminent)
-        AnyView(model.gameHandle.setupView)
+        // Force unwrap should be ok because Setup will not be instantiated when setupView is nil
+        AnyView(model.gameHandle.setupView!)
     }
 }
 

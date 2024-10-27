@@ -20,6 +20,9 @@ import SwiftUI
 public protocol GameHandle {
     // The TokenProvider
     var tokenProvider: any TokenProvider { get }
+    
+    // The possible range for number of players
+    var numPlayerRange: ClosedRange<Int> { get }
 
     // Called when another player has transmitted new state (either during setup or during play.
     func stateChanged(_ data: Data, duringSetup: Bool)->LocalizedError?
@@ -27,9 +30,8 @@ public protocol GameHandle {
     // Called in order to obtain the current state of the game for transmission, either during setup or during play
     func encodeState(duringSetup: Bool) -> Data
     
-    // The SwiftUI view to use as the main subview during setup
-    // TODO perhaps allow nil here to suppress the setup phase entirely.
-    var setupView: any View { get }
+    // The SwiftUI view to use as the main subview during setup.  If nil, there id no setup phase.
+    var setupView: (any View)? { get }
     
     // The SwiftUI view to use as the main subview during play
     var playingView: any View { get }
@@ -60,13 +62,14 @@ struct DummyTokenProvider: TokenProvider {
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.  There is no real game logic
 struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
+    var numPlayerRange: ClosedRange<Int> = 1...6
     func stateChanged(_ data: Data, duringSetup: Bool) -> (any LocalizedError)? {
         return nil
     }
     func encodeState(duringSetup: Bool) -> Data {
         Data()
     }
-    var setupView: any View = DummySetup()
+    var setupView: (any View)? = DummySetup()
     var playingView: any View = DummyPlaying()
     var appId: String = "dummyApp"
 }

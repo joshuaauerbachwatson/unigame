@@ -131,7 +131,7 @@ public final class UnigameModel {
         if !playBegun {
             return .Players
         }
-        if leadPlayer && !setupIsComplete {
+        if leadPlayer && gameHandle.setupView != nil && !setupIsComplete {
             return .Setup
         }
         return .Playing
