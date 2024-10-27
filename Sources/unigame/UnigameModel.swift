@@ -129,11 +129,14 @@ public final class UnigameModel {
     // The phase of the game
     var phase: UnigamePhase {
         if !playBegun {
+            Logger.log("Unigame phase is .Players")
             return .Players
         }
         if leadPlayer && gameHandle.setupView != nil && !setupIsComplete {
+            Logger.log("Unigame phase is .Setup")
             return .Setup
         }
+        Logger.log("Unigame phase is .Playing")
         return .Playing
     }
     
