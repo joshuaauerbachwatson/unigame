@@ -20,8 +20,7 @@ import AuerbachLook
 
 // Communicator implementation for multi-peer
 
-class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserDelegate,
-                             MCNearbyServiceBrowserDelegate, MCSessionDelegate {
+class MultiPeerCommunicator : NSObject {
     // The local "peer id" (encodes the full identity of the player (name and order)
     private let peerId : MCPeerID
     
@@ -31,31 +30,16 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     // The browser object
     private let serviceBrowser : MCNearbyServiceBrowser
     
-    // The service name (used to keep unrelated groups in proximity from interfering).  This is generated from the
-    // "game token" by converting underscores to hyphens and truncating at 15 characters.
-    private let serviceName : String
-    
     // The number of players.  In the leader instance, this is set to its true value during initialization.
     // For non-leaders, it is initially zero (meaning unknown) and is learned as part of discoveryInfo sent by
     // the leader.
     var numPlayers: Int
     
+    // The gameToken.  Only peers presenting the matching token in their browser discoveryInfo will be invited.
+    private let gameToken: String
+    
     // The delegate, with which we communicate critical events
     private let delegate : CommunicatorDelegate?
-    
-    // Send a chat message to all peers
-    func sendChatMsg(_ msg: String) {
-        if session.connectedPeers.count > 0 {
-            Logger.log("Sending new chat message")
-            do {
-                var buffer: Data = Data([MessageType.Chat.code])
-                buffer.append(Data(msg.utf8))
-                try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
-            } catch let error {
-                delegate?.error(error, false)
-            }
-        }
-    }
     
     // The session as a lazily initialized private property
     private lazy var session : MCSession = {
@@ -65,19 +49,19 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
     }()
     
     // Initializer
-    init(player: Player, gameToken: String, delegate: CommunicatorDelegate) {
+    init(player: Player, gameToken: String, appId: String, delegate: CommunicatorDelegate) {
         self.delegate = delegate
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
-        self.serviceName = toServiceName(gameToken)
-        var info: [String:String]? = nil
+        self.gameToken = gameToken
+        var info: [String:String] = [ GameTokenKey: gameToken ]
         if player.order == UInt32(1) { // leader
             let numPlayers = UserDefaults.standard.integer(forKey: NumPlayersKey)
             self.numPlayers = numPlayers
-            info = [ NumPlayersKey : String(numPlayers)]
+            info[NumPlayersKey] = String(numPlayers)
         }
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: serviceName)
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: serviceName)
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: appId)
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: appId)
         super.init()
         serviceBrowser.delegate = self
         serviceAdvertiser.delegate = self
@@ -85,7 +69,10 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
         serviceAdvertiser.startAdvertisingPeer()
         serviceBrowser.startBrowsingForPeers()
     }
-    
+}
+
+// Implement the behavior of a Communicator
+extension MultiPeerCommunicator: Communicator {
     // Send the game state to all peers.  A harmless no-op if there are no peers.  Handles errors (when there is at least one
     // peer) by calling delegate.error().   Implements Communicator protocol
     func send(_ gameState : GameState) {
@@ -101,14 +88,30 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
         }
     }
     
+    // Send a chat message to all peers
+    func sendChatMsg(_ msg: String) {
+        if session.connectedPeers.count > 0 {
+            Logger.log("Sending new chat message")
+            do {
+                var buffer: Data = Data([MessageType.Chat.code])
+                buffer.append(Data(msg.utf8))
+                try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
+            } catch let error {
+                delegate?.error(error, false)
+            }
+        }
+    }
+
     // Shutdown communications
     func shutdown(_ dueToError: Bool) {
         serviceAdvertiser.stopAdvertisingPeer()
         serviceBrowser.stopBrowsingForPeers()
         session.disconnect()
     }
+ }
     
-    // Conformance to protocol MCNearbyServiceAdvertiserDelegate
+// Conformance to protocol MCNearbyServiceAdvertiserDelegate
+extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         delegate?.error(error, false)
     }
@@ -118,23 +121,31 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
         Logger.log("didReceiveInvitationFromPeer \(peerID)")
         invitationHandler(true, self.session)
     }
+}
 
-    // Conformance to protocol MCNearbyServiceBrowserDelegate
+ // Conformance to protocol MCNearbyServiceBrowserDelegate
+extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     // React to error in browsing
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         delegate?.error(error, false)
     }
-
+    
     // React to found peer
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         Logger.log("Peer found: \(peerID)")
-        browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
+        guard let info = info else {
+            return
+        }
+        // If the peer is using the same game token as we are, invite the peer to join.  Otherwise, ignore.
+        if info[GameTokenKey] == self.gameToken {
+            browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
+        }
         // If the peer is the leader, it will have sent along the correct numPlayers value
-        if let info = info, let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {
+        if let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {
             self.numPlayers = numPlayers
         }
     }
-
+    
     // React to losing contact with peer
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         Logger.log("Peer lost: \(peerID)")
@@ -142,8 +153,10 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
             delegate?.lostPlayer(player)
         }
     }
+}
 
-    // Conformance to protocol MCSessionDelegate
+// Conformance to protocol MCSessionDelegate
+extension MultiPeerCommunicator: MCSessionDelegate {
     // React to state change
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         Logger.log("peer \(peerID) didChangeState: \(state)")
@@ -215,11 +228,4 @@ class MultiPeerCommunicator : NSObject, Communicator, MCNearbyServiceAdvertiserD
                  withError error: Error?) {
         Logger.log("didFinishReceivingResourceWithName")
     }
-}
-
-// Translate a game token (which can be longer than 15 characters and contain underscores) into a legal
-// service name.
-fileprivate func toServiceName(_ gameToken: String) -> String {
-    let shorter = gameToken.count > 15 ? String(gameToken.prefix(15)) : gameToken
-    return shorter.replacingOccurrences(of: "_", with: "-")
 }

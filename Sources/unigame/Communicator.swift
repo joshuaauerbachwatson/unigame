@@ -71,14 +71,16 @@ var display: String {
 }
 
 // Global function to create a communicator of given kind
-func makeCommunicator(nearbyOnly: Bool, player: Player, gameToken: String, delegate: CommunicatorDelegate,
-                      handler: @escaping (Communicator?, LocalizedError?)->Void) {
+func makeCommunicator(nearbyOnly: Bool, player: Player, gameToken: String, appId: String,
+                      delegate: CommunicatorDelegate, handler: @escaping (Communicator?, LocalizedError?)->Void) {
     if nearbyOnly {
-        handler(MultiPeerCommunicator(player: player, gameToken: gameToken, delegate: delegate), nil)
+        handler(MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId,
+                                      delegate: delegate), nil)
     } else {
         CredentialStore().loginIfNeeded(delegate.tokenProvider) { (credentials, error) in
             if let accessToken = credentials?.accessToken {
-                handler(ServerBasedCommunicator(accessToken, gameToken: gameToken, player: player, delegate: delegate), nil)
+                let compositeToken = appId + ":" + gameToken
+                handler(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player, delegate: delegate), nil)
             } else if let error = error {
                 handler(nil, error)
             } else {

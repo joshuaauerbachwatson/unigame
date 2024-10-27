@@ -201,7 +201,7 @@ public final class UnigameModel {
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
         makeCommunicator(nearbyOnly: nearbyOnly, player: player, gameToken: gameToken,
-                         delegate: self) { (communicator, error) in
+                         appId: gameHandle.appId, delegate: self) { (communicator, error) in
             if let communicator = communicator {
                 Logger.log("Got back valid communicator")
                 self.communicator = communicator
@@ -237,7 +237,7 @@ public final class UnigameModel {
         guard let communicator = self.communicator, thisPlayersTurn else {
             return // Make it possible to call this without worrying.
         }
-        let gameInfo = gameHandle.encodeState(setup: setup)
+        let gameInfo = gameHandle.encodeState(duringSetup: setup)
         let gameState =
             GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, setup: setup, gameInfo: gameInfo)
         communicator.send(gameState)
@@ -307,7 +307,7 @@ extension UnigameModel: CommunicatorDelegate {
             Logger.log("Play has not begun so not processing game state")
             return
         }
-        if let err = gameHandle.stateChanged(gameState.gameInfo, setup: gameState.setup && !leadPlayer) {
+        if let err = gameHandle.stateChanged(gameState.gameInfo, duringSetup: gameState.setup && !leadPlayer) {
             displayError(err.localizedDescription, terminal: false)
             return
         }

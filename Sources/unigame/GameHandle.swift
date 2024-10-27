@@ -18,11 +18,34 @@ import SwiftUI
 
 // Each game that uses unigame-model must provide its implementation of this protocol
 public protocol GameHandle {
+    // The TokenProvider
     var tokenProvider: any TokenProvider { get }
-    func stateChanged(_ data: Data, setup: Bool)->LocalizedError?
-    func encodeState(setup: Bool) -> Data
+
+    // Called when another player has transmitted new state (either during setup or during play.
+    func stateChanged(_ data: Data, duringSetup: Bool)->LocalizedError?
+
+    // Called in order to obtain the current state of the game for transmission, either during setup or during play
+    func encodeState(duringSetup: Bool) -> Data
+    
+    // The SwiftUI view to use as the main subview during setup
+    // TODO perhaps allow nil here to suppress the setup phase entirely.
     var setupView: any View { get }
+    
+    // The SwiftUI view to use as the main subview during play
     var playingView: any View { get }
+
+    // The appId.  When using the server, this is prepended to the game token.  When using MultiPeer, this becomes
+    // the serviceType, so that game tokens are interpreted only within the scope of a single app.  In both cases it
+    // cuts down on the likelihood of collision between unrelated grouops.  But, because it is also the official
+    // MultiPeer service type, it must be declared in InfoPlist:
+    //     <key>NSLocalNetworkUsageDescription</key>
+    //     <string>Communicate with other players nearby</string>
+    //     <key>NSBonjourServices</key>
+    //     <array>
+    //       <string>_theAppId._tcp</string>
+    //       <string>_theAppId._udp</string>
+    //     </array>
+    var appId: String { get }
 }
 
 // A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
@@ -37,12 +60,13 @@ struct DummyTokenProvider: TokenProvider {
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.  There is no real game logic
 struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
-    func stateChanged(_ data: Data, setup: Bool) -> (any LocalizedError)? {
+    func stateChanged(_ data: Data, duringSetup: Bool) -> (any LocalizedError)? {
         return nil
     }
-    func encodeState(setup: Bool) -> Data {
+    func encodeState(duringSetup: Bool) -> Data {
         Data()
     }
     var setupView: any View = DummySetup()
     var playingView: any View = DummyPlaying()
+    var appId: String = "dummyApp"
 }

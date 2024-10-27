@@ -33,8 +33,10 @@ public struct Credentials: Codable {
     }
 }
 
-// A provider for the token.  This must do some sort of Auth0 login to get a valid token, but different apps
-// will use different Auth0 application profiles (and perhaps even different tenants (TBD).
+// A provider for the token.  The token must be valid for the Auth0 "audience" https://unigame.com
+// in order to validate at the server.  However, this package does not depend directly on Auth0 nor
+// does it provide an auth0.plist because each app must use its own Auth0 application profiles (and
+// perhaps even different tenants (TBD)).
 public protocol TokenProvider {
     func login(_ handler: @escaping (Credentials?, LocalizedError?)->())
 }
