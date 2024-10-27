@@ -17,6 +17,7 @@
 import Foundation
 import UIKit
 import AuerbachLook
+import Observation   // Needed to support macro inspection in XCode
 
 // The main phases of a game.
 enum UnigamePhase {
@@ -125,20 +126,6 @@ public final class UnigameModel {
     
     // Indicates what views have been presented in the main navigation stack
     var presentedViews = [String]()
-    
-    // The phase of the game
-    var phase: UnigamePhase {
-        if !playBegun {
-            Logger.log("Unigame phase is .Players")
-            return .Players
-        }
-        if leadPlayer && gameHandle.setupView != nil && !setupIsComplete {
-            Logger.log("Unigame phase is .Setup")
-            return .Setup
-        }
-        Logger.log("Unigame phase is .Playing")
-        return .Playing
-    }
     
     // For error alert presentation
     var errorMessage: String? = nil
@@ -281,6 +268,7 @@ extension UnigameModel: CommunicatorDelegate {
                     return
                 } else if numPlayers == players.count {
                     for player in 0..<numPlayers {
+                        Logger.log("numPlayers == players.count = \(players.count)")
                         if players[player].order == 1 {
                             if player > 0 {
                                 displayError("Too Many Leaders", terminal: true)

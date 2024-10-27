@@ -59,12 +59,13 @@ public struct ContentView: View {
                     }
                     .padding()
                     .border(.blue, width: 3)
-                    switch (model.phase) {
-                    case .Players:
+
+                    if !model.playBegun {
                         Players()
-                    case .Setup:
+                    } else if model.leadPlayer && model.gameHandle.setupView != nil
+                                && !model.setupIsComplete {
                         Setup()
-                    case .Playing:
+                    } else {
                         Playing()
                     }
                 }
