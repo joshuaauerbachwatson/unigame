@@ -63,7 +63,7 @@ struct Players: View {
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.roundedRectangle)
-            .disabled((model.gameToken ?? "").isEmpty)
+            .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil)
         }
     }
 }
