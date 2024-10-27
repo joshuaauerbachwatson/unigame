@@ -53,8 +53,13 @@ struct Players: View {
                 scope
             }
             GameTokensView()
-            Button("Connect", systemImage: "dot.radiowaves.left.and.right") {
-                model.connect()
+            let buttonTitle = model.numPlayers == 1 ? "Play" : "Connect"
+            Button(buttonTitle, systemImage: "dot.radiowaves.left.and.right") {
+                if model.numPlayers == 1 {
+                    model.playBegun = true
+                } else {
+                    model.connect()
+                }
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.roundedRectangle)
