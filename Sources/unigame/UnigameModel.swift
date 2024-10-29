@@ -182,7 +182,7 @@ public final class UnigameModel {
     }
     
     // Starts the communicator and begins the search for players
-    func connect() {
+    func connect() async {
         guard let player = players.first else {
             Logger.logFatalError("Communicator was asked to connect but the current player is not set")
         }
@@ -190,16 +190,15 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        makeCommunicator(nearbyOnly: nearbyOnly, player: player, gameToken: gameToken,
-                         appId: gameHandle.appId, delegate: self) { (communicator, error) in
-            if let communicator = communicator {
-                Logger.log("Got back valid communicator")
-                self.communicator = communicator
-            } else if let error = error {
-                self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
-            } else {
-                Logger.logFatalError("makeCommunicator got unexpected response")
-            }
+        let (communicator, error) = await makeCommunicator(nearbyOnly: nearbyOnly, player: player, gameToken: gameToken,
+                         appId: gameHandle.appId, delegate: self)
+        if let communicator = communicator {
+            Logger.log("Got back valid communicator")
+            self.communicator = communicator
+        } else if let error = error {
+            self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
+        } else {
+            Logger.logFatalError("makeCommunicator got unexpected response")
         }
     }
     

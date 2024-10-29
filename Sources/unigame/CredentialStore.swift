@@ -38,7 +38,7 @@ public struct Credentials: Codable {
 // does it provide an auth0.plist because each app must use its own Auth0 application profiles (and
 // perhaps even different tenants (TBD)).
 public protocol TokenProvider {
-    func login(_ handler: @escaping (Credentials?, LocalizedError?)->())
+    func login() async -> (Credentials?, LocalizedError?)
 }
 
 // Covers the local storage of access token and expiration.  Uses TokenProvider protocol for actual login
@@ -78,22 +78,20 @@ class CredentialStore {
     // should take place in the handler up to the next point where user interaction is required.
     // Errors here do not terminate the app but report the error and leave credentials at nil.
     // The app should still be usable but only in solitaire or "Nearby Only" mode.
-    func loginIfNeeded(_ provider: TokenProvider, handler: @escaping (Credentials?, LocalizedError?)->()) {
+    func loginIfNeeded(_ provider: TokenProvider) async -> (Credentials?, LocalizedError?) {
         // Test for already present
         if let already = credentials, already.expiresIn > Date.now {
             // Login not needed
             Logger.log("Using credentials already stored")
-            handler(already, nil)
-            return
+            return (already, nil)
         }
         // Do actual login, storing the result if successful
-        provider.login { (creds, err) in
-            if let creds = creds {
-                if !self.store(creds) {
-                    Logger.log("Failed to store apparently valid credentials when performing login")
-                }
+        let (creds, err) = await provider.login()
+        if let creds = creds {
+            if !self.store(creds) {
+                 Logger.log("Failed to store apparently valid credentials when performing login")
             }
-            handler(creds, err)
         }
+        return (creds, err)
     }
 }

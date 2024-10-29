@@ -58,7 +58,10 @@ struct Players: View {
                 if model.numPlayers == 1 {
                     model.playBegun = true
                 } else {
-                    model.connect()
+                    let tempModel = model // gets around excessive conservatism bug in swift 6
+                    Task {
+                        await tempModel.connect()
+                    }
                 }
             }
             .buttonStyle(.borderedProminent)

@@ -72,20 +72,19 @@ var display: String {
 
 // Global function to create a communicator of given kind
 func makeCommunicator(nearbyOnly: Bool, player: Player, gameToken: String, appId: String,
-                      delegate: CommunicatorDelegate, handler: @escaping (Communicator?, LocalizedError?)->Void) {
+                      delegate: CommunicatorDelegate) async -> (Communicator?, LocalizedError?) {
     if nearbyOnly {
-        handler(MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId,
+        return (MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId,
                                       delegate: delegate), nil)
     } else {
-        CredentialStore().loginIfNeeded(delegate.tokenProvider) { (credentials, error) in
-            if let accessToken = credentials?.accessToken {
-                let compositeToken = appId + ":" + gameToken
-                handler(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player, delegate: delegate), nil)
-            } else if let error = error {
-                handler(nil, error)
-            } else {
-                Logger.logFatalError("Login result was neither credentials nor error")
-            }
+        let (credentials, error) = await CredentialStore().loginIfNeeded(delegate.tokenProvider)
+        if let accessToken = credentials?.accessToken {
+            let compositeToken = appId + ":" + gameToken
+            return (ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player, delegate: delegate), nil)
+        } else if let error = error {
+            return (nil, error)
+        } else {
+            Logger.logFatalError("Login result was neither credentials nor error")
         }
     }
 }

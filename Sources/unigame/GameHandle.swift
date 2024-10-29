@@ -53,9 +53,9 @@ public protocol GameHandle {
 // A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
 // This does _not_ support communication with the server.
 struct DummyTokenProvider: TokenProvider {
-    func login(_ handler: @escaping (Credentials?, (any LocalizedError)?) -> ()) {
+    func login() async -> (Credentials?, (any LocalizedError)?) {
         let ans = Credentials(accessToken: "", expiresIn: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
-        handler(ans, nil)
+        return (ans, nil)
     }
 }
 
