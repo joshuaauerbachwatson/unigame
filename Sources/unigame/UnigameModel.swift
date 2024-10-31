@@ -266,8 +266,8 @@ extension UnigameModel: CommunicatorDelegate {
                     displayError("Too Many Players", terminal: true)
                     return
                 } else if numPlayers == players.count {
-                    for player in 0..<numPlayers {
-                        Logger.log("numPlayers == players.count = \(players.count)")
+                    Logger.log("numPlayers == players.count = \(players.count)")
+                        for player in 0..<numPlayers {
                         if players[player].order == 1 {
                             if player > 0 {
                                 displayError("Too Many Leaders", terminal: true)

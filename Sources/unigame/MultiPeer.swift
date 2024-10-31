@@ -136,12 +136,17 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
         guard let info = info else {
             return
         }
+        Logger.log("discoveryInfo is \(info)")
         // If the peer is using the same game token as we are, invite the peer to join.  Otherwise, ignore.
         if info[GameTokenKey] == self.gameToken {
+            Logger.log("Matching peer: inviting to join")
             browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
+        } else {
+            Logger.log("Ignoring peer, different game token")
         }
         // If the peer is the leader, it will have sent along the correct numPlayers value
         if let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {
+            Logger.log("Peer is leader.  Recording numPlayers = \(numPlayers)")
             self.numPlayers = numPlayers
         }
     }
