@@ -190,11 +190,28 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let (communicator, error) = await makeCommunicator(nearbyOnly: nearbyOnly, player: player, gameToken: gameToken,
-                         appId: gameHandle.appId, delegate: self)
+        let (communicator, error) = await makeCommunicator(nearbyOnly: nearbyOnly,
+                                                           player: player,
+                                                           gameToken: gameToken,
+                                                           appId: gameHandle.appId,
+                                                           tokenProvider: gameHandle.tokenProvider)
         if let communicator = communicator {
             Logger.log("Got back valid communicator")
             self.communicator = communicator
+            for await event in communicator.events {
+                switch event {
+                case .newPlayerList(let numPlayers, let players):
+                    newPlayerList(numPlayers, players)
+                case .gameChanged(let gameState):
+                    gameChanged(gameState)
+                case .error(let error, let terminal):
+                    self.error(error, terminal)
+                case .lostPlayer(let player):
+                    lostPlayer(player)
+                case .newChatMsg(let msg):
+                    newChatMsg(msg)
+                }
+            }
         } else if let error = error {
             self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
         } else {
@@ -235,7 +252,7 @@ public final class UnigameModel {
 
 // The CommunicatorDelegate portion of the logic
 fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
-extension UnigameModel: CommunicatorDelegate {
+extension UnigameModel: CommunicatorDispatcher {
     var tokenProvider: any TokenProvider {
         return gameHandle.tokenProvider
     }

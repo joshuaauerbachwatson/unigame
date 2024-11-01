@@ -20,7 +20,7 @@ import AuerbachLook
 
 // Communicator implementation for multi-peer
 
-class MultiPeerCommunicator : NSObject {
+class MultiPeerCommunicator : NSObject, Communicator {
     // The local "peer id" (encodes the full identity of the player (name and order)
     private let peerId : MCPeerID
     
@@ -38,9 +38,6 @@ class MultiPeerCommunicator : NSObject {
     // The gameToken.  Only peers presenting the matching token in their browser discoveryInfo will be invited.
     private let gameToken: String
     
-    // The delegate, with which we communicate critical events
-    private let delegate : CommunicatorDelegate?
-    
     // The session as a lazily initialized private property
     private lazy var session : MCSession = {
         let session = MCSession(peer: self.peerId, securityIdentity: nil, encryptionPreference: .none)
@@ -49,8 +46,7 @@ class MultiPeerCommunicator : NSObject {
     }()
     
     // Initializer
-    init(player: Player, gameToken: String, appId: String, delegate: CommunicatorDelegate) {
-        self.delegate = delegate
+    init(player: Player, gameToken: String, appId: String) {
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
         self.gameToken = gameToken
@@ -69,10 +65,15 @@ class MultiPeerCommunicator : NSObject {
         serviceAdvertiser.startAdvertisingPeer()
         serviceBrowser.startBrowsingForPeers()
     }
-}
 
-// Implement the behavior of a Communicator
-extension MultiPeerCommunicator: Communicator {
+    var events: AsyncStream<CommunicatorEvent> {
+        return AsyncStream<CommunicatorEvent> { continuation in
+            self.continuation = continuation
+        }
+    }
+    
+    var continuation: AsyncStream<CommunicatorEvent>.Continuation?
+    
     // Send the game state to all peers.  A harmless no-op if there are no peers.  Handles errors (when there is at least one
     // peer) by calling delegate.error().   Implements Communicator protocol
     func send(_ gameState : GameState) {
@@ -83,7 +84,7 @@ extension MultiPeerCommunicator: Communicator {
                 buffer.append(gameState.encoded())
                 try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
             } catch let error {
-                delegate?.error(error, false)
+                continuation?.yield(.error(error, true))
             }
         }
     }
@@ -97,7 +98,7 @@ extension MultiPeerCommunicator: Communicator {
                 buffer.append(Data(msg.utf8))
                 try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
             } catch let error {
-                delegate?.error(error, false)
+                continuation?.yield(.error(error, false))
             }
         }
     }
@@ -107,13 +108,14 @@ extension MultiPeerCommunicator: Communicator {
         serviceAdvertiser.stopAdvertisingPeer()
         serviceBrowser.stopBrowsingForPeers()
         session.disconnect()
+        continuation?.finish()
     }
  }
     
 // Conformance to protocol MCNearbyServiceAdvertiserDelegate
 extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
-        delegate?.error(error, false)
+        continuation?.yield(.error(error, false))
     }
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID,
@@ -127,7 +129,7 @@ extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
 extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     // React to error in browsing
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
-        delegate?.error(error, false)
+        continuation?.yield(.error(error, false))
     }
     
     // React to found peer
@@ -155,7 +157,7 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         Logger.log("Peer lost: \(peerID)")
         if let player = Player(peerID.displayName) {
-            delegate?.lostPlayer(player)
+            continuation?.yield(.lostPlayer(player))
         }
     }
 }
@@ -168,7 +170,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
         switch state {
         case .notConnected:
             if let player = Player(peerID.displayName) {
-                delegate?.lostPlayer(player)
+                continuation?.yield(.lostPlayer(player))
             }
         case .connecting:
             break
@@ -191,7 +193,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
                 list.append(player)
             }
         }
-        self.delegate?.newPlayerList(numPlayers, list.sorted())
+        continuation?.yield(.newPlayerList(numPlayers, list.sorted()))
     }
 
     // React to incoming data
@@ -201,18 +203,14 @@ extension MultiPeerCommunicator: MCSessionDelegate {
             return
         }
         Logger.log("Received message of type: \(type.display)")
-        guard let delegate = self.delegate else {
-            Logger.log("Incoming message ignored, no delegate")
-            return
-        }
         let body = data.suffix(from: 1)
         switch type {
         case .Game:
             let gameState = GameState(body)
-            delegate.gameChanged(gameState)
+            continuation?.yield(.gameChanged(gameState))
         case .Chat:
             let newMsg = String(decoding: data, as: UTF8.self)
-            delegate.newChatMsg(newMsg)
+            continuation?.yield(.newChatMsg(newMsg))
         default:
             Logger.log("No handling defined in MultiPeer communicator for type \(type.display)")
         }

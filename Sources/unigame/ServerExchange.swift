@@ -44,17 +44,23 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     private let gameToken: String
     private let accessToken: String
     private let player: Player
-    private let delegate: CommunicatorDelegate
     private var webSocketTask: URLSessionWebSocketTask! // Initialized after super call
 
     private var lastGameState: GameState? = nil
     
+    var events: AsyncStream<CommunicatorEvent> {
+        return AsyncStream<CommunicatorEvent> { continuation in
+            self.continuation = continuation
+        }
+    }
+    
+    var continuation: AsyncStream<CommunicatorEvent>.Continuation?
+    
     // The initializer to use for this Communicator.  Accepts a gameToken and player and starts listening
-    init(_ accessToken: String, gameToken: String, player: Player, delegate: CommunicatorDelegate) {
+    init(_ accessToken: String, gameToken: String, player: Player) {
         self.accessToken = accessToken
         self.gameToken = gameToken
         self.player = player
-        self.delegate = delegate
         super.init()
         self.webSocketTask = connectWebsocket(game: gameToken, player: player, accessToken: accessToken)
     }
@@ -62,8 +68,8 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     // Process a new Received state
     private func processReceivedState(_ newState: GameState) {
         if newState != self.lastGameState {
-             self.lastGameState = newState
-             delegate.gameChanged(newState)
+            self.lastGameState = newState
+            continuation?.yield(.gameChanged(newState))
         } // do nothing if no change
     }
 
@@ -75,7 +81,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
         let message = URLSessionWebSocketTask.Message.data(buffer)
         webSocketTask.send(message) { error in
             if let error = error {
-                self.delegate.error(error, true)
+                self.continuation?.yield(.error(error, true))
             }
         }
     }
@@ -130,7 +136,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
             if nsError.domain == NSPOSIXErrorDomain && ignoredReceiveErrors.contains(nsError.code){
                 return
             }
-            delegate.error(error, true)
+            continuation?.yield(.error(error, true))
         }
     }
     
@@ -160,7 +166,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
         let data = rawData.dropFirst()
         switch type {
         case .Chat:
-            delegate.newChatMsg(String(decoding: data, as: UTF8.self))
+            continuation?.yield(.newChatMsg(String(decoding: data, as: UTF8.self)))
         case .Game:
             deliverReceivedState(data)
         case .Players:
@@ -180,14 +186,14 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     private func deliverPlayerList(_ data: Data) {
         if let coded = String(data: data, encoding: .utf8), let answer = decodePlayers(coded) {
             let (numPlayers, players) = answer
-            delegate.newPlayerList(numPlayers, players)
+            continuation?.yield(.newPlayerList(numPlayers, players))
         }
     }
     
     // Decodes and then processes received lost player message
     private func deliverLostPlayer(_ data: Data) {
         if let lost = String(data: data, encoding: .utf8), let player = Player(lost) {
-            delegate.lostPlayer(player)
+            continuation?.yield(.lostPlayer(player))
         }
     }
     
@@ -198,7 +204,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
         let message = URLSessionWebSocketTask.Message.string(toSend)
         webSocketTask.send(message) { error in
             if let error = error {
-                self.delegate.error(error, true)
+                self.continuation?.yield(.error(error, true))
             }
         }
     }

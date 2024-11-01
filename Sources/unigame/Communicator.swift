@@ -26,11 +26,20 @@ protocol Communicator {
     func sendChatMsg(_ mag: String)
     func send(_ gameState: GameState)
     func shutdown(_ dueToError: Bool)
+    var events: AsyncStream<CommunicatorEvent> { get }
 }
 
-// The protocol for the delegate (callbacks)
-protocol CommunicatorDelegate {
-    var  tokenProvider: TokenProvider { get } // Only used by server-based communicator
+// Events that can be sent out of the Communicator via its events channel
+enum CommunicatorEvent {
+    case newPlayerList(Int, [Player])
+    case gameChanged(GameState)
+    case error(Error, Bool)
+    case lostPlayer(Player)
+    case newChatMsg(String)
+}
+
+// A convenient dispatcher for events flowing from the Communicator
+protocol CommunicatorDispatcher {
     func newPlayerList(_ numPlayers: Int, _ players: [Player])
     func gameChanged(_ gameState: GameState)
     func error(_ error: Error, _ deleteGame: Bool)
@@ -71,16 +80,18 @@ var display: String {
 }
 
 // Global function to create a communicator of given kind
-func makeCommunicator(nearbyOnly: Bool, player: Player, gameToken: String, appId: String,
-                      delegate: CommunicatorDelegate) async -> (Communicator?, LocalizedError?) {
+func makeCommunicator(nearbyOnly: Bool,
+                      player: Player,
+                      gameToken: String,
+                      appId: String,
+                      tokenProvider: any TokenProvider) async -> (Communicator?, LocalizedError?) {
     if nearbyOnly {
-        return (MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId,
-                                      delegate: delegate), nil)
+        return (MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId), nil)
     } else {
-        let (credentials, error) = await CredentialStore().loginIfNeeded(delegate.tokenProvider)
+        let (credentials, error) = await CredentialStore().loginIfNeeded(tokenProvider)
         if let accessToken = credentials?.accessToken {
             let compositeToken = appId + ":" + gameToken
-            return (ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player, delegate: delegate), nil)
+            return (ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player), nil)
         } else if let error = error {
             return (nil, error)
         } else {
