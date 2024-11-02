@@ -132,14 +132,17 @@ public final class UnigameModel {
     var showingError: Bool = false
     var errorIsTerminal: Bool = false
     func displayError(_ msg: String, terminal: Bool = false) {
+        Logger.log("Displaying error, msg='\(msg)', terminal=\(terminal)")
         errorMessage = msg
         errorIsTerminal = terminal
         showingError = true
     }
     func resetError() {
+        Logger.log("Resetting error")
         showingError = false
         errorMessage = nil
         if errorIsTerminal {
+            Logger.log("Error was terminal")
             errorIsTerminal = false
             newGame()
         }
