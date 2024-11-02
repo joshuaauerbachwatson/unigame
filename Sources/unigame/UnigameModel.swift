@@ -160,6 +160,7 @@ public final class UnigameModel {
     
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
     public init(gameHandle: GameHandle){
+        Logger.log("Instantiating a new UnigameModel")
         self.gameHandle = gameHandle
         newGame()
     }
