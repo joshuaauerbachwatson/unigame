@@ -37,8 +37,8 @@ struct GameState: Equatable {
     init(_ encoded: [UInt8]) {
         sendingPlayer = Int(encoded[0])
         activePlayer = Int(encoded[1])
-        setup = encoded[3] != 0
-        gameInfo = [UInt8](encoded.suffix(from: 4)) 
+        setup = encoded[2] != 0
+        gameInfo = [UInt8](encoded.suffix(from: 3)) 
     }
     
     // Conform to Equatable protocol
