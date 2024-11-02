@@ -203,7 +203,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
             return
         }
         Logger.log("Received message of type: \(type.display)")
-        let body = data.suffix(from: 1)
+        let body = [UInt8](data.suffix(from: 1))
         switch type {
         case .Game:
             let gameState = GameState(body)

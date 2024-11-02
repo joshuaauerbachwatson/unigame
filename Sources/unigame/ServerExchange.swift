@@ -178,7 +178,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     
     // Decodes and then processes received game state
     private func deliverReceivedState(_ data: Data) {
-        let received = GameState(data)
+        let received = GameState([UInt8](data))
         processReceivedState(received)
     }
     
