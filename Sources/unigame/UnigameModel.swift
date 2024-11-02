@@ -147,6 +147,7 @@ public final class UnigameModel {
     
     // Reset to new game
     public func newGame() {
+        Logger.log("New game initialzed")
         players = [Player(userName, leadPlayer)]
         thisPlayer = 0
         activePlayer = 0
@@ -284,7 +285,7 @@ extension UnigameModel: CommunicatorDispatcher {
                     return
                 } else if numPlayers == players.count {
                     Logger.log("numPlayers == players.count = \(players.count)")
-                        for player in 0..<numPlayers {
+                    for player in 0..<numPlayers {
                         if players[player].order == 1 {
                             if player > 0 {
                                 displayError("Too Many Leaders", terminal: true)

@@ -176,7 +176,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
             break
         case .connected:
             if self.numPlayers > 0 {
-                sendLatestPlayerList()
+                reportPlayerList()
             }
         @unknown default:
             break
@@ -185,7 +185,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
     
     // Send the latest player list based on the session.  This is only called when numPlayers is non-zero
     // (meaning that it is a meaningful value and not "unknown").
-    func sendLatestPlayerList() {
+    func reportPlayerList() {
         guard let thisPlayer = Player(peerId.displayName) else { return }
         var list: [Player] = [thisPlayer]
         for peer in session.connectedPeers {
