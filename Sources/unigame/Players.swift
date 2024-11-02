@@ -58,8 +58,8 @@ struct Players: View {
                 if model.numPlayers == 1 {
                     model.playBegun = true
                 } else {
-                    let tempModel = model // gets around excessive conservatism bug in swift 6
-                    Task {
+                    let tempModel = model // evades known swift 6 (bug)
+                    Task { @MainActor in
                         await tempModel.connect()
                     }
                 }
