@@ -155,6 +155,7 @@ public final class UnigameModel {
             Logger.log("Shutting down communicator \(dueToError ? "due to error" : "as requested")")
             communicator.shutdown(dueToError)
         }
+        gameHandle.reset()
         // Set up new game
         players = [Player(userName, leadPlayer)]
         thisPlayer = 0
