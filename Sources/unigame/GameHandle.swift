@@ -23,9 +23,12 @@ public protocol GameHandle {
     
     // The possible range for number of players
     var numPlayerRange: ClosedRange<Int> { get }
+    
+    // Called when a new game is started (old game state should be discarded)
+    func reset()
 
     // Called when another player has transmitted new state (either during setup or during play.
-    func stateChanged(_ data: Data, duringSetup: Bool)->LocalizedError?
+    func stateChanged(_ data: Data, duringSetup: Bool) -> LocalizedError?
 
     // Called in order to obtain the current state of the game for transmission, either during setup or during play
     func encodeState(duringSetup: Bool) -> Data
@@ -63,6 +66,7 @@ struct DummyTokenProvider: TokenProvider {
 struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
     var numPlayerRange: ClosedRange<Int> = 1...6
+    func reset(){}
     func stateChanged(_ data: Data, duringSetup: Bool) -> (any LocalizedError)? {
         return nil
     }

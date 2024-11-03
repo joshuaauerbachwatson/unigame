@@ -149,8 +149,13 @@ public final class UnigameModel {
     }
     
     // Reset to new game
-    public func newGame() {
-        Logger.log("New game initialzed")
+    public func newGame(dueToError: Bool = false) {
+        // Clean up old game
+        if let communicator = self.communicator {
+            Logger.log("Shutting down communicator \(dueToError ? "due to error" : "as requested")")
+            communicator.shutdown(dueToError)
+        }
+        // Set up new game
         players = [Player(userName, leadPlayer)]
         thisPlayer = 0
         activePlayer = 0
@@ -159,6 +164,7 @@ public final class UnigameModel {
         setupIsComplete = false
         chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
+        Logger.log("New game initialized")
     }
     
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
