@@ -28,10 +28,10 @@ public protocol GameHandle {
     func reset()
 
     // Called when another player has transmitted new state (either during setup or during play.
-    func stateChanged(_ data: Data, duringSetup: Bool) -> LocalizedError?
+    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> LocalizedError?
 
     // Called in order to obtain the current state of the game for transmission, either during setup or during play
-    func encodeState(duringSetup: Bool) -> Data
+    func encodeState(duringSetup: Bool) -> [UInt8]
     
     // The SwiftUI view to use as the main subview during setup.  If nil, there id no setup phase.
     var setupView: (any View)? { get }
@@ -67,11 +67,11 @@ struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
-    func stateChanged(_ data: Data, duringSetup: Bool) -> (any LocalizedError)? {
+    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> (any LocalizedError)? {
         return nil
     }
-    func encodeState(duringSetup: Bool) -> Data {
-        Data()
+    func encodeState(duringSetup: Bool) -> [UInt8] {
+        [UInt8]()
     }
     var setupView: (any View)? = DummySetup()
     var playingView: any View = DummyPlaying()

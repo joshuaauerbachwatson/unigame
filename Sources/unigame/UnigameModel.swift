@@ -326,7 +326,7 @@ extension UnigameModel: CommunicatorDispatcher {
             Logger.log("Play has not begun so not processing game state")
             return
         }
-        if let err = gameHandle.stateChanged(Data(gameState.gameInfo), duringSetup: gameState.setup) {
+        if let err = gameHandle.stateChanged(gameState.gameInfo, duringSetup: gameState.setup) {
             displayError(err.localizedDescription, terminal: false)
             return
         }
