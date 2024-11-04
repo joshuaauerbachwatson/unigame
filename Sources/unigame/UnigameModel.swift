@@ -92,13 +92,13 @@ public final class UnigameModel {
     var players = [Player]()
 
     // The index in the players array assigned to 'this' player (the user of the present device).  Initially zero.
-    var thisPlayer : Int = 0    // Index may change since the order of players is determined by their order fields.
+    public var thisPlayer : Int = 0    // Index may change since the order of players is determined by their order fields.
 
     // The index of the player whose turn it is (moves are allowed iff thisPlayer and activePlayer are the same)
     var activePlayer : Int = 0  // The player listed first always goes first but play rotates thereafter
 
     // Says whether it's this player's turn to make moves
-    var thisPlayersTurn : Bool {
+    public var thisPlayersTurn : Bool {
         return thisPlayer == activePlayer
     }
 
