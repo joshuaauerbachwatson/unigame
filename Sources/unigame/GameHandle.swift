@@ -28,7 +28,7 @@ public protocol GameHandle {
     func reset()
 
     // Called when another player has transmitted new state (either during setup or during play.
-    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> LocalizedError?
+    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> Error?
 
     // Called in order to obtain the current state of the game for transmission, either during setup or during play
     func encodeState(duringSetup: Bool) -> [UInt8]
@@ -67,7 +67,7 @@ struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
-    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> (any LocalizedError)? {
+    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> (any Error)? {
         return nil
     }
     func encodeState(duringSetup: Bool) -> [UInt8] {
