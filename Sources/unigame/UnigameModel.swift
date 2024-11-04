@@ -232,20 +232,20 @@ public final class UnigameModel {
     }
     
     // Indicate "turn over" for this player (yielding) with final state data
-    func yield() {
+    public func yield() {
         let newActivePlayer = (thisPlayer + 1) % players.count
         transmitState(newActivePlayer: newActivePlayer)
         activePlayer = newActivePlayer
     }
     
     // Transmit interim results during setup.  Used only by the setup view, which is only shown to the lead player
-    func transmitSetup() {
+    public func transmitSetup() {
         transmit(activePlayer: activePlayer, setup: true)
     }
     
     // Transmit interim state with or without yielding.  Used only by the playing view
     // Yielding should be done via the yield function which, yes, calls this function.
-    func transmitState(newActivePlayer: Int? = nil) {
+    public func transmitState(newActivePlayer: Int? = nil) {
         let activePlayer = newActivePlayer ?? self.activePlayer
         transmit(activePlayer: activePlayer, setup: false)
     }
