@@ -31,7 +31,7 @@ struct Players: View {
                         model.players[0] = Player(model.userName, model.leadPlayer)
                     }
                 Toggle(isOn: $model.leadPlayer) {
-                    Text("I am leader")
+                    Text("Leader")
                 }
                 .onChange(of: model.leadPlayer, initial: false) {
                     model.ensureNumPlayers()
