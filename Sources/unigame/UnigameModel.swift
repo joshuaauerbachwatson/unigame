@@ -148,6 +148,14 @@ public final class UnigameModel {
         }
     }
     
+    // Get the name of a player based on index
+    public func getPlayer(index: Int) -> String {
+        if index < players.count {
+            return players[index].name
+        }
+        return "Player #\(index+1)"
+    }
+    
     // Reset to new game
     public func newGame(dueToError: Bool = false) {
         // Clean up old game
