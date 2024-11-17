@@ -56,8 +56,8 @@ public struct ContentView: View {
                         EmptyView()
                     }
                 }
-                .padding()
-                .border(.blue, width: 3)
+                .padding(.horizontal)
+                .border(.blue, width: 2)
 
                 if !model.playBegun {
                     Players()

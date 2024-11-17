@@ -47,8 +47,8 @@ struct PlayerLabels: View {
                 let iconName = player.id == model.activePlayer ? "figure.walk" : "stop"
                 Label(player.display, systemImage: iconName)
                     .foregroundStyle(player.id == model.thisPlayer ? .green : .black)
-                    .padding()
-                    .border(.black, width: 3)
+                    .padding(.horizontal, 5)
+                    .border(.black, width: 2)
             }
             Spacer()
         }
