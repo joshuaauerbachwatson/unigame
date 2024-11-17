@@ -24,50 +24,48 @@ public struct ContentView: View {
     public var body: some View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
-            GeometryReader { metrics in
-                VStack {
-                    HStack {
-                        Label("Players:", systemImage: "person.3.sequence")
-                        PlayerLabels()
+            VStack {
+                HStack {
+                    Label("Players:", systemImage: "person.3.sequence")
+                    PlayerLabels()
+                }
+                HStack {
+                    NavigationLink(value: "chat") {
+                        Label("Chat", systemImage: "ellipsis.message")
                     }
-                    HStack {
-                        NavigationLink(value: "chat") {
-                            Label("Chat", systemImage: "ellipsis.message")
-                        }
-                        .disabled(model.communicator == nil)
-                        Spacer()
-                        Button("End Game", systemImage: "xmark.circle.fill") {
-                            model.newGame()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.roundedRectangle)
-                        .disabled(model.communicator == nil)
-                        Spacer()
-                        NavigationLink(value: "help") {
-                            Label("Help", systemImage: "questionmark.circle")
-                        }
+                    .disabled(model.communicator == nil)
+                    Spacer()
+                    Button("End Game", systemImage: "xmark.circle.fill") {
+                        model.newGame()
                     }
-                    .navigationDestination(for: String.self) { value in
-                        switch value {
-                        case "chat":
-                            Chat()
-                        case "help":
-                            Help()
-                        default:
-                            EmptyView()
-                        }
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.roundedRectangle)
+                    .disabled(model.communicator == nil)
+                    Spacer()
+                    NavigationLink(value: "help") {
+                        Label("Help", systemImage: "questionmark.circle")
                     }
-                    .padding()
-                    .border(.blue, width: 3)
+                }
+                .navigationDestination(for: String.self) { value in
+                    switch value {
+                    case "chat":
+                        Chat()
+                    case "help":
+                        Help()
+                    default:
+                        EmptyView()
+                    }
+                }
+                .padding()
+                .border(.blue, width: 3)
 
-                    if !model.playBegun {
-                        Players()
-                    } else if model.leadPlayer && model.gameHandle.setupView != nil
-                                && !model.setupIsComplete {
-                        Setup()
-                    } else {
-                        Playing()
-                    }
+                if !model.playBegun {
+                    Players()
+                } else if model.leadPlayer && model.gameHandle.setupView != nil
+                            && !model.setupIsComplete {
+                    Setup()
+                } else {
+                    Playing()
                 }
             }
         }
