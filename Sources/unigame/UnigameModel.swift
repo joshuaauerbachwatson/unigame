@@ -101,6 +101,10 @@ public final class UnigameModel {
     public var thisPlayersTurn : Bool {
         return thisPlayer == activePlayer
     }
+    
+    var solitaireMode: Bool {
+        leadPlayer && numPlayers == 1
+    }
 
     // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
     var communicator : Communicator? = nil

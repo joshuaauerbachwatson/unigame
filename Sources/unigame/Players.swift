@@ -47,26 +47,32 @@ struct Players: View {
                             in: model.gameHandle.numPlayerRange) {
                         Text("\(model.numPlayers) players")
                     }.padding().border(.black)
-                    scope
+                    if !model.solitaireMode {
+                        scope
+                    }
                 }
             } else {
                 scope
             }
-            GameTokensView()
-            let buttonTitle = model.numPlayers == 1 ? "Play" : "Connect"
-            Button(buttonTitle, systemImage: "dot.radiowaves.left.and.right") {
-                if model.numPlayers == 1 {
+            if model.solitaireMode {
+                Button("Play", systemImage: "figure.play") {
                     model.playBegun = true
-                } else {
-                    let tempModel = model // evades known swift 6 (bug)
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
+            } else {
+                GameTokensView()
+                Button("Connect", systemImage: "dot.radiowaves.left.and.right") {
+                    let tempModel = model // evades known swift 6 bug
                     Task { @MainActor in
                         await tempModel.connect()
                     }
                 }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
+                .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil)
+
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.roundedRectangle)
-            .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil)
         }
     }
 }
