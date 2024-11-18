@@ -19,10 +19,12 @@ import SwiftUI
 struct Playing: View {
     @Environment(UnigameModel.self) var model
     var body: some View {
-        Button("End My Turn", systemImage: "hand.wave") {
-            model.yield()
-        }.buttonStyle(.borderedProminent)
-            .disabled(!model.thisPlayersTurn)
+        if !model.solitaireMode {
+            Button("End My Turn", systemImage: "hand.wave") {
+                model.yield()
+            }.buttonStyle(.borderedProminent)
+                .disabled(!model.thisPlayersTurn)
+        }
         AnyView(model.gameHandle.playingView)
     }
 }
