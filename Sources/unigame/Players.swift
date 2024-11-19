@@ -43,9 +43,10 @@ struct Players: View {
             }
             if model.leadPlayer {
                 HStack {
+                    let stepperMsg = model.solitaireMode ? "single player" : "\(model.numPlayers) players"
                     Stepper(value: $model.numPlayers,
                             in: model.gameHandle.numPlayerRange) {
-                        Text("\(model.numPlayers) players")
+                        Text(stepperMsg)
                     }.padding().border(.black)
                     if !model.solitaireMode {
                         scope
