@@ -40,7 +40,9 @@ public struct ContentView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.roundedRectangle)
-                    .disabled(model.communicator == nil)
+                    .disabled(model.solitaireMode
+                              ? !model.playBegun
+                              : model.communicator == nil)
                     Spacer()
                     NavigationLink(value: "help") {
                         Label("Help", systemImage: "questionmark.circle")
