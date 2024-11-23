@@ -135,12 +135,6 @@ public final class UnigameModel {
     var errorMessage: String? = nil
     var showingError: Bool = false
     var errorIsTerminal: Bool = false
-    func displayError(_ msg: String, terminal: Bool = false) {
-        Logger.log("Displaying error, msg='\(msg)', terminal=\(terminal)")
-        errorMessage = msg
-        errorIsTerminal = terminal
-        showingError = true
-    }
     func resetError() {
         Logger.log("Resetting error")
         showingError = false
@@ -150,6 +144,14 @@ public final class UnigameModel {
             errorIsTerminal = false
             newGame()
         }
+    }
+
+    // Call this function to display a simple error.  No control over the dialog details other than the message.
+    public func displayError(_ msg: String, terminal: Bool = false) {
+        Logger.log("Displaying error, msg='\(msg)', terminal=\(terminal)")
+        errorMessage = msg
+        errorIsTerminal = terminal
+        showingError = true
     }
     
     // Get the name of a player based on index
