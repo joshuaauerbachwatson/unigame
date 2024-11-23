@@ -57,7 +57,7 @@ public final class UnigameModel {
         }
     }
 
-    var leadPlayer: Bool = UserDefaults.standard.bool(forKey: LeadPlayerKey) {
+    public var leadPlayer: Bool = UserDefaults.standard.bool(forKey: LeadPlayerKey) {
         didSet {
             UserDefaults.standard.set(leadPlayer, forKey: LeadPlayerKey)
         }
