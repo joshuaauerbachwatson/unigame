@@ -17,6 +17,7 @@
 import SwiftUI
 
 // Each game that uses unigame-model must provide its implementation of this protocol
+@MainActor @preconcurrency
 public protocol GameHandle {
     // The TokenProvider
     var tokenProvider: any TokenProvider { get }

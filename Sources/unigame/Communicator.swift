@@ -79,21 +79,26 @@ var display: String {
     }
 }
 
+enum CommResult: @unchecked Sendable {
+    case success (Communicator)
+    case failure (LocalizedError)
+}
+
 // Global function to create a communicator of given kind
 func makeCommunicator(nearbyOnly: Bool,
                       player: Player,
                       gameToken: String,
                       appId: String,
-                      tokenProvider: any TokenProvider) async -> (Communicator?, LocalizedError?) {
+                      tokenProvider: any TokenProvider) async -> CommResult {
     if nearbyOnly {
-        return (MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId), nil)
+        return .success(MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId))
     } else {
         let (credentials, error) = await CredentialStore().loginIfNeeded(tokenProvider)
         if let accessToken = credentials?.accessToken {
             let compositeToken = appId + ":" + gameToken
-            return (ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player), nil)
+            return .success(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player))
         } else if let error = error {
-            return (nil, error)
+            return .failure(error)
         } else {
             Logger.logFatalError("Login result was neither credentials nor error")
         }

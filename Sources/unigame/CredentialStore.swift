@@ -37,7 +37,7 @@ public struct Credentials: Codable {
 // in order to validate at the server.  However, this package does not depend directly on Auth0 nor
 // does it provide an auth0.plist because each app must use its own Auth0 application profiles (and
 // perhaps even different tenants (TBD)).
-public protocol TokenProvider {
+public protocol TokenProvider: Sendable {
     func login() async -> (Credentials?, LocalizedError?)
 }
 

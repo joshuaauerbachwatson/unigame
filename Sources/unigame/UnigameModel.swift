@@ -36,7 +36,7 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Bennett Cummings", "Nylah Manning", "Seth Burns", "Emerson Schmitt", "Murphy Pena",
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
-@Observable
+@Observable @MainActor @preconcurrency
 public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
     public let gameHandle: any GameHandle
@@ -216,12 +216,13 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let (communicator, error) = await makeCommunicator(nearbyOnly: nearbyOnly,
+        let result = await makeCommunicator(nearbyOnly: nearbyOnly,
                                                            player: player,
                                                            gameToken: gameToken,
                                                            appId: gameHandle.appId,
                                                            tokenProvider: gameHandle.tokenProvider)
-        if let communicator = communicator {
+        switch result {
+        case .success(let communicator):
             Logger.log("Got back valid communicator")
             self.communicator = communicator
             for await event in communicator.events {
@@ -238,10 +239,8 @@ public final class UnigameModel {
                     newChatMsg(msg)
                 }
             }
-        } else if let error = error {
+        case .failure(let error):
             self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
-        } else {
-            Logger.logFatalError("makeCommunicator got unexpected response")
         }
     }
     
@@ -278,7 +277,7 @@ public final class UnigameModel {
 
 // The CommunicatorDelegate portion of the logic
 fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
-extension UnigameModel: CommunicatorDispatcher {
+extension UnigameModel: @preconcurrency CommunicatorDispatcher {
     var tokenProvider: any TokenProvider {
         return gameHandle.tokenProvider
     }
