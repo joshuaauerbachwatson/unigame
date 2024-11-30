@@ -28,10 +28,12 @@ public protocol GameHandle {
     // Called when a new game is started (old game state should be discarded)
     func reset()
 
-    // Called when another player has transmitted new state (either during setup or during play.
-    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> Error?
+    // Called when another player has transmitted new state.
+    func stateChanged(_ data: [UInt8]) -> Error?
 
-    // Called in order to obtain the current state of the game for transmission, either during setup or during play
+    // Called in order to obtain the current state of the game for transmission, either during setup or during play.
+    // Note that the duringSetup argument can only be true for lead players since other players do not experience a
+    // setup phase.  The flag is a hint to avoid sending things over and over that will not have changed after setup.
     func encodeState(duringSetup: Bool) -> [UInt8]
     
     // The SwiftUI view to use as the main subview during setup.  If nil, there id no setup phase.
@@ -68,7 +70,7 @@ struct DummyGameHandle: GameHandle {
     var tokenProvider: any TokenProvider = DummyTokenProvider()
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
-    func stateChanged(_ data: [UInt8], duringSetup: Bool) -> (any Error)? {
+    func stateChanged(_ data: [UInt8]) -> (any Error)? {
         return nil
     }
     func encodeState(duringSetup: Bool) -> [UInt8] {

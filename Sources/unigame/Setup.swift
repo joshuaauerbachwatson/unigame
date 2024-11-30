@@ -20,7 +20,7 @@ struct Setup: View {
     @Environment(UnigameModel.self) var model
     var body: some View {
         Button("Setup Complete", systemImage: "hand.wave") {
-            model.transmitSetup()
+            model.transmit()
             model.setupIsComplete = true
         }.buttonStyle(.borderedProminent)
         // Force unwrap should be ok because Setup will not be instantiated when setupView is nil

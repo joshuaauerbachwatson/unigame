@@ -117,6 +117,12 @@ public final class UnigameModel {
     // setup.  Afterwards, the setup is fixed.  This field is only meaningful in the leader's app instance.
     var setupIsComplete = false
     
+    // Indicates that setup is in progress (the setup view should be shown and transmissions should be encoded with
+    // 'duringSetup' true).
+    var setupInProgress: Bool {
+        leadPlayer && !setupIsComplete && gameHandle.setupView != nil
+    }
+    
     // The transcript of the ongoing chat
     var chatTranscript: [String]? = nil
     
@@ -247,30 +253,19 @@ public final class UnigameModel {
     // Indicate "turn over" for this player (yielding) with final state data
     public func yield() {
         let newActivePlayer = (thisPlayer + 1) % players.count
-        transmitState(newActivePlayer: newActivePlayer)
+        transmit(newActivePlayer)
         activePlayer = newActivePlayer
-    }
-    
-    // Transmit interim results during setup.  Used only by the setup view, which is only shown to the lead player
-    public func transmitSetup() {
-        transmit(activePlayer: activePlayer, setup: true)
-    }
-    
-    // Transmit interim state with or without yielding.  Used only by the playing view
-    // Yielding should be done via the yield function which, yes, calls this function.
-    public func transmitState(newActivePlayer: Int? = nil) {
-        let activePlayer = newActivePlayer ?? self.activePlayer
-        transmit(activePlayer: activePlayer, setup: false)
     }
 
     // Transmit subroutine
-    private func transmit(activePlayer: Int, setup: Bool) {
+    public func transmit(_ newActivePlayer: Int? = nil) {
         guard let communicator = self.communicator, thisPlayersTurn else {
             return // Make it possible to call this without worrying.
         }
-        let gameInfo = [UInt8](gameHandle.encodeState(duringSetup: setup))
+        let activePlayer = newActivePlayer ?? self.activePlayer
+        let gameInfo = [UInt8](gameHandle.encodeState(duringSetup: setupInProgress))
         let gameState =
-            GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, setup: setup, gameInfo: gameInfo)
+            GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, gameInfo: gameInfo)
         communicator.send(gameState)
     }
 }
@@ -339,7 +334,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             Logger.log("Play has not begun so not processing game state")
             return
         }
-        if let err = gameHandle.stateChanged(gameState.gameInfo, duringSetup: gameState.setup) {
+        if let err = gameHandle.stateChanged(gameState.gameInfo) {
             displayError(err.localizedDescription, terminal: false)
             return
         }

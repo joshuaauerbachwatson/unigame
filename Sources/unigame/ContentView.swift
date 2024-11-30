@@ -63,8 +63,7 @@ public struct ContentView: View {
 
                 if !model.playBegun {
                     Players()
-                } else if model.leadPlayer && model.gameHandle.setupView != nil
-                            && !model.setupIsComplete {
+                } else if model.setupInProgress {
                     Setup()
                 } else {
                     Playing()
