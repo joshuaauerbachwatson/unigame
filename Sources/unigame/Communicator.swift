@@ -95,7 +95,7 @@ func makeCommunicator(nearbyOnly: Bool,
     } else {
         let (credentials, error) = await CredentialStore().loginIfNeeded(tokenProvider)
         if let accessToken = credentials?.accessToken {
-            let compositeToken = appId + ":" + gameToken
+            let compositeToken = appId + "_" + gameToken
             return .success(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player))
         } else if let error = error {
             return .failure(error)
