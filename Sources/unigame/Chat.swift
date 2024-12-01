@@ -55,7 +55,7 @@ struct Chat: View {
     }
     
     private func sendTouched() {
-        model.communicator?.sendChatMsg(message)
+        model.sendChatMsg(message)
     }
     
     private func doneTouched() {

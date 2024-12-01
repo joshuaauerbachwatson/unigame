@@ -199,8 +199,7 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     
     // Send a chat message.  Part of the Communicator protocol
     func sendChatMsg(_ text: String) {
-        let userName = UserDefaults.standard.string(forKey: UserNameKey) ?? ""
-        let toSend = String(MessageType.Chat.rawValue) + "[\(userName)] \(text)"
+        let toSend = String(MessageType.Chat.rawValue) + text
         let message = URLSessionWebSocketTask.Message.string(toSend)
         webSocketTask.send(message) { error in
             if let error = error {

@@ -133,7 +133,13 @@ public final class UnigameModel {
     var chatEnabled: Bool {
         communicator != nil && numPlayers > 1
     }
-    
+
+    // Send a chat msg to all peers
+    func sendChatMsg(_ text: String) {
+        let toSend = "[\(userName)] \(text)"
+        communicator?.sendChatMsg(toSend)
+    }
+
     // Indicates what views have been presented in the main navigation stack
     var presentedViews = [String]()
     

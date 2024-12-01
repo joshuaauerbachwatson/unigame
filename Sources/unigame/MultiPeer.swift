@@ -89,7 +89,7 @@ class MultiPeerCommunicator : NSObject, Communicator {
         }
     }
     
-    // Send a chat message to all peers
+    // Send a chat message to all peers and post to self (but only if sent to at least one other)
     func sendChatMsg(_ msg: String) {
         if session.connectedPeers.count > 0 {
             Logger.log("Sending new chat message")
@@ -97,6 +97,7 @@ class MultiPeerCommunicator : NSObject, Communicator {
                 var buffer: Data = Data([MessageType.Chat.code])
                 buffer.append(Data(msg.utf8))
                 try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
+                continuation?.yield(.newChatMsg(msg))
             } catch let error {
                 continuation?.yield(.error(error, false))
             }
