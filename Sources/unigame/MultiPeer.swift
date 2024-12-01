@@ -210,7 +210,7 @@ extension MultiPeerCommunicator: MCSessionDelegate {
             let gameState = GameState(body)
             continuation?.yield(.gameChanged(gameState))
         case .Chat:
-            let newMsg = String(decoding: data, as: UTF8.self)
+            let newMsg = String(decoding: body, as: UTF8.self)
             continuation?.yield(.newChatMsg(newMsg))
         default:
             Logger.log("No handling defined in MultiPeer communicator for type \(type.display)")
