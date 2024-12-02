@@ -69,25 +69,19 @@ class CredentialStore {
         return true
     }
     
-    // Perform login iff there are not already valid credentials present.
-    // Since the actual login handshake is asynchronous, the processing that requires the credentials
-    // should take place in the handler up to the next point where user interaction is required.
+    // Perform login.
     // Errors here do not terminate the app but report the error and leave credentials at nil.
     // The app should still be usable but only in solitaire or "Nearby Only" mode.
-    func loginIfNeeded(_ provider: TokenProvider) async -> Result<Credentials, Error> {
-        // Test for already present
-        if let already = credentials, already.expires > Date.now {
-            // Login not needed
-            Logger.log("Using credentials already stored")
-            return .success(already)
-        }
-        // Do actual login, storing the result if successful
+    func login(_ provider: TokenProvider) async -> Error? {
         let result = await provider.login()
-        if case let .success(creds) = result {
+        switch result {
+        case let .success(creds):
             if !self.store(creds) {
                 Logger.log("Failed to store apparently valid credentials when performing login")
             }
+            return nil
+        case let.failure(error):
+            return error
         }
-        return result
     }
 }

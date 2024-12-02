@@ -22,7 +22,7 @@ import AuerbachLook
 // 2.  Backend with volatile state (using DigitalOcean App Platform).
 
 // The protocol implemented by all Communicator implementations
-protocol Communicator {
+protocol Communicator: Sendable {
     func sendChatMsg(_ mag: String)
     func send(_ gameState: GameState)
     func shutdown(_ dueToError: Bool)
@@ -79,30 +79,19 @@ var display: String {
     }
 }
 
-// THis is almost the same as Result<Communicator, Error> but allows the Sendable protocol to be added
-enum CommResult: @unchecked Sendable {
-    case success (Communicator)
-    case failure (Error)
-}
-
 // Global function to create a communicator of given kind
 func makeCommunicator(nearbyOnly: Bool,
                       player: Player,
                       gameToken: String,
                       appId: String,
-                      tokenProvider: any TokenProvider) async -> CommResult {
+                      tokenProvider: any TokenProvider) async -> Communicator {
     if nearbyOnly {
-        return .success(MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId))
+        return MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId)
     } else {
-        let result = await CredentialStore().loginIfNeeded(tokenProvider)
-        if case let .success(creds) = result {
-            let accessToken = creds.accessToken
-            let compositeToken = appId + "_" + gameToken
-            return .success(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player))
-        } else if case let .failure(error) = result {
-            return .failure(error)
-        } else {
-            Logger.logFatalError("Login result was neither credentials nor error")
+        guard let accessToken = CredentialStore().credentials?.accessToken else {
+            Logger.logFatalError("Communicator could not be constructed because login step was somehow bypassed")
         }
+        let compositeToken = appId + "_" + gameToken
+        return ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player)
     }
 }

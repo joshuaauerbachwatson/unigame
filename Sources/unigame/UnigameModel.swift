@@ -228,31 +228,26 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let result = await makeCommunicator(nearbyOnly: nearbyOnly,
+        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly,
                                                            player: player,
                                                            gameToken: gameToken,
                                                            appId: gameHandle.appId,
                                                            tokenProvider: gameHandle.tokenProvider)
-        switch result {
-        case .success(let communicator):
-            Logger.log("Got back valid communicator")
-            self.communicator = communicator
-            for await event in communicator.events {
-                switch event {
-                case .newPlayerList(let numPlayers, let players):
-                    newPlayerList(numPlayers, players)
-                case .gameChanged(let gameState):
-                    gameChanged(gameState)
-                case .error(let error, let terminal):
-                    self.error(error, terminal)
-                case .lostPlayer(let player):
-                    lostPlayer(player)
-                case .newChatMsg(let msg):
-                    newChatMsg(msg)
-                }
+        self.communicator = communicator
+        Logger.log("Got back valid communicator")
+        for await event in communicator.events {
+            switch event {
+            case .newPlayerList(let numPlayers, let players):
+                newPlayerList(numPlayers, players)
+            case .gameChanged(let gameState):
+                gameChanged(gameState)
+            case .error(let error, let terminal):
+                self.error(error, terminal)
+            case .lostPlayer(let player):
+                lostPlayer(player)
+            case .newChatMsg(let msg):
+                newChatMsg(msg)
             }
-        case .failure(let error):
-            self.displayError("Could not establish communication: \(error.localizedDescription)", terminal: true)
         }
     }
     
@@ -331,6 +326,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
 
     // Handle a new game state
     func gameChanged(_ gameState: GameState) {
+        Logger.log("Received a new game state")
         if gameState.sendingPlayer == thisPlayer {
             // Don't accept remote game state updates that you originated yourself.
             Logger.log("Rejected incoming game state that originated with this player")
@@ -349,6 +345,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
     
     // Handle an error detected by the communicator
     func error(_ error: any Error, _ deleteGame: Bool) {
+        Logger.log("Received an error from the communicator")
         displayError(error.localizedDescription, terminal: deleteGame)
     }
 
@@ -361,6 +358,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
     
     // Handle incoming chat message
     func newChatMsg(_ msg: String) {
+        Logger.log("New chat message received")
         if chatTranscript == nil {
             chatTranscript = [msg]
         } else {

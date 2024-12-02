@@ -20,7 +20,7 @@ import AuerbachLook
 
 // Communicator implementation for multi-peer
 
-class MultiPeerCommunicator : NSObject, Communicator {
+final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable {
     // The local "peer id" (encodes the full identity of the player (name and order)
     private let peerId : MCPeerID
     

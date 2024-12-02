@@ -47,7 +47,7 @@ struct Players: View {
                     Stepper(value: $model.numPlayers,
                             in: model.gameHandle.numPlayerRange) {
                         Text(stepperMsg)
-                    }.padding().border(.black)
+                    }.padding(.leading).border(.black)
                     if !model.solitaireMode {
                         scope
                     }
@@ -63,16 +63,28 @@ struct Players: View {
                 .buttonBorderShape(.roundedRectangle)
             } else {
                 GameTokensView()
-                Button("Connect", systemImage: "dot.radiowaves.left.and.right") {
-                    let tempModel = model // evades known swift 6 bug
-                    Task { @MainActor in
-                        await tempModel.connect()
+                HStack {
+                    Button("Login", systemImage: "dot.radiowaves.left.and.right") {
+                        let credentialStore = CredentialStore()
+                        Task { @MainActor in
+                            if let err = await credentialStore.login(model.tokenProvider) {
+                                model.displayError(err.localizedDescription)
+                            }
+                        }
                     }
+                    .disabled(model.nearbyOnly || CredentialStore().credentials != nil)
+                    Button("Join", systemImage: "dot.radiowaves.left.and.right") {
+                        let tempModel = model // evades known swift 6 bug
+                        Task { @MainActor in
+                            await tempModel.connect()
+                        }
+                    }
+                    .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
+                              || (!model.nearbyOnly
+                                  && CredentialStore().credentials == nil))
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
-                .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil)
-
             }
         }
     }
