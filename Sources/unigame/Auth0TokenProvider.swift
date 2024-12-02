@@ -13,6 +13,7 @@ import AuerbachLook
 // an Auth0 application which aligns with the bundle id of the app.  Then, an Auth0.plist file must
 // be available as a resource, containing a clientId and domain matching the Auth0 application.
 public final class Auth0TokenProvider: TokenProvider {
+    public init() {}
     public func login() async -> Result<Credentials, Error> {
         do {
             let auth0creds = try await Auth0.webAuth().useHTTPS().audience("https://unigame.com").start()
