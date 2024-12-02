@@ -17,28 +17,24 @@
 import Foundation
 import AuerbachLook
 
-// Manage Auth0-provided credentials
+// Manage access credentials (using an auth provider such as Auth0).
 
 fileprivate let CredentialsFile = "credentials"
 
-// The stored credentials.  Although the token must be valid for Auth0 (which is used by the server)
-// we don't need Auth0 login details here because those will be app-specific.  So, we use our own structure
-// which is not the Auth0 credentials structure.
+// The stored credentials
 public struct Credentials: Codable {
     public let accessToken: String
-    public let expiresIn: Date
-    public init(accessToken: String, expiresIn: Date) {
+    public let expires: Date
+    public init(accessToken: String, expires: Date) {
         self.accessToken = accessToken
-        self.expiresIn = expiresIn
+        self.expires = expires
     }
 }
 
-// A provider for the token.  The token must be valid for the Auth0 "audience" https://unigame.com
-// in order to validate at the server.  However, this package does not depend directly on Auth0 nor
-// does it provide an auth0.plist because each app must use its own Auth0 application profiles (and
-// perhaps even different tenants (TBD)).
+// A provider for the token when an unexpired one is not found stored locally.
+// The token must be valid for audience https://unigame.com in order to validate at the server.
 public protocol TokenProvider: Sendable {
-    func login() async -> (Credentials?, LocalizedError?)
+    func login() async -> Result<Credentials, Error>
 }
 
 // Covers the local storage of access token and expiration.  Uses TokenProvider protocol for actual login
@@ -51,9 +47,9 @@ class CredentialStore {
             Logger.log("Credentials loaded from disk")
             let decoder = JSONDecoder()
             let ans = try decoder.decode(Credentials.self, from: archived)
-            Logger.log("Credentials found and decoded.  They expire at \(ans.expiresIn)")
+            Logger.log("Credentials found and decoded.  They expire at \(ans.expires)")
             Logger.log("Date/time now is \(Date.now)")
-            guard ans.expiresIn > Date.now else {
+            guard ans.expires > Date.now else {
                 Logger.log("credentials expired")
                 return nil
             }
@@ -78,20 +74,20 @@ class CredentialStore {
     // should take place in the handler up to the next point where user interaction is required.
     // Errors here do not terminate the app but report the error and leave credentials at nil.
     // The app should still be usable but only in solitaire or "Nearby Only" mode.
-    func loginIfNeeded(_ provider: TokenProvider) async -> (Credentials?, LocalizedError?) {
+    func loginIfNeeded(_ provider: TokenProvider) async -> Result<Credentials, Error> {
         // Test for already present
-        if let already = credentials, already.expiresIn > Date.now {
+        if let already = credentials, already.expires > Date.now {
             // Login not needed
             Logger.log("Using credentials already stored")
-            return (already, nil)
+            return .success(already)
         }
         // Do actual login, storing the result if successful
-        let (creds, err) = await provider.login()
-        if let creds = creds {
+        let result = await provider.login()
+        if case let .success(creds) = result {
             if !self.store(creds) {
-                 Logger.log("Failed to store apparently valid credentials when performing login")
+                Logger.log("Failed to store apparently valid credentials when performing login")
             }
         }
-        return (creds, err)
+        return result
     }
 }

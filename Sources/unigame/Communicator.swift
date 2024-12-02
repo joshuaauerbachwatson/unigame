@@ -79,9 +79,10 @@ var display: String {
     }
 }
 
+// THis is almost the same as Result<Communicator, Error> but allows the Sendable protocol to be added
 enum CommResult: @unchecked Sendable {
     case success (Communicator)
-    case failure (LocalizedError)
+    case failure (Error)
 }
 
 // Global function to create a communicator of given kind
@@ -93,11 +94,12 @@ func makeCommunicator(nearbyOnly: Bool,
     if nearbyOnly {
         return .success(MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId))
     } else {
-        let (credentials, error) = await CredentialStore().loginIfNeeded(tokenProvider)
-        if let accessToken = credentials?.accessToken {
+        let result = await CredentialStore().loginIfNeeded(tokenProvider)
+        if case let .success(creds) = result {
+            let accessToken = creds.accessToken
             let compositeToken = appId + "_" + gameToken
             return .success(ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player))
-        } else if let error = error {
+        } else if case let .failure(error) = result {
             return .failure(error)
         } else {
             Logger.logFatalError("Login result was neither credentials nor error")
