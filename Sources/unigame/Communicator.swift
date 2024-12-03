@@ -84,14 +84,14 @@ func makeCommunicator(nearbyOnly: Bool,
                       player: Player,
                       gameToken: String,
                       appId: String,
-                      tokenProvider: any TokenProvider) async -> Communicator {
+                      accessToken: String?) async -> Communicator {
     if nearbyOnly {
         return MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId)
     } else {
-        guard let accessToken = CredentialStore().credentials?.accessToken else {
-            Logger.logFatalError("Communicator could not be constructed because login step was somehow bypassed")
-        }
         let compositeToken = appId + "_" + gameToken
+        guard let accessToken = accessToken else {
+            Logger.logFatalError("Server communicator construction attempted with no accessToken available")
+        }
         return ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player)
     }
 }

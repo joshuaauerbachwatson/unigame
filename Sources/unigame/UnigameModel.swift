@@ -105,6 +105,10 @@ public final class UnigameModel {
     var solitaireMode: Bool {
         leadPlayer && numPlayers == 1
     }
+    
+    // The access token for use with server based communicator (not used by multipeer communicator)
+    // If not present, login is required.
+    var accessToken: String? = CredentialStore.load()
 
     // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
     var communicator : Communicator? = nil
@@ -219,6 +223,23 @@ public final class UnigameModel {
         }
     }
     
+    // Perform login function,
+    func login() async {
+        Logger.log("Logging in")
+        let result = await tokenProvider.login()
+        switch result {
+        case let .success(creds):
+            Logger.log("Login was successful")
+            if !CredentialStore.store(creds) {
+                Logger.log("Failed to store apparently valid credentials when performing login")
+            }
+            accessToken = creds.accessToken
+        case let.failure(error):
+            Logger.log("Login failed")
+            displayError(error.localizedDescription)
+        }
+    }
+
     // Starts the communicator and begins the search for players
     func connect() async {
         guard let player = players.first else {
@@ -232,7 +253,7 @@ public final class UnigameModel {
                                                            player: player,
                                                            gameToken: gameToken,
                                                            appId: gameHandle.appId,
-                                                           tokenProvider: gameHandle.tokenProvider)
+                                                           accessToken: accessToken)
         self.communicator = communicator
         Logger.log("Got back valid communicator")
         for await event in communicator.events {

@@ -67,12 +67,10 @@ struct Players: View {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         let credentialStore = CredentialStore()
                         Task { @MainActor in
-                            if let err = await credentialStore.login(model.tokenProvider) {
-                                model.displayError(err.localizedDescription)
-                            }
+                            await model.login()
                         }
                     }
-                    .disabled(model.nearbyOnly || CredentialStore().credentials != nil)
+                    .disabled(model.nearbyOnly || model.accessToken != nil)
                     Button("Join", systemImage: "dot.radiowaves.left.and.right") {
                         let tempModel = model // evades known swift 6 bug
                         Task { @MainActor in
@@ -81,7 +79,7 @@ struct Players: View {
                     }
                     .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
                               || (!model.nearbyOnly
-                                  && CredentialStore().credentials == nil))
+                                  && model.accessToken == nil))
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
