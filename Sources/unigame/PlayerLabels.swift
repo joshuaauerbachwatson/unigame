@@ -49,9 +49,9 @@ struct PlayerLabels: View {
         HStack {
             Spacer()
             ForEach(content) { player in
-                let iconName = player.id == model.activePlayer ? "figure.walk" : "stop"
-                Label(player.display, systemImage: iconName)
-                    .foregroundStyle(player.id == model.thisPlayer ? .green : .black)
+                let iconName = player.id == model.activePlayer ? "figure.walk" : "figure.stand"
+                let text = player.id == model.thisPlayer ? "You" : player.display
+                Label(text, systemImage: iconName)
                     .padding(.horizontal, 5)
                     .border(.black, width: 2)
             }

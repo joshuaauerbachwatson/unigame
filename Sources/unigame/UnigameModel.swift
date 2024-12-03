@@ -106,9 +106,12 @@ public final class UnigameModel {
         leadPlayer && numPlayers == 1
     }
     
-    // The access token for use with server based communicator (not used by multipeer communicator)
-    // If not present, login is required.
-    var accessToken: String? = CredentialStore.load()
+    // The credentials to use with server based communicator (not used by multipeer communicator)
+    // If not present, or not valid (expired), login is required.
+    var credentials = CredentialStore.load()
+    var mayConnect: Bool {
+        return credentials?.valid ?? false
+    }
 
     // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
     var communicator : Communicator? = nil
@@ -233,9 +236,9 @@ public final class UnigameModel {
             if !CredentialStore.store(creds) {
                 Logger.log("Failed to store apparently valid credentials when performing login")
             }
-            accessToken = creds.accessToken
+            credentials = creds
         case let.failure(error):
-            Logger.log("Login failed")
+            Logger.log("Login failed: \(error)")
             displayError(error.localizedDescription)
         }
     }
@@ -250,10 +253,8 @@ public final class UnigameModel {
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
         let communicator = await makeCommunicator(nearbyOnly: nearbyOnly,
-                                                           player: player,
-                                                           gameToken: gameToken,
-                                                           appId: gameHandle.appId,
-                                                           accessToken: accessToken)
+                                                  player: player, gameToken: gameToken, appId: gameHandle.appId,
+                                                  accessToken: credentials?.accessToken)
         self.communicator = communicator
         Logger.log("Got back valid communicator")
         for await event in communicator.events {

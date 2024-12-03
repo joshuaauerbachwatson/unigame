@@ -25,6 +25,9 @@ fileprivate let CredentialsFile = "credentials"
 public struct Credentials: Codable, Sendable {
     public let accessToken: String
     public let expires: Date
+    var valid: Bool {
+        expires > Date.now
+    }
     public init(accessToken: String, expires: Date) {
         self.accessToken = accessToken
         self.expires = expires
@@ -41,20 +44,13 @@ public protocol TokenProvider: Sendable {
 // that stores the result.  The load operation guards against the use of expired tokens.
 class CredentialStore {
     // Load function.  Returns accessToken, manages expiration and serialization errors internally
-    class func load() -> String? {
+    class func load() -> Credentials? {
         let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
         do {
             let archived = try Data(contentsOf: storageFile)
             Logger.log("Credentials loaded from disk")
             let decoder = JSONDecoder()
-            let credentials = try decoder.decode(Credentials.self, from: archived)
-            Logger.log("Credentials decoded.  They expire at \(credentials.expires)")
-            Logger.log("Date/time now is \(Date.now)")
-            if credentials.expires > Date.now {
-                Logger.log("Credentials valid")
-                return credentials.accessToken
-            }
-            Logger.log("credentials expired")
+            return try decoder.decode(Credentials.self, from: archived)
         } catch {
             Logger.log("Credentials could not be loaded or could not be decoded")
             try? FileManager.default.removeItem(at: storageFile)

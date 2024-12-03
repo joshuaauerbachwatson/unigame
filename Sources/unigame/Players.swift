@@ -69,7 +69,7 @@ struct Players: View {
                             await model.login()
                         }
                     }
-                    .disabled(model.nearbyOnly || model.accessToken != nil)
+                    .disabled(model.nearbyOnly || model.mayConnect)
                     Button("Join", systemImage: "person.line.dotted.person") {
                         Task { @MainActor in
                             await model.connect()
@@ -77,7 +77,7 @@ struct Players: View {
                     }
                     .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
                               || (!model.nearbyOnly
-                                  && model.accessToken == nil))
+                                  && !model.mayConnect))
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
