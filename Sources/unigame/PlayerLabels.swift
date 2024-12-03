@@ -16,7 +16,7 @@
 
 import SwiftUI
 
-fileprivate let MustFind = "[Must Find]"
+fileprivate let MustFind = "[MIssing]"
 fileprivate let Searching = "[Searching]"
 
 // Structure for information about players.
@@ -28,8 +28,13 @@ struct PlayerName: Identifiable {
 // Function to calculate player name information to go in the labels
 fileprivate func playerNames(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerName] {
     var names = players.map { $0.name }
-    while names.count < numPlayers {
-        names.append(communicating ? Searching : MustFind)
+    if numPlayers == 0 && communicating {
+        // Non-lead player who does not yet know the player count but is expecting more
+        names.append("...expecting more...")
+    } else {
+        while names.count < numPlayers {
+            names.append(communicating ? Searching : MustFind)
+        }
     }
     return names.enumerated().map { PlayerName(id: $0.0, display: $0.1) }
 }

@@ -65,16 +65,14 @@ struct Players: View {
                 GameTokensView()
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
-                        let credentialStore = CredentialStore()
                         Task { @MainActor in
                             await model.login()
                         }
                     }
                     .disabled(model.nearbyOnly || model.accessToken != nil)
-                    Button("Join", systemImage: "dot.radiowaves.left.and.right") {
-                        let tempModel = model // evades known swift 6 bug
+                    Button("Join", systemImage: "person.line.dotted.person") {
                         Task { @MainActor in
-                            await tempModel.connect()
+                            await model.connect()
                         }
                     }
                     .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
