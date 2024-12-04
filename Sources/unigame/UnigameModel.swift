@@ -133,9 +133,6 @@ public final class UnigameModel {
     // The transcript of the ongoing chat
     var chatTranscript: [String]? = nil
     
-    // Indicates something new in chatTranscript
-    var chatTranscriptChanged: Bool = false
-    
     // Indicates that chat is enabled
     var chatEnabled: Bool {
         communicator != nil && numPlayers > 1
@@ -385,10 +382,6 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             chatTranscript = [msg]
         } else {
             chatTranscript!.append(msg)
-        }
-        if presentedViews.last != "chat" {
-            // If the chat view is not showing we use the following to fire an alert to also hold the message
-            chatTranscriptChanged = true // Will be reset by alert after presentation
         }
     }
 }

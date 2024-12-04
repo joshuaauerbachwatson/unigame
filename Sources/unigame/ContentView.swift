@@ -30,6 +30,15 @@ public struct ContentView: View {
                     PlayerLabels()
                 }
                 HStack {
+                    if let lastChat = model.chatTranscript?.last {
+                        Text(lastChat)
+                    } else {
+                        Text("[no chat messages yet]")
+                            .foregroundStyle(.gray)
+                        Spacer()
+                    }
+                }
+                HStack {
                     NavigationLink(value: "chat") {
                         Label("Chat", systemImage: "ellipsis.message")
                     }
@@ -60,7 +69,7 @@ public struct ContentView: View {
                 }
                 .padding(.horizontal)
                 .border(.blue, width: 2)
-
+                
                 if !model.playBegun {
                     Players()
                 } else if model.setupInProgress {
@@ -69,25 +78,16 @@ public struct ContentView: View {
                     Playing()
                 }
             }
-        }
-        .alert("Error", isPresented: $model.showingError) {
-            Button("OK") {
-                model.resetError()
+            .alert("Error", isPresented: $model.showingError) {
+                Button("OK") {
+                    model.resetError()
+                }
+            } message: {
+                Text(model.errorMessage ?? "Unknown Error")
+                if model.errorIsTerminal {
+                    Text("Game ending")
+                }
             }
-        } message: {
-            Text(model.errorMessage ?? "Unknown Error")
-            if model.errorIsTerminal {
-                Text("Game ending")
-            }
-        }
-        .alert("Incoming chat message", isPresented: $model.chatTranscriptChanged) {
-            Button("Ok", action: {})
-            Button("Open chat") {
-                model.presentedViews.append("chat")
-            }
-        } message: {
-            // "no message" case should not occur but let's not crash the app
-            Text(model.chatTranscript?.last ?? "Error: there is no message")
         }
    }
 }

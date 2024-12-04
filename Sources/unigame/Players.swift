@@ -25,7 +25,7 @@ struct Players: View {
         @Bindable var model = model
         VStack {
             HStack {
-                Text("My player name:").font(.headline)
+                Text("I am:").font(.headline)
                 TextField("Player name", text: $model.userName)
                     .onSubmit {
                         model.players[0] = Player(model.userName, model.leadPlayer)
