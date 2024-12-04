@@ -16,14 +16,15 @@
 
 import SwiftUI
 
-// This tab contains the (unigame standard game-agnostic) controls for defining yourself as a player and connecting
-// with other players in your group.
+// This View contains the (unigame standard, game-agnostic) controls for defining yourself
+// as a player and connecting with other players in your group.
 
 struct Players: View {
     @Environment(UnigameModel.self) var model
     var body: some View {
         @Bindable var model = model
         VStack {
+            Spacer()
             HStack {
                 Text("I am:").font(.headline)
                 TextField("Player name", text: $model.userName)
@@ -37,7 +38,8 @@ struct Players: View {
                     model.ensureNumPlayers()
                     model.players[0] = Player(model.userName, model.leadPlayer)
                 }
-            }.padding().border(.black)
+            }
+            .border(.black)
             let scope = Toggle(isOn: $model.nearbyOnly) {
                 Text("Nearby Only")
             }
@@ -47,7 +49,7 @@ struct Players: View {
                     Stepper(value: $model.numPlayers,
                             in: model.gameHandle.numPlayerRange) {
                         Text(stepperMsg)
-                    }.padding(.leading).border(.black)
+                    }.padding(.leading)
                     if !model.solitaireMode {
                         scope
                     }
@@ -82,6 +84,7 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             }
+            Spacer()
         }
     }
 }

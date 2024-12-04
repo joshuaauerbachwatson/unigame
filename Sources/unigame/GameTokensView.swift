@@ -17,49 +17,45 @@ struct GameTokensView: View {
     @State private var tooShort = false
     var body: some View {
         @Bindable var model = model
-        GeometryReader { metrics in
-            VStack {
-                HStack {
-                    Text("Game token:")
-                    Text(model.gameToken ?? "").bold()
-                    Spacer()
-                    Button("Delete", systemImage: "trash") {
-                        model.savedTokens.removeAll(where: { $0 == model.gameToken })
-                        model.gameToken = ""
-                    }
-                    .foregroundStyle(.red)
-                    Button("Add", systemImage: "plus") {
-                        newToken = ""
-                        showingAlert = true
-                    }
-                    .alert("Enter new game token", isPresented: $showingAlert) {
-                        TextField("Enter new game token", text: $newToken)
-                            .onChange(of: newToken, initial: false) { former, current in
-                                if !validChars(current) {
-                                    newToken = former
-                                }
-                            }
-                        Button("OK") {
-                            if newToken.count >= minTokenLength {
-                                model.gameToken = newToken
-                                model.savedTokens.append(newToken)
-                            } else {
-                                tooShort = true
+        VStack {
+            HStack {
+                Text("Game token:")
+                Text(model.gameToken ?? "").bold()
+                Spacer()
+                Button("Delete", systemImage: "trash") {
+                    model.savedTokens.removeAll(where: { $0 == model.gameToken })
+                    model.gameToken = ""
+                }
+                .foregroundStyle(.red)
+                Button("Add", systemImage: "plus") {
+                    newToken = ""
+                    showingAlert = true
+                }
+                .alert("Enter new game token", isPresented: $showingAlert) {
+                    TextField("Enter new game token", text: $newToken)
+                        .onChange(of: newToken, initial: false) { former, current in
+                            if !validChars(current) {
+                                newToken = former
                             }
                         }
-                    }
-                    .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
+                    Button("OK") {
+                        if newToken.count >= minTokenLength {
+                            model.gameToken = newToken
+                            model.savedTokens.append(newToken)
+                        } else {
+                            tooShort = true
+                        }
                     }
                 }
-                .padding()
-                Divider()
-                VStack {
-                    Text("Saved Game Tokens").bold()
-                        .padding(EdgeInsets(top: 30, leading: 0, bottom: 0, trailing: 0))
-                    List(model.savedTokens, id: \.self, selection: $model.gameToken) { token in
-                        Text(token)
+                .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
+                }
+            }
+            Menu("Saved Game Tokens") {
+                ForEach(model.savedTokens, id: \.self) { token in
+                    Button(token) {
+                        model.gameToken = token
                     }
-                }.frame(height: metrics.size.height * 0.6)
+                }
             }
         }
     }

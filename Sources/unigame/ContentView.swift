@@ -35,8 +35,8 @@ public struct ContentView: View {
                     } else {
                         Text("[no chat messages yet]")
                             .foregroundStyle(.gray)
-                        Spacer()
                     }
+                    Spacer()
                 }
                 HStack {
                     NavigationLink(value: "chat") {

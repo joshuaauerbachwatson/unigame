@@ -24,42 +24,29 @@ struct Chat: View {
         Text("Chat With Other Players")
             .font(.largeTitle)
         VStack {
-            GeometryReader { metrics in
-                VStack {
-                    HStack {
-                        Button(action: sendTouched) {
-                            Text("Send")
-                        }
-                        TextField("message to send", text: $message)
+            TextField("message to send", text: $message)
+                .onSubmit {
+                    model.sendChatMsg(message)
+                    message = ""
+                }
+                .padding()
+                .border(.black, width: 3)
+            ScrollViewReader { reader in
+                ScrollView {
+                    let placeHolder = ["No messages yet"]
+                    ForEach(model.chatTranscript ?? placeHolder, id: \.self) { line in
+                        Text(line)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .id("textId")
+                    .frame(maxWidth: .infinity)
                     .padding()
-                    .border(.black, width: 3)
-                    ScrollViewReader { reader in
-                        ScrollView {
-                            let placeHolder = ["No messages yet"]
-                            ForEach(model.chatTranscript ?? placeHolder, id: \.self) { line in
-                                Text(line)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .id("textId")
-                            .frame(width: metrics.size.width)
-                            .padding()
-                        }
-                        .onChange(of: model.chatTranscript, initial: true) {
-                            reader.scrollTo("textId", anchor: .bottom)
-                        }
-                    }
+                }
+                .onChange(of: model.chatTranscript, initial: true) {
+                    reader.scrollTo("textId", anchor: .bottom)
                 }
             }
         }
-    }
-    
-    private func sendTouched() {
-        model.sendChatMsg(message)
-    }
-    
-    private func doneTouched() {
-        
     }
 }
 
