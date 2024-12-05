@@ -24,13 +24,13 @@ struct Players: View {
     var body: some View {
         @Bindable var model = model
         VStack {
-            Spacer()
             HStack {
                 Text("I am:").font(.headline)
                 TextField("Player name", text: $model.userName)
                     .onSubmit {
                         model.players[0] = Player(model.userName, model.leadPlayer)
                     }
+                Divider()
                 Toggle(isOn: $model.leadPlayer) {
                     Text("Leader")
                 }
@@ -39,7 +39,6 @@ struct Players: View {
                     model.players[0] = Player(model.userName, model.leadPlayer)
                 }
             }
-            .border(.black)
             let scope = Toggle(isOn: $model.nearbyOnly) {
                 Text("Nearby Only")
             }
@@ -49,7 +48,8 @@ struct Players: View {
                     Stepper(value: $model.numPlayers,
                             in: model.gameHandle.numPlayerRange) {
                         Text(stepperMsg)
-                    }.padding(.leading)
+                    }
+                    Divider()
                     if !model.solitaireMode {
                         scope
                     }
@@ -57,6 +57,7 @@ struct Players: View {
             } else {
                 scope
             }
+            Divider()
             if model.solitaireMode {
                 Button("Play", systemImage: "figure.play") {
                     model.playBegun = true
@@ -65,6 +66,7 @@ struct Players: View {
                 .buttonBorderShape(.roundedRectangle)
             } else {
                 GameTokensView()
+                Divider()
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
@@ -84,7 +86,6 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             }
-            Spacer()
         }
     }
 }

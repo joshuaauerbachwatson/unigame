@@ -21,7 +21,7 @@ struct GameTokensView: View {
             HStack {
                 Text("Game token:")
                 Text(model.gameToken ?? "").bold()
-                Spacer()
+                Divider()
                 Button("Delete", systemImage: "trash") {
                     model.savedTokens.removeAll(where: { $0 == model.gameToken })
                     model.gameToken = ""
@@ -50,12 +50,15 @@ struct GameTokensView: View {
                 .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
                 }
             }
-            Menu("Saved Game Tokens") {
+            Divider()
+            Menu {
                 ForEach(model.savedTokens, id: \.self) { token in
                     Button(token) {
                         model.gameToken = token
                     }
                 }
+            } label: {
+                Label("Saved Game Tokens", systemImage: "square.and.arrow.up.fill")
             }
         }
     }
