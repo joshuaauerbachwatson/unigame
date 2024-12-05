@@ -25,6 +25,9 @@ struct Chat: View {
         Text("Chat With Other Players")
             .font(.largeTitle)
         VStack {
+            if let lastUpdate = model.lastChatMsgTime {
+                Text("Last message received at \(lastUpdate.formatted())")
+            }
             TextField("message to send", text: $message)
                 .focused($sendIsFocused)
                 .onSubmit {

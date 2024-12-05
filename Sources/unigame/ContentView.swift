@@ -30,8 +30,11 @@ public struct ContentView: View {
                     PlayerLabels()
                 }
                 HStack {
-                    if let lastChat = model.chatTranscript?.last {
-                        Text(lastChat)
+                    if let lastChat = model.chatTranscript?.last, let lastTime =  model.lastChatMsgTime {
+                        let text = "New message at \(lastTime): " + lastChat
+                        Text(text)
+                            .bold()
+                            .foregroundStyle(.green)
                     } else {
                         Text("[no chat messages yet]")
                             .foregroundStyle(.gray)
@@ -68,7 +71,6 @@ public struct ContentView: View {
                     }
                 }
                 .padding(.horizontal)
-                .border(.blue, width: 2)
                 
                 if !model.playBegun {
                     Players()

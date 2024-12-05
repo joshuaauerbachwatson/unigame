@@ -133,6 +133,9 @@ public final class UnigameModel {
     // The transcript of the ongoing chat
     var chatTranscript: [String]? = nil
     
+    // The Date/time of the last chat transcript update
+    var lastChatMsgTime: Date? = nil
+    
     // Indicates that chat is enabled
     var chatEnabled: Bool {
         communicator != nil && numPlayers > 1
@@ -383,5 +386,6 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
         } else {
             chatTranscript!.append(msg)
         }
+        lastChatMsgTime = Date.now
     }
 }
