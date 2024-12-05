@@ -19,15 +19,21 @@ import SwiftUI
 struct Chat: View {
     @Environment(UnigameModel.self) var model
     @State private var message = ""
+    @FocusState private var sendIsFocused: Bool
 
     var body: some View {
         Text("Chat With Other Players")
             .font(.largeTitle)
         VStack {
             TextField("message to send", text: $message)
+                .focused($sendIsFocused)
                 .onSubmit {
                     model.sendChatMsg(message)
                     message = ""
+                    sendIsFocused = true
+                }
+                .onAppear {
+                    sendIsFocused = true
                 }
                 .padding()
                 .border(.black, width: 3)
