@@ -39,6 +39,7 @@ struct Players: View {
                     model.players[0] = Player(model.userName, model.leadPlayer)
                 }
             }
+            .padding()
             let scope = Toggle(isOn: $model.nearbyOnly) {
                 Text("Nearby Only")
             }
@@ -54,8 +55,9 @@ struct Players: View {
                         scope
                     }
                 }
+                .padding()
             } else {
-                scope
+                scope.padding()
             }
             Divider()
             if model.solitaireMode {
@@ -86,6 +88,7 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             }
+            Spacer()
         }
     }
 }

@@ -49,7 +49,7 @@ struct GameTokensView: View {
                 }
                 .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
                 }
-            }
+            }.padding()
             Divider()
             Menu {
                 ForEach(model.savedTokens, id: \.self) { token in
@@ -59,7 +59,7 @@ struct GameTokensView: View {
                 }
             } label: {
                 Label("Saved Game Tokens", systemImage: "square.and.arrow.up.fill")
-            }
+            }.padding()
         }
     }
     
