@@ -31,10 +31,10 @@ public struct ContentView: View {
                 }
                 HStack {
                     if let lastChat = model.chatTranscript?.last, let lastTime =  model.lastChatMsgTime {
-                        let text = "New message at \(lastTime): " + lastChat
+                        let text = "At \(lastTime.formatted(date: .omitted, time: .shortened)):  " + lastChat
                         Text(text)
                             .bold()
-                            .foregroundStyle(.green)
+                            .foregroundStyle(.purple)
                     } else {
                         Text("[no chat messages yet]")
                             .foregroundStyle(.gray)
