@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		283FA24D2D038D61005BC32C /* unigame in Frameworks */ = {isa = PBXBuildFile; productRef = 283FA24C2D038D61005BC32C /* unigame */; };
+		28310BB82D04DD21000883A4 /* unigame in Frameworks */ = {isa = PBXBuildFile; productRef = 28310BB72D04DD21000883A4 /* unigame */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				283FA24D2D038D61005BC32C /* unigame in Frameworks */,
+				28310BB82D04DD21000883A4 /* unigame in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,7 +117,7 @@
 			);
 			name = UnigameTest;
 			packageProductDependencies = (
-				283FA24C2D038D61005BC32C /* unigame */,
+				28310BB72D04DD21000883A4 /* unigame */,
 			);
 			productName = UnigameTest;
 			productReference = 287EA4DB2D036FF1002CB055 /* UnigameTest.app */;
@@ -202,7 +202,7 @@
 			mainGroup = 287EA4D22D036FF1002CB055;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				287EA5082D037072002CB055 /* XCRemoteSwiftPackageReference "unigame" */,
+				28310BB62D04DD21000883A4 /* XCLocalSwiftPackageReference "../../../unigame" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 287EA4DC2D036FF1002CB055 /* Products */;
@@ -570,21 +570,16 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		287EA5082D037072002CB055 /* XCRemoteSwiftPackageReference "unigame" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/joshuaauerbachwatson/unigame.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		28310BB62D04DD21000883A4 /* XCLocalSwiftPackageReference "../../../unigame" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../unigame;
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		283FA24C2D038D61005BC32C /* unigame */ = {
+		28310BB72D04DD21000883A4 /* unigame */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 287EA5082D037072002CB055 /* XCRemoteSwiftPackageReference "unigame" */;
 			productName = unigame;
 		};
 /* End XCSwiftPackageProductDependency section */

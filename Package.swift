@@ -26,7 +26,8 @@ let package = Package(
             dependencies: [
                 .product(name: "AuerbachLook", package: "auerbachlook"),
                 .product(name: "Auth0", package: "Auth0.swift")
-            ]),
+            ],
+            resources: [.process("Resources")]),
         .testTarget(name: "unigame-tests",
             dependencies: [
                 .product(name: "AuerbachLook", package: "auerbachlook"),
