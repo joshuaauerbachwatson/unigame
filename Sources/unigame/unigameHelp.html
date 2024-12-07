@@ -1,0 +1,176 @@
+<!doctype html public "html2.0">
+<html>
+<head>
+<title>%appName% Help</title>
+<style>
+body {
+	font-family: -apple-system;
+	font-size: 24px;
+}
+
+img {
+	float: left;
+	margin: 15px;
+}
+</style>
+</head>
+<body>
+	<h2>Special Actions</h2>
+	<ul>
+		<li><a
+			href="javascript:window.webkit.messageHandlers.sendFeedback.postMessage('send')">Report
+				a Problem or Send Feedback</a>
+		%resetAllTips%
+	</ul>
+	<h1>%appName% Help</h1>
+	<p>Help is organized as follows.</p>
+	<ul>
+		<li><a href="#What">What is %appName%?</a></li>
+		<li><a href="#Assembling">How To Assemble Players</a></li>
+		%appSpecificTOC%
+		<li><a href="#Problems">Reporting Problems<</a></li>
+	</ul>
+
+	<br>
+	<hr>
+	<h2>
+		<a name="What">What is %appName%?</a>
+	</h2>
+
+	%generalDescription%
+
+	<br>
+	<hr>
+	<h2>
+		<a name="Assembling" />How to Connect Players
+	</h2>
+
+    <p>
+        %appName% does not provide any "social" features.  Rather, players need to arrange
+        in advance to play together.
+        These instructions assume you have already identified the players who will play together
+        and now want to connect them to each other.  Each such player must have installed %appName%
+        on a device.
+
+	<p>
+		After installing and starting the game, touch the <b>Players</b>
+		button to bring up a dialog that looks like the picture. <img
+			alt="initial players dialog" src="./playerDialogInitial.png">
+	</p>
+
+	<p>
+		The first time you do this, <b>Your User Name</b> will be whatever
+		name you gave to your device (usually not too meaningful to others).
+		Touch the white text box to bring up the keyboard and replace the name
+		with a name that you want to be known by when playing. Players who
+		will play together should choose distinct names.
+	</p>
+		
+	<p>
+		Exactly one player in the group of players must be the leader.  That player will actually set up the
+		game (deal out the cards, do whatever else is required).  The leader also sets the number of players
+		that are expected. Touch the blue text to the right of the <b>Are you leader?</b> label to
+		toggle back and forth between being the leader and not.  Notice that the <b>Number of players</b>
+		stepper appears and disappears accordingly, as does the <b>Setup Game</b> button at the top of
+		the app window (not shown in the picture).
+	</p>
+		  
+	<p>
+		Decide who in your group will be the leader.  That player should select <b>Yes</b> and the others should select <b>No</b>.
+        The player who is leader should then set the number of players.
+	</p>
+		
+	<p>
+		There are two ways for players to connect to each other (the <b>Players source</b>), called <b>Nearby
+			only</b> and <b>Entire internet</b>. One of these modes is shown in blue.
+		Touching the blue text toggles between the two modes.  All players must select the same mode.
+	</p>
+
+	<h3>Nearby Only Mode</h3>
+
+	<p>
+		In the <b>Nearby only</b> mode, players must be near each other
+		(within bluetooth range or on the same wifi hub). All such players are
+		assumed to be playing with each other. Once all players have set the <b>Nearby
+		only</b> mode, and a single player has assumed the leader role and set the number
+		of players, all players may then touch the <b>Find Players</b> button to move on
+		to actual play.
+	</p>
+
+	<h3>Entire Internet Mode</h3>
+
+	<p>
+		When you switch to <b>Entire Internet</b> mode, the players can be
+		anywhere, as long as they each have an internet connection active on
+        their device. An additional <b>Token</b> field (and sometimes additional buttons) will appear as
+        in the picture. <img
+            alt="entire internet mode" src="./playerDialogInternet.png">
+		All players must touch the token field and then fill it in using the same value.
+		Once this is true, all players can touch <b>Find Players</b> and move on to actual play.
+	</p>
+	<ul>
+        <li>The <em>token</em> is a value chosen by a group of players to distinguish
+            if from other groups of players.  It should be hard to guess, so that no other %appName% players can
+            crash your game and groups of players don't collide with each other.</li>
+		<li>The game token must be made up of letters and numbers only.  Upper and lower
+		case letters are distinct (case is meaningful).</li>
+        <li>The token must be exactly 12 characters long.  The entry field will stop accepting new characters when 12
+            have been entered.  If there are too few, there will be an error popup when you exit text entry or press the
+        <b>Find Players</b> button.</li>
+        </li>
+	</ul>
+	<h4>Remembering and retrieving tokens</h4>
+	<p>
+		Since it takes some effort for a group to come up with a token and for all players to enter it,
+		%appName% provides the ability to remember tokens.  A remembered token can have a "nickname" to help you remember
+        its purpose.
+        <img alt="remember token dialog" src="./rememberTokenDialog.png">
+	</p>
+	<ul>
+		<li>When a valid and complete token has been entered, an
+			additional <b>Remember this Token</b> button will appear. If you
+			touch this button, you will get a confirmation dialog that looks like
+			the picture. Touch <b>Confirm</b> to remember the token.  If you wish, you can
+			first enter text in the optional "nickname" field.  This will associate a nickname
+			to remind you of the purpose of the token. You can remember multiple tokens.
+		</li>
+		<li>If you have any remembered tokens, one of them will appear in
+			the <b>Token</b> field the next time you open the <b>Players</b>
+			dialog. There will also be another button labelled <b>Use saved
+				token</b>. Touching this button will bring up a selection list from
+			which you can select any of your saved tokens. You can also delete
+			saved tokens from this selection list by sliding the selection left
+			to reveal a delete button.
+		</li>
+		<li>When tokens have assigned nicknames, they appear in the <b>Token</b>
+			field (and in the selection list for using saved tokens) with the
+			nickname before the token, separated by a colon (e.g. <b>Bilbo:
+				Bilbobaggins</b>). Only the token is shared with other players, however.
+			The nickname is just for your private use and is always optional.
+		</li>
+	</ul>
+	%appSpecificHelp%
+
+	<br>
+	<hr>
+	<h2>
+		<a name="Problems" />Reporting Problems
+	</h2>
+	<p>At the top of this help text is a link for reporting problems.
+		Touching it will bring up an initialized email sending view with the
+		recipient set to the %appName% reporting address and some instructions
+		in the body of the message (which you should delete and replace with
+		your specific problem report).</p>
+	<p>You can use this capabiity to send any kind of commentary or
+		input that you like, but a key purpose is to support reporting bugs
+		and other problems that you are having with the app. To this end, the
+		email, by default, contains up to two (often just one) logs of recent
+		activity. When you are reporting a serious problem, such as a crash or
+		misbehavior of some sort, it is a good idea to leave these logs in
+		place since they help in diagnosing problems. They include only
+		information about recent sequences of actions inside the app itself
+		and do not include any personal information. However, if you feel more
+		comfortable removing these logs you are free to do so.</p>
+
+</body>
+</html>
