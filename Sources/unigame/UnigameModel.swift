@@ -87,6 +87,16 @@ public final class UnigameModel {
         }
     }
     
+    // The HelpHandle supplied by the app (used to initiate a HelpController when needed)
+    public var helpHandle: HelpHandle = NoHelpProvided()
+    
+    // The HelpController
+    var helpController: HelpController {
+        let mergedHelp = getMergedHelp(helpHandle)
+        return HelpController(html: mergedHelp, email: helpHandle.email, returnText: helpHandle.returnText,
+                              appName: helpHandle.appName, tipReset: helpHandle.tipResetter)
+    }
+    
     // The list of players.  Always starts with just 'this' player but expands during discovery until play starts.
     // The array is ordered by Player.order fields, ascending.
     var players = [Player]()
@@ -291,6 +301,31 @@ public final class UnigameModel {
             GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, gameInfo: gameInfo)
         communicator.send(gameState)
     }
+}
+
+// Compute the merged help using material provided by the HelpHandle and standard (templatized) Unigame Help
+fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
+    // Load the unigame help (templatized)
+    guard let url = Bundle.main.url(forResource: "unigameHelp", withExtension: "html") else {
+        Logger.logFatalError("Unigame help not present in the bundle")
+        // This should not occur (packaging error)
+    }
+    // Read the contents
+    guard var help = try? String(contentsOf: url, encoding: .utf8) else {
+        Logger.logFatalError("Unigame help could not be read")
+        // This should not occur (packaging error)
+    }
+    // Apply substitutions to the help
+    help = help.replacingOccurrences(of: "%appName%", with: handle.appName)
+    help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
+    help = help.replacingOccurrences(of: "%appSpecificTOC%", with: handle.appSpecificTOC)
+    help = help.replacingOccurrences(of: "%appSpecificHELP%", with: handle.appSpecificHelp)
+    if handle.tipResetter != nil {
+        let tipResetString = 
+            "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">Restore all tips</a>"
+        help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
+    }
+    return help
 }
 
 // The CommunicatorDelegate portion of the logic

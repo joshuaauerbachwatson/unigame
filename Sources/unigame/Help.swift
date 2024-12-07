@@ -15,26 +15,23 @@
  */
 
 import SwiftUI
+import AuerbachLook
 
-fileprivate let description = """
-This tab should contain the appropriate help text and
-supporting controls for whatever game is being played.
-There will be a common body of text across all games
-using the unigame-core, describing the facilities that
-are part of the core (finding players, chatting).
-This should be augmented by game-specific help text.
-"""
 
-struct Help: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            Text(description)
-            Spacer()
-        }
+struct Help: UIViewControllerRepresentable {
+    typealias UIViewControllerType = HelpController
+    @Environment(UnigameModel.self) var model
+
+    func makeUIViewController(context: Context) -> HelpController {
+        return model.helpController
+    }
+    
+    func updateUIViewController(_ uiViewController: HelpController, context: Context) {
+        // TODO; possibly nothing needed here.
     }
 }
 
 #Preview {
     Help()
+        .environment(UnigameModel())
 }
