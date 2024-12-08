@@ -306,7 +306,7 @@ public final class UnigameModel {
 // Compute the merged help using material provided by the HelpHandle and standard (templatized) Unigame Help
 fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     // Load the unigame help (templatized)
-    guard let url = Bundle.main.url(forResource: "unigameHelp", withExtension: "html") else {
+    guard let url = Bundle.module.url(forResource: "unigameHelp", withExtension: "html") else {
         Logger.logFatalError("Unigame help not present in the bundle")
         // This should not occur (packaging error)
     }
