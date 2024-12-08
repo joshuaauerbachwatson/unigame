@@ -57,12 +57,12 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     var continuation: AsyncStream<CommunicatorEvent>.Continuation?
     
     // The initializer to use for this Communicator.  Accepts a gameToken and player and starts listening
-    init(_ accessToken: String, gameToken: String, player: Player) {
+    init(player: Player, numPlayers: Int, game: String, appId: String, accessToken: String) {
         self.accessToken = accessToken
-        self.gameToken = gameToken
+        self.gameToken = appId + "_" + game
         self.player = player
         super.init()
-        self.webSocketTask = connectWebsocket(game: gameToken, player: player, accessToken: accessToken)
+        self.webSocketTask = connectWebsocket(game: gameToken, player: player, numPlayers: numPlayers, accessToken: accessToken)
     }
 
     // Process a new Received state
@@ -96,16 +96,16 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     }
 
     // Subroutine to initialize the websocket connection
-    private func connectWebsocket(game: String, player: Player, accessToken: String) -> URLSessionWebSocketTask {
+    private func connectWebsocket(game: String, player: Player, numPlayers: Int,
+                                  accessToken: String) -> URLSessionWebSocketTask {
         Logger.log("New websocket connection with game=\(game), player=\(player.token)")
-        var numPlayers = ""
+        var numPlayersQuery = ""
         if player.order == UInt32(1) {
             // Leader
             Logger.log("This player is the leader.  Adding number of players to the request")
-            let _numPlayers = UserDefaults.standard.integer(forKey: NumPlayersKey)
-            numPlayers = "&\(numPlayersKey)=\(_numPlayers)"
+            numPlayersQuery = "&\(numPlayersKey)=\(numPlayers)"
         }
-        let url = URL(string: "\(websocketURL)?\(gameKey)=\(game)&\(playerKey)=\(player.token)\(numPlayers)")!
+        let url = URL(string: "\(websocketURL)?\(gameKey)=\(game)&\(playerKey)=\(player.token)\(numPlayersQuery)")!
         Logger.log("Request URL is \(url)")
         var request = URLRequest(url: url)
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

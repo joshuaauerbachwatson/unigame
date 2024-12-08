@@ -31,7 +31,8 @@ let package = Package(
         .testTarget(name: "unigame-tests",
             dependencies: [
                 .product(name: "AuerbachLook", package: "auerbachlook"),
-                .product(name: "Auth0", package: "Auth0.swift")
+                .product(name: "Auth0", package: "Auth0.swift"),
+                .target(name: "unigame")
             ])
     ]
 )

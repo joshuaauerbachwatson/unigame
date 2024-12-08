@@ -70,8 +70,9 @@ struct GameTokensView: View {
 
 #Preview {
     let tokens = ["wox123", "flox123", "boxesofbeans"]
-    UserDefaults.standard.set(tokens, forKey: SavedTokensKey)
-    UserDefaults.standard.set("wox", forKey: GameTokenKey)
+    let defaults = MockDefaults()
+    defaults.set(tokens, forKey: SavedTokensKey)
+    defaults.set("wox", forKey: GameTokenKey)
     return GameTokensView()
-        .environment(UnigameModel())
+        .environment(UnigameModel(defaults: defaults))
 }

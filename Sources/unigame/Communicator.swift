@@ -82,16 +82,17 @@ var display: String {
 // Global function to create a communicator of given kind
 func makeCommunicator(nearbyOnly: Bool,
                       player: Player,
-                      gameToken: String,
+                      numPlayers: Int,
+                      game: String,
                       appId: String,
                       accessToken: String?) async -> Communicator {
     if nearbyOnly {
-        return MultiPeerCommunicator(player: player, gameToken: gameToken, appId: appId)
+        return MultiPeerCommunicator(player: player, numPlayers: numPlayers, game: game, appId: appId)
     } else {
-        let compositeToken = appId + "_" + gameToken
         guard let accessToken = accessToken else {
             Logger.logFatalError("Server communicator construction attempted with no accessToken available")
         }
-        return ServerBasedCommunicator(accessToken, gameToken: compositeToken, player: player)
+        return ServerBasedCommunicator(player: player, numPlayers: numPlayers, game: game, appId: appId,
+                                       accessToken: accessToken)
     }
 }

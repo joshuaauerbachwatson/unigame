@@ -46,13 +46,12 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     }()
     
     // Initializer
-    init(player: Player, gameToken: String, appId: String) {
+    init(player: Player, numPlayers: Int, game: String, appId: String) {
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
-        self.gameToken = gameToken
+        self.gameToken = game
         var info: [String:String] = [ GameTokenKey: gameToken ]
         if player.order == UInt32(1) { // leader
-            let numPlayers = UserDefaults.standard.integer(forKey: NumPlayersKey)
             self.numPlayers = numPlayers
             info[NumPlayersKey] = String(numPlayers)
         }

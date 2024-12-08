@@ -40,50 +40,46 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
 public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
     public let gameHandle: any GameHandle
+    
+    // The defaults object (usually UserDefaults.standard but can be mocked for testing)
+    private let defaults: UserDefaults
 
-   // Access to UserDefaults settings.
+    // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
-    var userName: String = {
-        if let ans = UserDefaults.standard.string(forKey: UserNameKey), ans != "" {
-            return ans
-        }
-        // Need to set UserDefaults manually in initializer since didSet will not be called.
-        let ans = fakeNames.randomElement()! // fakeNames is staticly non-empty, hence the force unwrap is safe
-        UserDefaults.standard.set(ans, forKey: UserNameKey)
-        return ans
-    }() {
+    // We use stored properties with didSet (not computed properties) because we want direct observation of value changes.
+    var userName: String {
         didSet {
-            UserDefaults.standard.set(userName, forKey: UserNameKey)
+            defaults.set(userName, forKey: UserNameKey)
         }
     }
 
-    public var leadPlayer: Bool = UserDefaults.standard.bool(forKey: LeadPlayerKey) {
+    public var leadPlayer: Bool {
         didSet {
-            UserDefaults.standard.set(leadPlayer, forKey: LeadPlayerKey)
+            defaults.set(leadPlayer, forKey: LeadPlayerKey)
         }
     }
     
-    var numPlayers: Int = UserDefaults.standard.integer(forKey: NumPlayersKey) {
+    var numPlayers: Int {
         didSet {
-            UserDefaults.standard.set(numPlayers, forKey: NumPlayersKey)
+            defaults.set(numPlayers, forKey: NumPlayersKey)
         }
     }
     
-    var nearbyOnly: Bool = UserDefaults.standard.bool(forKey: NearbyOnlyKey) {
+    var nearbyOnly: Bool {
         didSet {
-            UserDefaults.standard.set(nearbyOnly, forKey: NearbyOnlyKey)
+            defaults.set(nearbyOnly, forKey: NearbyOnlyKey)
         }
     }
     
-    var gameToken: String? = UserDefaults.standard.string(forKey: GameTokenKey) {
+    var gameToken: String? {
         didSet {
-            UserDefaults.standard.set(gameToken, forKey: GameTokenKey)
+            defaults.set(gameToken, forKey: GameTokenKey)
         }
     }
     
-    var savedTokens: [String] = UserDefaults.standard.stringArray(forKey: SavedTokensKey) ?? [] {
+    var savedTokens: [String] {
         didSet {
-            UserDefaults.standard.set(savedTokens, forKey: SavedTokensKey)
+            defaults.set(savedTokens, forKey: SavedTokensKey)
         }
     }
     
@@ -137,7 +133,7 @@ public final class UnigameModel {
     // Indicates that setup is in progress (the setup view should be shown and transmissions should be encoded with
     // 'duringSetup' true).
     var setupInProgress: Bool {
-        leadPlayer && !setupIsComplete && gameHandle.setupView != nil
+        leadPlayer && playBegun && !setupIsComplete && gameHandle.setupView != nil
     }
     
     // The transcript of the ongoing chat
@@ -212,15 +208,30 @@ public final class UnigameModel {
     }
     
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
-    public init(gameHandle: GameHandle){
+    // It is also possible to override the UserDefaults object.
+    public init(gameHandle: GameHandle, defaults: UserDefaults = UserDefaults.standard){
         Logger.log("Instantiating a new UnigameModel")
         self.gameHandle = gameHandle
+        self.defaults = defaults
+        // fakeNames is staticly non-empty, hence force unwrap of randomElement() is safe
+        let userName = defaults.string(forKey: UserNameKey) ?? fakeNames.randomElement()!
+        self.userName = userName // in case just generated
+        defaults.set(userName, forKey: UserNameKey)
+        self.leadPlayer = defaults.bool(forKey: LeadPlayerKey)
+        self.numPlayers  = defaults.integer(forKey: NumPlayersKey)
+        self.nearbyOnly = defaults.bool(forKey: NearbyOnlyKey)
+        self.gameToken = defaults.string(forKey: GameTokenKey)
+        self.savedTokens = defaults.stringArray(forKey: SavedTokensKey) ?? []
         newGame()
     }
     
-    // Dummy initializer for previews etc.
+    // Dummy initializers for previews etc.
     convenience init() {
         self.init(gameHandle: DummyGameHandle())
+    }
+    
+    convenience init(defaults: UserDefaults) {
+        self.init(gameHandle: DummyGameHandle(), defaults: defaults)
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.  If leadPlayer is true,
@@ -262,8 +273,8 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly,
-                                                  player: player, gameToken: gameToken, appId: gameHandle.appId,
+        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: player, numPlayers: numPlayers,
+                                                  game: gameToken, appId: gameHandle.appId, 
                                                   accessToken: credentials?.accessToken)
         self.communicator = communicator
         Logger.log("Got back valid communicator")

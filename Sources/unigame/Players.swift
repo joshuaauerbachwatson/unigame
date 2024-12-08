@@ -94,8 +94,9 @@ struct Players: View {
 }
 
 #Preview {
-    UserDefaults.standard.setValue(true, forKey: LeadPlayerKey)
-    UserDefaults.standard.setValue(2, forKey: NumPlayersKey)
+    let defaults = MockDefaults()
+    defaults.setValue(true, forKey: LeadPlayerKey)
+    defaults.setValue(2, forKey: NumPlayersKey)
     return Players()
-        .environment(UnigameModel())
+        .environment(UnigameModel(defaults: defaults))
 }
