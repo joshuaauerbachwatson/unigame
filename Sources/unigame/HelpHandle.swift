@@ -32,9 +32,6 @@ public protocol HelpHandle {
     // - The email address to which feedback should be sent.
     var email: String { get }
     
-    // - Text to use in the return button,
-    var returnText: String { get }
-
     // - The name to use when referring to the app.
     var appName: String { get }
     
@@ -51,8 +48,6 @@ struct NoHelpProvided: HelpHandle {
     var appSpecificHelp: String = "No Help Provided for this App"
     
     var email: String = "nobody@noplace.com"
-    
-    var returnText: String = "Return to App"
     
     var appName: String = "Unknown"
     

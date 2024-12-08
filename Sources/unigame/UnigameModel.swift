@@ -89,7 +89,7 @@ public final class UnigameModel {
     // The HelpController
     var helpController: HelpController {
         let mergedHelp = getMergedHelp(helpHandle)
-        return HelpController(html: mergedHelp, email: helpHandle.email, returnText: helpHandle.returnText,
+        return HelpController(html: mergedHelp, email: helpHandle.email, returnText: nil,
                               appName: helpHandle.appName, tipReset: helpHandle.tipResetter)
     }
     
