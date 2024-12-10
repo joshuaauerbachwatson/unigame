@@ -26,9 +26,14 @@ img {
 	<p>Help is organized as follows.</p>
 	<ul>
 		<li><a href="#What">What is %appName%?</a></li>
-		<li><a href="#Assembling">How To Assemble Players</a></li>
+        <li><a href="#Planning">Planning a Game</a></li>
+        <li><a href="#Solitaire">Solitaire Mode</a></li>
+        <li><a href="#Top">The Top Controls</a></li>
+        <li><a href="#Assembling">Assembling Players</a></li>
+        <li><a href="#Login">The Login Process</a></li>
+        <li><a href="#Chat">Using the Integrated Chat Channel</li>
 		%appSpecificTOC%
-		<li><a href="#Problems">Reporting Problems<</a></li>
+		<li><a href="#Problems">Reporting Problems</a></li>
 	</ul>
 
 	<br>
@@ -41,114 +46,165 @@ img {
 
 	<br>
 	<hr>
-	<h2>
-		<a name="Assembling" />How to Connect Players
-	</h2>
+    
+    <h2>
+        <a name="Planning">Planning a Game</a>
+    </h2>
+    
+    <p>
+        %appName does not provide "social" functions for finding like-minded players.  Rather, players who want to play
+        together must communicate ahead of time and agree on a few things.
+        <ul><li>They must agree on one of them to be "Leader".  The leader is responsible for
+            recording the number of players and for setting up the game.  Once the game has finished setting up and
+            has started play, the leader is just like any other player.</li>
+            <li>They must agree on whether they will play in "Nearby Only" mode.  In this mode, users must be in proximity
+                to each other (in bluetooth range or on the same wifi hub).  This mode allows the Login step to be bypassed.
+                If "Nearby Only" is not chosen, players can be anywhere on the internet but must identify themselves via
+                a Login step.</li>
+            <li>They must agree on a "game token" that they will all use to identify the group.  This can be any string of
+                upper and lowercase letters, digits, hyphens and underscores, at least six characters long.  The game token
+                can be meaningful and need not adhere to "password strength" rules but it is better if it is not too likely
+                to be chosen by other groups.  The game token is what keeps different groups of players from merging into one
+                bigger (unintended) group.</li>
+        </ul>
+    </p>
+    
+    <br>
+    <hr>
+    
+    <h2>
+        <a name="Solitaire">Solitaire Mode</a>
+    </h2>
+    
+    <p>
+        If you identify yourself as leader and set the number of players to one, you are in "solitaire mode".  No game
+        token is needed and you can proceed from the player-control view to the main view without further fuss.
+        Solitaire mode is a good way to familiarize yourself with the contents of the main view and I recommend you try
+        that.  However, %appName% is not intended primarily as a solitaire game.
+    </p>
+        
+    <br>
+    <hr>
+
+    <h2>
+        <a name="Top">The Top Controls</a>
+    </h2>
 
     <p>
-        %appName% does not provide any "social" features.  Rather, players need to arrange
-        in advance to play together.
-        These instructions assume you have already identified the players who will play together
-        and now want to connect them to each other.  Each such player must have installed %appName%
-        on a device.
-
-	<p>
-		After installing and starting the game, touch the <b>Players</b>
-		button to bring up a dialog that looks like the picture. <img
-			alt="initial players dialog" src="./playerDialogInitial.png">
+		Most screens shown by %appName% have the following material at the top.
+		<img alt="Top of Screen" src="./topView.png" style='height: 100%; width: 100%; object-fit: contain'>
 	</p>
+    
+    <p>
+        The <b>Players</b> row contains labels for all the players who are in the game.
+        You are represented by the label <b>You</b>.  Other players will show up as they join the game.
+        If the expected number of players is known, there may be player slots labelled as "missing" or "searching".
+    </p>
+    
+    <p>
+        A player label with a running figure in it is the player whose turn it is.  The other players will have standing figures.
+    </p>
+    
+    <p>
+        Below the <b>Players</b> row is a space where the latest chat message is shown.  A change to the contents of
+        this area will serve as notice that another player has something to say.  In the picture, no chat has occurred
+        yet.
+    </p>
+    
+    <p>
+        Below the chat message area is a row with three buttons.
+        <ol>
+            <li>The <b>Chat</b> button opens the chat view, which provides a scrollable complete transcript
+                of the chat messages since you joined the game.  A text entry area in this view allows you to
+                send messages.  The <b>Chat</b> button is disabled until there are at least two players in the game.</li>
+            <li>The <b>End Game</b> button ends the game.  It is disabled until you join the game.  Once it is enabled it
+                remained so until you either touch it to end the game or some other player ends the game or the game ends
+                due to some unrecoverable error.  Any player can end the game pre-emptively.
+            <li>The <b>Help</b> button brings up this help view.  That button is always enabled.
+        </ol>
+    </p>
 
+    <br>
+    <hr>
+
+    <h2>
+        <a name="Assembling">Assembling Players</a>
+    </h2>
+    
 	<p>
-		The first time you do this, <b>Your User Name</b> will be whatever
-		name you gave to your device (usually not too meaningful to others).
-		Touch the white text box to bring up the keyboard and replace the name
-		with a name that you want to be known by when playing. Players who
-		will play together should choose distinct names.
+		When you first open the app, the center of the screen will be occupied by the player-control view, which looks
+        like the following. <img alt="Assembling Players" src="./playersView.png"
+            style='height: 100%; width: 100%; object-fit: contain'>
 	</p>
 		
 	<p>
-		Exactly one player in the group of players must be the leader.  That player will actually set up the
-		game (deal out the cards, do whatever else is required).  The leader also sets the number of players
-		that are expected. Touch the blue text to the right of the <b>Are you leader?</b> label to
-		toggle back and forth between being the leader and not.  Notice that the <b>Number of players</b>
-		stepper appears and disappears accordingly, as does the <b>Setup Game</b> button at the top of
-		the app window (not shown in the picture).
-	</p>
-		  
-	<p>
-		Decide who in your group will be the leader.  That player should select <b>Yes</b> and the others should select <b>No</b>.
-        The player who is leader should then set the number of players.
-	</p>
-		
-	<p>
-		There are two ways for players to connect to each other (the <b>Players source</b>), called <b>Nearby
-			only</b> and <b>Entire internet</b>. One of these modes is shown in blue.
-		Touching the blue text toggles between the two modes.  All players must select the same mode.
-	</p>
+        Where you see <b>I am: Logan Lester</b> in the picture, that is the name by which you will be known to
+        the other players.  It will appear in chat messages sent by you and in the player labels in the other players'
+        views.  The first time you play an arbitrary random name will appear there.  You can touch and then overtype this
+        name to identify yourself in any way you prefer.  That change will be remembered.
+    </p>
 
-	<h3>Nearby Only Mode</h3>
+    <p>
+		The <b>Leader</b> toggle allows you to assert that you are the Leader for the game.  As previously noted,
+        only one player in the game should have this toggle on.  The others should have it off.
+    </p>
 
-	<p>
-		In the <b>Nearby only</b> mode, players must be near each other
-		(within bluetooth range or on the same wifi hub). All such players are
-		assumed to be playing with each other. Once all players have set the <b>Nearby
-		only</b> mode, and a single player has assumed the leader role and set the number
-		of players, all players may then touch the <b>Find Players</b> button to move on
-		to actual play.
+    <p>
+        The stepper for choosing the number o players will appear only if the <b>Leader</b> toggle is on.  This is
+        how the leader sets the number of players.  It is also how you choose solitaire mode: by setting the number of
+        players to one.
+    </p>
+    
+    <p>
+        The <b>Nearby Only</b> toggle must be set the same way by all the players.  Set it on if the players will be
+        in close proximity and you wish to avoid the step of logging into the server.
+    </p>
+    
+    <p>
+        The <b>Game token:</b> field is empty in the picture because no game token has been entered.  Every player in
+        the game must be using the same game token.  To enter a new game token touch the <b>Add</b> button.  Once you have
+        entered a game token, it will appear in the <b>Game token:</b> field every time until you delete it or enter a new
+        one.  When you have used more than one game token without deleting, you can touch <b>Saved Game Tokens</b> to change
+        which one is active.
 	</p>
-
-	<h3>Entire Internet Mode</h3>
-
-	<p>
-		When you switch to <b>Entire Internet</b> mode, the players can be
-		anywhere, as long as they each have an internet connection active on
-        their device. An additional <b>Token</b> field (and sometimes additional buttons) will appear as
-        in the picture. <img
-            alt="entire internet mode" src="./playerDialogInternet.png">
-		All players must touch the token field and then fill it in using the same value.
-		Once this is true, all players can touch <b>Find Players</b> and move on to actual play.
-	</p>
-	<ul>
-        <li>The <em>token</em> is a value chosen by a group of players to distinguish
-            if from other groups of players.  It should be hard to guess, so that no other %appName% players can
-            crash your game and groups of players don't collide with each other.</li>
-		<li>The game token must be made up of letters and numbers only.  Upper and lower
-		case letters are distinct (case is meaningful).</li>
-        <li>The token must be exactly 12 characters long.  The entry field will stop accepting new characters when 12
-            have been entered.  If there are too few, there will be an error popup when you exit text entry or press the
-        <b>Find Players</b> button.</li>
-        </li>
-	</ul>
-	<h4>Remembering and retrieving tokens</h4>
-	<p>
-		Since it takes some effort for a group to come up with a token and for all players to enter it,
-		%appName% provides the ability to remember tokens.  A remembered token can have a "nickname" to help you remember
-        its purpose.
-        <img alt="remember token dialog" src="./rememberTokenDialog.png">
-	</p>
-	<ul>
-		<li>When a valid and complete token has been entered, an
-			additional <b>Remember this Token</b> button will appear. If you
-			touch this button, you will get a confirmation dialog that looks like
-			the picture. Touch <b>Confirm</b> to remember the token.  If you wish, you can
-			first enter text in the optional "nickname" field.  This will associate a nickname
-			to remind you of the purpose of the token. You can remember multiple tokens.
-		</li>
-		<li>If you have any remembered tokens, one of them will appear in
-			the <b>Token</b> field the next time you open the <b>Players</b>
-			dialog. There will also be another button labelled <b>Use saved
-				token</b>. Touching this button will bring up a selection list from
-			which you can select any of your saved tokens. You can also delete
-			saved tokens from this selection list by sliding the selection left
-			to reveal a delete button.
-		</li>
-		<li>When tokens have assigned nicknames, they appear in the <b>Token</b>
-			field (and in the selection list for using saved tokens) with the
-			nickname before the token, separated by a colon (e.g. <b>Bilbo:
-				Bilbobaggins</b>). Only the token is shared with other players, however.
-			The nickname is just for your private use and is always optional.
-		</li>
-	</ul>
+    
+    <p>
+        The portion of the view devoted to game tokens will disappear in solitaire mode.  You will not need a game token
+        if you are not connecting to other players.
+    </p>
+    
+    <p>
+        The two buttons <b>Login</b> and <b>Join</b> are shown at the bottom, unless you have chosen solitaire mode, in which
+        case there will be a single <b>Play</b> button.  The <b>Login</b> button is enabled only if
+        <ul><li><b>Nearby Only </b> is off</li>
+            <li>you have not logged into the server in the last week</li>
+        </ul>
+        The <b>Join</b> button is enabled only if
+        <ul><li><b>Login</b> is disabled</li>
+            <li>you have a valid game token</li>
+            <li>you have not yet joined the game</li>
+        </ul>
+        Once you join the game, the player-control view will continue to show with the <b>Players</b> area showing that not
+        all players are present.  You can press <b>End Game</b> to cancel the operation of assembling players.  Once all
+        players are assembled, %appName% will shift to its next view.
+    </p>
+                
+    <br>
+    <hr>
+    
+    <h2>
+        <a name="Chat">Using the Integrated Chat Channel</a>
+    </h2>
+    
+    <br>
+    <hr>
+    
+    <h2>
+        <a name="Login">The Login Process</a>
+    </h2>
+    <br>
+    <hr>
+    
 	%appSpecificHelp%
 
 	<br>

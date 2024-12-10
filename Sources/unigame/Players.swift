@@ -24,13 +24,13 @@ struct Players: View {
     var body: some View {
         @Bindable var model = model
         VStack {
+            Spacer()
             HStack {
                 Text("I am:").font(.headline)
                 TextField("Player name", text: $model.userName)
                     .onSubmit {
                         model.players[0] = Player(model.userName, model.leadPlayer)
                     }
-                Divider()
                 Toggle(isOn: $model.leadPlayer) {
                     Text("Leader")
                 }
@@ -50,7 +50,7 @@ struct Players: View {
                             in: model.gameHandle.numPlayerRange) {
                         Text(stepperMsg)
                     }
-                    Divider()
+                    Spacer()
                     if !model.solitaireMode {
                         scope
                     }
@@ -59,7 +59,6 @@ struct Players: View {
             } else {
                 scope.padding()
             }
-            Divider()
             if model.solitaireMode {
                 Button("Play", systemImage: "figure.play") {
                     model.playBegun = true
@@ -68,7 +67,6 @@ struct Players: View {
                 .buttonBorderShape(.roundedRectangle)
             } else {
                 GameTokensView()
-                Divider()
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in

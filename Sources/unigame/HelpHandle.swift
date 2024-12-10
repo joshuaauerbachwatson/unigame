@@ -43,13 +43,13 @@ public protocol HelpHandle {
 struct NoHelpProvided: HelpHandle {
     var appSpecificTOC = ""
     
-    var generalDescription = "No Help Provided for this App"
+    var generalDescription = "No Description Provided for this App"
     
-    var appSpecificHelp: String = "No Help Provided for this App"
+    var appSpecificHelp: String = "No Help Provided Specific to this App"
     
     var email: String = "nobody@noplace.com"
     
-    var appName: String = "Unknown"
+    var appName: String = "This App"
     
     var tipResetter: (any AuerbachLook.TipResetter)? = nil
 }

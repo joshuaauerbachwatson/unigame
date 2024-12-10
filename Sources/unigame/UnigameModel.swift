@@ -331,11 +331,9 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
     help = help.replacingOccurrences(of: "%appSpecificTOC%", with: handle.appSpecificTOC)
     help = help.replacingOccurrences(of: "%appSpecificHELP%", with: handle.appSpecificHelp)
-    if handle.tipResetter != nil {
-        let tipResetString = 
+    let tipResetString = handle.tipResetter == nil ? "" :
             "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">Restore all tips</a>"
-        help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
-    }
+    help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
     return help
 }
 
