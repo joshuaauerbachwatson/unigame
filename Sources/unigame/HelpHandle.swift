@@ -29,6 +29,10 @@ public protocol HelpHandle {
     // - The HTML contents for the app-specific section of the help
     var appSpecificHelp: String { get }
     
+    // - The baseURL for resolving any resource references in the supplied HTML.
+    // May be nil if not needed
+    var baseURL: URL? { get }
+    
     // - The email address to which feedback should be sent.
     var email: String { get }
     
@@ -46,6 +50,8 @@ struct NoHelpProvided: HelpHandle {
     var generalDescription = "No Description Provided for this App"
     
     var appSpecificHelp: String = "No Help Provided Specific to this App"
+    
+    var baseURL: URL? = nil
     
     var email: String = "nobody@noplace.com"
     

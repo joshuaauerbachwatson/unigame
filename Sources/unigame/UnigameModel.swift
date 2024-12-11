@@ -88,8 +88,8 @@ public final class UnigameModel {
     
     // The HelpController
     var helpController: HelpController {
-        let (mergedHelp, baseURL) = getMergedHelp(helpHandle)
-        return HelpController(html: mergedHelp, baseURL: baseURL, email: helpHandle.email, returnText: nil,
+        let mergedHelp = getMergedHelp(helpHandle)
+        return HelpController(html: mergedHelp, baseURL: helpHandle.baseURL, email: helpHandle.email, returnText: nil,
                               appName: helpHandle.appName, tipReset: helpHandle.tipResetter)
     }
     
@@ -315,7 +315,7 @@ public final class UnigameModel {
 }
 
 // Compute the merged help using material provided by the HelpHandle and standard (templatized) Unigame Help
-fileprivate func getMergedHelp(_ handle: HelpHandle) -> (String, URL) {
+fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     // Load the unigame help (templatized)
     guard let url = Bundle.module.url(forResource: "unigameHelp", withExtension: "html") else {
         Logger.logFatalError("Unigame help not present in the bundle")
@@ -334,7 +334,7 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> (String, URL) {
     let tipResetString = handle.tipResetter == nil ? "" :
             "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">Restore all tips</a>"
     help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
-    return (help, url)
+    return help
 }
 
 // The CommunicatorDelegate portion of the logic
