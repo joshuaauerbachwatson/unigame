@@ -16,7 +16,7 @@ public final class Auth0TokenProvider: TokenProvider {
     public init() {}
     public func login() async -> Result<Credentials, Error> {
         do {
-            let auth0creds = try await Auth0.webAuth().useHTTPS().audience("https://unigame.com").start()
+            let auth0creds = try await Auth0.webAuth(bundle: Bundle.module).useHTTPS().audience("https://unigame.com").start()
             let credentials = Credentials(accessToken: auth0creds.accessToken, expires: auth0creds.expiresIn)
             return .success(credentials)
         } catch {
