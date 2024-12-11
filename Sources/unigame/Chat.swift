@@ -61,7 +61,8 @@ struct Chat: View {
 
 #Preview {
     let model = UnigameModel()
-    model.chatTranscript = ["Hi there", "This is a chat message"]
+    model.chatTranscript = ["[Bob] Hi there", "[Ray] Hello yourself"]
+    model.lastChatMsgTime = Date.now
     return Chat()
         .environment(model)
 }
