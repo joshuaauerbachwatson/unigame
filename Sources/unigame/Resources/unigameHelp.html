@@ -122,8 +122,9 @@ img {
                 send messages.  The <b>Chat</b> button is disabled until there are at least two players in the game.</li>
             <li>The <b>End Game</b> button ends the game.  It is disabled until you join the game.  Once it is enabled it
                 remained so until you either touch it to end the game or some other player ends the game or the game ends
-                due to some unrecoverable error.  Any player can end the game pre-emptively.  It is recommended that you
-                send a chat message first if you are ending the game.  However, %appName% does not enforce this.
+                due to some unrecoverable error.  Any player can end the game pre-emptively.  It is good etiquette to
+                let others know first (using the <b>Chat</b> button or by some other means).  But, other players will
+                find out quickly because they will get a pop-up explaining that you have left the game and game is over.
             <li>The <b>Help</b> button brings up this help view.  That button is always enabled.
         </ol>
     </p>
@@ -144,8 +145,9 @@ img {
 	<p>
         Where you see <b>I am: Logan Lester</b> in the picture, that is the name by which you will be known to
         the other players.  It will appear in chat messages sent by you and in the player labels in the other players'
-        views.  The first time you play an arbitrary random name will appear there.  You can touch and then overtype this
-        name to identify yourself in any way you prefer.  That change will be remembered.
+        views.  The first time you play, a randomly chosen name will appear there.  You can touch and then overtype this
+        name to identify yourself using a name more to your liking.  That change will be remembered until you change
+        it again.
     </p>
 
     <p>
@@ -189,6 +191,15 @@ img {
         <ul><li>you entered a game token</li>
             <li>you have not yet joined the game</li>
         </ul>
+    </p>
+
+    <p>
+        If the <b>Join</b> button is enabled, press it to start the process of joining the game (searching for the other
+        players).  Once every player has pressed this button (assuming they entered the other information correctly) the game
+        should assemble in just a few seconds and all the players will have a consistent set of player labels.
+    </p>
+
+    <p>
         Once you join the game, the player-control view may continue to show, as long as the <b>Players</b> area
         indicates that not all players are yet present.  You can press <b>End Game</b> to cancel your membership in
         the game.  As soon as all players are assembled, %appName% will shift to its next view.  The top controls are
@@ -197,16 +208,38 @@ img {
     </p>
                 
     <br>
-``    <hr>
+    <hr>
                             
     <h2>
        <a name="Login">The Login Process</a>
     </h2>
 
     <p>
-        %appName% does not maintain its own database of users.  Rather, it uses the <b>Auth0 by Okta</b> as a user
-       authentication service.  When you touch <b>Login</b> you are presented with a dialog provided by Auth0, allowing you to
-       authenticate yourself by various means.
+        %appName% uses a server to mediate traffic between players (except in <b>Nearby Only</b> mode).  To protect the server from abuse by hackers and such, we require a login.
+    </p>
+        
+    <p>
+        %appName% uses <b>Auth0</b> (a respected
+        online secure login provider) to authenticate its users.  When you touch <b>Login</b> you are first told
+        that you are about to share information with <b>auth0.com</b>.  Assuming you agree, you are then presented with
+        a dialog crafted by Auth0, giving you the choice of several different ways of authenticating yourself.
+        You can create an account using your email address and choosing a password (which you will then use
+        for subsequent logins).  Or, you can log in using existing accounts you may have at GitHub, Google, or Apple.
+        We may enable additional account providers in the future (Auth0 supports many of these).  Using a service with
+        which you already have an account avoids the need to remember yet another password and reduces the amount of
+        information about you that Auth0 needs to store directly.
+    </p>
+    
+    <p>
+        Once you are logged in, the data area on your device will contain an <em>access token</em> which expires in about
+        one week.  This means you will need to login once a week or so.  The access token is the only information about
+        you that %appName% stores on your device.  The server does not store <em>any</em> information about you.
+        Auth0 stores enough information to figure out who you are from the access token you use.
+        So, %appName% can find out, from Auth0, what account you used to identify yourself.
+        It does not routinely do so, and it does not make routine use of this information, nor does it ever share it with
+        a third party.
+        The capability is there in case some %appName% players turn out to be bad actors with malicious intent who
+        need to be blocked from using the server.
     </p>
 
     <br>
@@ -238,7 +271,7 @@ img {
       is sent every time you touch the <b>Return</b> key.
       
       <p>When you are done chatting, press the navigation back-arrow to return to the previous view.  On any view, the last
-      chat message in the transript will always be displayed, along with the time it was posted.
+      chat message in the transcript will always be displayed, along with the time it was posted.
         
     
     <br>
