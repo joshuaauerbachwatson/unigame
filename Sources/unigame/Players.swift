@@ -82,6 +82,14 @@ struct Players: View {
                     .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
                               || (!model.nearbyOnly
                                   && !model.mayConnect))
+                    // TEMP for now
+                    Button("Logout") {
+                        Task { @MainActor in
+                            await model.logout()
+                        }
+                    }
+                    .foregroundStyle(.red)
+                    .disabled(!model.mayConnect)
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)

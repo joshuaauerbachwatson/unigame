@@ -38,14 +38,16 @@ public struct Credentials: Codable, Sendable {
 // The token must be valid for audience https://unigame.com in order to validate at the server.
 public protocol TokenProvider: Sendable {
     func login() async -> Result<Credentials, Error>
+    func logout() async -> Error?
 }
 
 // Provides load and store operations for Credentials and a 'login' cover function for the token provider
 // that stores the result.  The load operation guards against the use of expired tokens.
 class CredentialStore {
+    static let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
+
     // Load function.  Returns accessToken, manages expiration and serialization errors internally
     class func load() -> Credentials? {
-        let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
         do {
             let archived = try Data(contentsOf: storageFile)
             Logger.log("Credentials loaded from disk")
@@ -58,12 +60,21 @@ class CredentialStore {
         return nil
     }
     
+    // Remove the credential store (as part of logout)
+    class func remove() -> Error? {
+        do {
+            try FileManager.default.removeItem(at: storageFile)
+            return nil
+        } catch {
+            return error
+        }
+    }
+    
     // Store a new set of credentials
     class func store(_ creds: Credentials) -> Bool {
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(creds) else { return false }
-        let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile).path
-        FileManager.default.createFile(atPath: storageFile, contents: encoded, attributes: nil)
+        FileManager.default.createFile(atPath: storageFile.path, contents: encoded, attributes: nil)
         return true
     }
 }

@@ -263,6 +263,25 @@ public final class UnigameModel {
             displayError(error.localizedDescription)
         }
     }
+    
+    // Perform Logout function
+    func logout() async {
+        Logger.log("Logging out")
+        // Try to logout from the token provider
+        if let err = await tokenProvider.logout() {
+            Logger.log("Logout failed: \(err)")
+            displayError(err.localizedDescription)
+            return
+        }
+        // Logout succeeded.  Try to remove credential store
+        if let err = CredentialStore.remove() {
+            Logger.log("Credential store could not be removed")
+            displayError(err.localizedDescription)
+            return
+        }
+        // Logout succeeded and credential store removed.  Nullify credentials in the model.
+        credentials = nil
+    }
 
     // Starts the communicator and begins the search for players
     func connect() async {

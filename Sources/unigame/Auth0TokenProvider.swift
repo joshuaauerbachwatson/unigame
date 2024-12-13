@@ -23,4 +23,13 @@ public final class Auth0TokenProvider: TokenProvider {
             return .failure(error)
         }
     }
+    
+    public func logout() async -> Error? {
+        do {
+            try await Auth0.webAuth().useHTTPS().clearSession(federated: false)
+            return nil
+        } catch {
+            return error
+        }
+    }
 }

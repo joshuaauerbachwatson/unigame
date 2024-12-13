@@ -63,6 +63,9 @@ struct DummyTokenProvider: TokenProvider {
         let ans = Credentials(accessToken: "", expires: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
         return .success(ans)
     }
+    func logout() async -> Error? {
+        return nil
+    }
 }
 
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.  There is no real game logic
