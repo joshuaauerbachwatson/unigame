@@ -18,7 +18,7 @@ import SwiftUI
 import AuerbachLook
 
 
-struct Help: UIViewControllerRepresentable {
+struct HelpWrapper: UIViewControllerRepresentable {
     typealias UIViewControllerType = HelpController
     @Environment(UnigameModel.self) var model
 
@@ -28,6 +28,17 @@ struct Help: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: HelpController, context: Context) {
         // TODO; possibly nothing needed here.
+    }
+}
+
+struct Help: View {
+    var body: some View {
+        ZStack {
+            Color.brown
+            HelpWrapper()
+                .padding()
+        }
+
     }
 }
 
