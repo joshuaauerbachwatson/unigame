@@ -348,12 +348,21 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     // Apply substitutions to the help
     help = help.replacingOccurrences(of: "%appName%", with: handle.appName)
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
-    help = help.replacingOccurrences(of: "%appSpecificTOC%", with: handle.appSpecificTOC)
+    help = help.replacingOccurrences(of: "%appSpecificTOC%", with: generateTOC(handle.appSpecificTOC))
     help = help.replacingOccurrences(of: "%appSpecificHELP%", with: handle.appSpecificHelp)
     let tipResetString = handle.tipResetter == nil ? "" :
             "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">Restore all tips</a>"
     help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
     return help
+}
+
+// Build the app-specific TOC String from the provided tag/text pairs
+fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
+    var ans = ""
+    for pair in pairs {
+        ans += "        <li><a href=\"#\(pair.tag)\">\(pair.text)/a></li>\n"
+    }
+    return ans
 }
 
 // The CommunicatorDelegate portion of the logic

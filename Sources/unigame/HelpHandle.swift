@@ -17,11 +17,15 @@
 import Foundation
 import AuerbachLook
 
+public struct HelpTOCEntry {
+    let tag: String
+    let text: String
+}
+
 public protocol HelpHandle {
-    // - The HTML for the table of contents for the app specific help
-    // Each entry should be of the form
-    // <li><a href="#SOME-TAG">SOME TEXT</a></li>
-    var appSpecificTOC: String { get }
+    // - The table of contents for the app specific help.  Each entry needs both a tag (which corresponds to an
+    // <a name="<tag>"></a> entry somewhere in the appSpecificHelp) and some text (which will appear in the TOC).
+    var appSpecificTOC: [HelpTOCEntry] { get }
 
     // - The HTML for a brief general description of the app
     var generalDescription: String { get }
@@ -45,7 +49,7 @@ public protocol HelpHandle {
 
 // Placeholder for the case when the app does not provide help
 struct NoHelpProvided: HelpHandle {
-    var appSpecificTOC = ""
+    var appSpecificTOC: [HelpTOCEntry] = []
     
     var generalDescription = "No Description Provided for this App"
     
