@@ -21,6 +21,10 @@ import AuerbachLook
 public struct HelpTOCEntry {
     public let tag: String
     public let text: String
+    public init(_ tag: String, _ text: String) {
+        self.tag = tag
+        self.text = text
+    }
 }
 
 // Defines the HelpHandle to be supplied by apps
