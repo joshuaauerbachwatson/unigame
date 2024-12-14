@@ -360,7 +360,7 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
 fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
     var ans = ""
     for pair in pairs {
-        ans += "        <li><a href=\"#\(pair.tag)\">\(pair.text)/a></li>\n"
+        ans += "        <li><a href=\"#\(pair.tag)\">\(pair.text)</a></li>\n"
     }
     return ans
 }
