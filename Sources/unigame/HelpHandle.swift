@@ -17,11 +17,13 @@
 import Foundation
 import AuerbachLook
 
+// Defines the TOC entry for use in the HelpHandle
 public struct HelpTOCEntry {
-    let tag: String
-    let text: String
+    public let tag: String
+    public let text: String
 }
 
+// Defines the HelpHandle to be supplied by apps
 public protocol HelpHandle {
     // - The table of contents for the app specific help.  Each entry needs both a tag (which corresponds to an
     // <a name="<tag>"></a> entry somewhere in the appSpecificHelp) and some text (which will appear in the TOC).
