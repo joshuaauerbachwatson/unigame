@@ -370,6 +370,9 @@ fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
         let indent = indented ? "    " : ""
         ans += indent + "        <li><a href=\"#\(pair.tag)\">\(pair.text)</a></li>\n"
     }
+    if indented {
+        ans += "        </ul>\n"
+    }
     return ans
 }
 
