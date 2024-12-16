@@ -359,8 +359,16 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
 // Build the app-specific TOC String from the provided tag/text pairs
 fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
     var ans = ""
+    var indented = false
     for pair in pairs {
-        ans += "        <li><a href=\"#\(pair.tag)\">\(pair.text)</a></li>\n"
+        if pair.indented && !indented {
+            ans += "        <ul>\n"
+            indented = true
+        } else if !pair.indented && indented {
+            ans += "        </ul>\n"
+        }
+        let indent = indented ? "    " : ""
+        ans += indent + "        <li><a href=\"#\(pair.tag)\">\(pair.text)</a></li>\n"
     }
     return ans
 }

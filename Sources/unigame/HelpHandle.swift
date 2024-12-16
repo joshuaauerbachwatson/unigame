@@ -21,9 +21,11 @@ import AuerbachLook
 public struct HelpTOCEntry {
     public let tag: String
     public let text: String
-    public init(_ tag: String, _ text: String) {
+    public let indented: Bool
+    public init(_ tag: String, _ text: String, indented: Bool = false) {
         self.tag = tag
         self.text = text
+        self.indented = indented
     }
 }
 
