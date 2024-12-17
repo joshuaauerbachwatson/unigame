@@ -59,7 +59,7 @@ public final class UnigameModel {
         }
     }
     
-    var numPlayers: Int {
+    public var numPlayers: Int {
         didSet {
             defaults.set(numPlayers, forKey: NumPlayersKey)
         }
