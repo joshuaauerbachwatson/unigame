@@ -23,6 +23,9 @@ struct Players: View {
     @Environment(UnigameModel.self) var model
     var body: some View {
         @Bindable var model = model
+        let scope = model.mayLogin ? AnyView(Toggle(isOn: $model.nearbyOnly) {
+            Text("Nearby Only")
+        }) : AnyView(Text("Nearby Only, Remote Disabled"))
         VStack {
             Spacer()
             HStack {
@@ -40,9 +43,6 @@ struct Players: View {
                 }
             }
             .padding()
-            let scope = Toggle(isOn: $model.nearbyOnly) {
-                Text("Nearby Only")
-            }
             if model.leadPlayer {
                 HStack {
                     let stepperMsg = model.solitaireMode ? "single player" : "\(model.numPlayers) players"
@@ -73,7 +73,7 @@ struct Players: View {
                             await model.login()
                         }
                     }
-                    .disabled(model.nearbyOnly || model.mayConnect)
+                    .disabled(model.nearbyOnly || !model.mayLogin || model.mayConnect)
                     Button("Join", systemImage: "person.line.dotted.person") {
                         Task { @MainActor in
                             await model.connect()
@@ -89,7 +89,7 @@ struct Players: View {
                         }
                     }
                     .foregroundStyle(.red)
-                    .disabled(!model.mayConnect)
+                    .disabled(!model.mayConnect || !model.mayLogin)
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)

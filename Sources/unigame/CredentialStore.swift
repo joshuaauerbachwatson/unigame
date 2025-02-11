@@ -35,14 +35,14 @@ public struct Credentials: Codable, Sendable {
 }
 
 // A provider for the token when an unexpired one is not found stored locally.
-// The token must be valid for audience https://unigame.com in order to validate at the server.
+// The token must be valid for audience https://unigame.com and must be issued by the
+// same Auth0 tenant as is used by the server.
 public protocol TokenProvider: Sendable {
     func login() async -> Result<Credentials, Error>
     func logout() async -> Error?
 }
 
-// Provides load and store operations for Credentials and a 'login' cover function for the token provider
-// that stores the result.  The load operation guards against the use of expired tokens.
+// Provides load and store operations for Credentials.
 class CredentialStore {
     static let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
 

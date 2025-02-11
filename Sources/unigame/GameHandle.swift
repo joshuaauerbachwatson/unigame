@@ -20,7 +20,7 @@ import SwiftUI
 @MainActor @preconcurrency
 public protocol GameHandle {
     // The TokenProvider
-    var tokenProvider: any TokenProvider { get }
+    var tokenProvider: (any TokenProvider)? { get }
     
     // The possible range for number of players
     var numPlayerRange: ClosedRange<Int> { get }
@@ -58,19 +58,9 @@ public protocol GameHandle {
 
 // A stand-in for the real token provider, allowing a UnigameModel to be instantiated in previews, etc.
 // This does _not_ support communication with the server.
-struct DummyTokenProvider: TokenProvider {
-    func login() async -> Result<Credentials, Error> {
-        let ans = Credentials(accessToken: "", expires: Date(timeIntervalSinceNow: 400 * 24 * 60 * 60))
-        return .success(ans)
-    }
-    func logout() async -> Error? {
-        return nil
-    }
-}
-
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.  There is no real game logic
 struct DummyGameHandle: GameHandle {
-    var tokenProvider: any TokenProvider = DummyTokenProvider()
+    var tokenProvider: (any TokenProvider)? = nil
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
     func stateChanged(_ data: [UInt8]) -> (any Error)? {

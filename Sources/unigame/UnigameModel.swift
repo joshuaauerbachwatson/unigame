@@ -118,6 +118,10 @@ public final class UnigameModel {
     var mayConnect: Bool {
         return credentials?.valid ?? false
     }
+    
+    var mayLogin: Bool {
+        gameHandle.tokenProvider != nil
+    }
 
     // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
     var communicator : Communicator? = nil
@@ -249,6 +253,9 @@ public final class UnigameModel {
     
     // Perform login function,
     func login() async {
+        guard let tokenProvider else {
+            Logger.logFatalError("Login called when it should have been disabled")
+        }
         Logger.log("Logging in")
         let result = await tokenProvider.login()
         switch result {
@@ -266,6 +273,9 @@ public final class UnigameModel {
     
     // Perform Logout function
     func logout() async {
+        guard let tokenProvider else {
+            return // Not really an error since logout is only present as a development aid
+        }
         Logger.log("Logging out")
         // Try to logout from the token provider
         if let err = await tokenProvider.logout() {
@@ -380,7 +390,7 @@ fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
 // The CommunicatorDelegate portion of the logic
 fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
 extension UnigameModel: @preconcurrency CommunicatorDispatcher {
-    var tokenProvider: any TokenProvider {
+    var tokenProvider: (any TokenProvider)? {
         return gameHandle.tokenProvider
     }
     
