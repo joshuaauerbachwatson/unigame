@@ -78,7 +78,9 @@ public final class UnigameModel {
     }
     
     var missingGameToken: Bool {
-        !nearbyOnly && (gameToken ?? "").isEmpty
+        Logger.log("Is the game token missing?  Well, nearbyOnly=\(nearbyOnly) and" +
+                   " gameToken=\(gameToken ?? "")")
+        return !nearbyOnly && (gameToken ?? "").isEmpty
     }
     
     var savedTokens: [String] {
@@ -216,6 +218,12 @@ public final class UnigameModel {
         chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
         Logger.log("New game initialized")
+        Logger.log("userName=\(userName)")
+        Logger.log("leadPlayer=\(leadPlayer)")
+        Logger.log("numPlayers=\(numPlayers)")
+        Logger.log("nearbyOnly=\(nearbyOnly)")
+        Logger.log("gameToken=\(gameToken ?? "<missing>")")
+        Logger.log("There are \(savedTokens.count) saved tokens")
     }
     
     // Main initializer.  The GameModel is supplied and things start out in the "new game" state
