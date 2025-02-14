@@ -217,6 +217,10 @@ public final class UnigameModel {
         setupIsComplete = false
         chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
+        if !hasTokenProvider {
+            // Force nearby only when login is impossible
+            nearbyOnly = true
+        }
         Logger.log("New game initialized")
         Logger.log("userName=\(userName)")
         Logger.log("leadPlayer=\(leadPlayer)")
