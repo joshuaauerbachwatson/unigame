@@ -77,6 +77,10 @@ public final class UnigameModel {
         }
     }
     
+    var missingGameToken: Bool {
+        !nearbyOnly && (gameToken ?? "").isEmpty
+    }
+    
     var savedTokens: [String] {
         didSet {
             defaults.set(savedTokens, forKey: SavedTokensKey)
@@ -113,13 +117,16 @@ public final class UnigameModel {
     }
     
     // The credentials to use with server based communicator (not used by multipeer communicator)
-    // If not present, or not valid (expired), login is required.
+    // If meeded but not present, or not valid (expired), login is required.
     var credentials = CredentialStore.load()
-    var mayConnect: Bool {
+
+    // Indicates that valid credentials are present
+    var hasValidCredentials: Bool {
         return credentials?.valid ?? false
     }
     
-    var mayLogin: Bool {
+    // Indicates that a token provider is available
+    var hasTokenProvider: Bool {
         gameHandle.tokenProvider != nil
     }
 

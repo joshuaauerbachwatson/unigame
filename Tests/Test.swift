@@ -69,7 +69,7 @@ import SwiftUI
         #expect(!model.setupIsComplete)
         #expect(!model.chatEnabled)
         #expect(!model.errorIsTerminal)
-        #expect(!model.mayConnect)
+        #expect(!model.hasValidCredentials)
         #expect(!model.playBegun)
         #expect(!model.setupInProgress)
         #expect(!model.solitaireMode)

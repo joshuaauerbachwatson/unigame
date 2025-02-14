@@ -23,7 +23,7 @@ struct Players: View {
     @Environment(UnigameModel.self) var model
     var body: some View {
         @Bindable var model = model
-        let scope = model.mayLogin ? AnyView(Toggle(isOn: $model.nearbyOnly) {
+        let scope = model.hasTokenProvider ? AnyView(Toggle(isOn: $model.nearbyOnly) {
             Text("Nearby Only")
         }) : AnyView(Text("Nearby Only, Remote Disabled"))
         VStack {
@@ -66,7 +66,7 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             } else {
-                if model.mayLogin {
+                if model.hasTokenProvider {
                     GameTokensView()
                 }
                 HStack {
@@ -75,11 +75,10 @@ struct Players: View {
                             await model.login()
                         }
                     }
-                    .disabled(model.nearbyOnly || !model.mayLogin || model.mayConnect)
-                    let mayNotJoin =
-                        !model.nearbyOnly && (model.gameToken ?? "").isEmpty
-                    || (model.communicator != nil)
-                    || (!model.nearbyOnly && !model.mayConnect)
+                    .disabled(model.nearbyOnly || !model.hasTokenProvider || model.hasValidCredentials)
+                    let mayNotJoin = model.missingGameToken
+                    || (model.communicator != nil) // already joined
+                    || (!model.nearbyOnly && !model.hasValidCredentials)
                     Button("Join", systemImage: "person.line.dotted.person") {
                         Task { @MainActor in
                             await model.connect()
