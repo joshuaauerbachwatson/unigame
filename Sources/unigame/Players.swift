@@ -66,7 +66,9 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             } else {
-                GameTokensView()
+                if model.mayLogin {
+                    GameTokensView()
+                }
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
@@ -74,22 +76,24 @@ struct Players: View {
                         }
                     }
                     .disabled(model.nearbyOnly || !model.mayLogin || model.mayConnect)
+                    let mayNotJoin =
+                        !model.nearbyOnly && (model.gameToken ?? "").isEmpty
+                    || (model.communicator != nil)
+                    || (!model.nearbyOnly && !model.mayConnect)
                     Button("Join", systemImage: "person.line.dotted.person") {
                         Task { @MainActor in
                             await model.connect()
                         }
                     }
-                    .disabled((model.gameToken ?? "").isEmpty || model.communicator != nil
-                              || (!model.nearbyOnly
-                                  && !model.mayConnect))
-                    // TEMP for now
-                    Button("Logout") {
-                        Task { @MainActor in
-                            await model.logout()
-                        }
-                    }
-                    .foregroundStyle(.red)
-                    .disabled(!model.mayConnect || !model.mayLogin)
+                    .disabled(mayNotJoin)
+                    // Uncomment when logout is needed for testing
+//                    Button("Logout") {
+//                        Task { @MainActor in
+//                            await model.logout()
+//                        }
+//                    }
+//                    .foregroundStyle(.red)
+//                    .disabled(!model.mayConnect || !model.mayLogin)
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
