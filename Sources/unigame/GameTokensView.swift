@@ -50,6 +50,10 @@ struct GameTokensView: View {
                 .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
                 }
             }.padding()
+            if (model.gameToken ?? "").isEmpty {
+                Text("A game token is required")
+                    .foregroundStyle(.red)
+            }
             Menu {
                 ForEach(model.savedTokens, id: \.self) { token in
                     Button(token) {
