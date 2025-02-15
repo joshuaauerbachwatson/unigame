@@ -77,12 +77,6 @@ public final class UnigameModel {
         }
     }
     
-    var missingGameToken: Bool {
-        Logger.log("Is the game token missing?  Well, nearbyOnly=\(nearbyOnly) and" +
-                   " gameToken=\(gameToken ?? "")")
-        return !nearbyOnly && (gameToken ?? "").isEmpty
-    }
-    
     var savedTokens: [String] {
         didSet {
             defaults.set(savedTokens, forKey: SavedTokensKey)
