@@ -102,10 +102,14 @@ public final class UnigameModel {
 
     // The index of the player whose turn it is (moves are allowed iff thisPlayer and activePlayer are the same)
     var activePlayer : Int = 0  // The player listed first always goes first but play rotates thereafter
+    
+    // Indicates the winner of the game (once a winner is determined, moves must stop but the
+    // game is not considered "Ended").
+    var winner : Int? = nil
 
     // Says whether it's this player's turn to make moves
     public var thisPlayersTurn : Bool {
-        return thisPlayer == activePlayer
+        return thisPlayer == activePlayer && winner == nil
     }
     
     var solitaireMode: Bool {
