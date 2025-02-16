@@ -105,7 +105,7 @@ public final class UnigameModel {
     
     // Indicates the winner of the game (once a winner is determined, moves must stop but the
     // game is not considered "Ended").
-    var winner : Int? = nil
+    public var winner : Int? = nil
 
     // Says whether it's this player's turn to make moves
     public var thisPlayersTurn : Bool {
