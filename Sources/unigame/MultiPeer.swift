@@ -60,7 +60,7 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
         super.init()
         serviceBrowser.delegate = self
         serviceAdvertiser.delegate = self
-        Logger.log("Multipeer: starting advertiser and browser")
+        Logger.log("Multipeer: starting advertiser and browser with appId \(appId)")
         serviceAdvertiser.startAdvertisingPeer()
         serviceBrowser.startBrowsingForPeers()
     }
@@ -98,7 +98,7 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
                 try session.send(buffer, toPeers: session.connectedPeers, with: .reliable)
                 continuation?.yield(.newChatMsg(msg))
             } catch let error {
-                continuation?.yield(.error(error, false))
+                continuation?.yield(.error(error, true))
             }
         }
     }
@@ -115,7 +115,7 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
 // Conformance to protocol MCNearbyServiceAdvertiserDelegate
 extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
-        continuation?.yield(.error(error, false))
+        continuation?.yield(.error(error, true))
     }
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID,
@@ -129,7 +129,7 @@ extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
 extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     // React to error in browsing
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
-        continuation?.yield(.error(error, false))
+        continuation?.yield(.error(error, true))
     }
     
     // React to found peer
