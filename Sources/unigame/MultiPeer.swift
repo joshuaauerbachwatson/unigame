@@ -73,8 +73,8 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     
     var continuation: AsyncStream<CommunicatorEvent>.Continuation?
     
-    // Send the game state to all peers.  A harmless no-op if there are no peers.  Handles errors (when there is at least one
-    // peer) by calling delegate.error().   Implements Communicator protocol
+    // Send the game state to all peers.  A harmless no-op if there are no peers.  Handles errors
+    // (when there is at least one peer) by calling delegate.error().   Implements Communicator protocol
     func send(_ gameState : GameState) {
         if session.connectedPeers.count > 0 {
             Logger.log("Sending new game state")
@@ -150,6 +150,9 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
         if let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {
             Logger.log("Peer is leader.  Recording numPlayers = \(numPlayers)")
             self.numPlayers = numPlayers
+            if session.connectedPeers.count == numPlayers {
+                Logger.log("We seem to have all the players; should we be reporting something here?")
+            }
         }
     }
     
