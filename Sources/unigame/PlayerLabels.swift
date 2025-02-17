@@ -52,11 +52,9 @@ struct PlayerLabels: View {
                 let iconName = player.id == model.winner ? "star.fill" :
                     player.id == model.activePlayer ? "figure.walk" : "figure.stand"
                 let text = player.id == model.thisPlayer ? "You" : player.display
-                let borderColor = model.winner == player.id ? Color.yellow : Color.black
-                let borderWidth: CGFloat = model.winner == player.id ? 6 : 2
                 Label(text, systemImage: iconName)
                     .padding(.horizontal, 5)
-                    .border(borderColor, width: borderWidth)
+                    .border(.black, width: 2)
                     .foregroundStyle(player.id == model.winner ? .yellow : .black)
             }
             Spacer()
