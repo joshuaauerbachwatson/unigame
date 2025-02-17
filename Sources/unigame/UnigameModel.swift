@@ -39,7 +39,7 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
 @Observable @MainActor @preconcurrency
 public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
-    public let gameHandle: any GameHandle
+    public var gameHandle: any GameHandle
     
     // The defaults object (usually UserDefaults.standard but can be mocked for testing)
     private let defaults: UserDefaults
@@ -243,6 +243,7 @@ public final class UnigameModel {
         self.nearbyOnly = defaults.bool(forKey: NearbyOnlyKey)
         self.gameToken = defaults.string(forKey: GameTokenKey)
         self.savedTokens = defaults.stringArray(forKey: SavedTokensKey) ?? []
+        self.gameHandle.model = self // GameHandle implementations expected to use 'weak'
         newGame()
     }
     

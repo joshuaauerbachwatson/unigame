@@ -19,6 +19,9 @@ import SwiftUI
 // Each game that uses unigame-model must provide its implementation of this protocol
 @MainActor @preconcurrency
 public protocol GameHandle {
+    // A back-pointer to the model (should be a weak reference to avoid memory issues)
+    var model: UnigameModel? { get set }
+    
     // The TokenProvider
     var tokenProvider: (any TokenProvider)? { get }
     
@@ -61,6 +64,7 @@ public protocol GameHandle {
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
 // There is no real game logic.
 struct DummyGameHandle: GameHandle {
+    var model: UnigameModel?
     var tokenProvider: (any TokenProvider)? = nil
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
