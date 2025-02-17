@@ -150,8 +150,11 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
         if let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {
             Logger.log("Peer is leader.  Recording numPlayers = \(numPlayers)")
             self.numPlayers = numPlayers
-            if session.connectedPeers.count == numPlayers {
-                Logger.log("We seem to have all the players; should we be reporting something here?")
+            if session.connectedPeers.count + 1 == numPlayers {
+                // When the leader is the last peer to arrive, we can miss notifying in session
+                // delegate because at that point the number of players is still 0.  So we do it here
+                // perhaps in addition to there (or perhaps for the first and only time).
+                reportPlayerList()
             }
         }
     }
