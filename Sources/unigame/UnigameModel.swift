@@ -376,6 +376,7 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
         // This should not occur (packaging error)
     }
     // Load the problem reporting section, if required (also templatized)
+    var problemReporting = ""
     if handle.email != nil {
         guard let url = Bundle.module.url(forResource: "problemReporting", withExtension: "html") else {
             Logger.logFatalError("Unigame help problem reporting section not present in the bundle")
@@ -384,8 +385,10 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
         guard let reporting = try? String(contentsOf: url, encoding: .utf8) else {
             Logger.logFatalError("Unigame help problem reporting section could not be read")
         }
-        help = help.replacingOccurrences(of: "%problemReporting%", with: reporting)
+        problemReporting = reporting
     }
+    // Insert problem reporting or empty space if not used
+    help = help.replacingOccurrences(of: "%problemReporting%", with: problemReporting)
     // Apply substitutions to the help (including in the reporting section)
     help = help.replacingOccurrences(of: "%appName%", with: handle.appName)
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
