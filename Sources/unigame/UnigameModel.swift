@@ -384,14 +384,14 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
         guard let reporting = try? String(contentsOf: url, encoding: .utf8) else {
             Logger.logFatalError("Unigame help problem reporting section could not be read")
         }
-        help = help.appending(reporting)
+        help = help.replacingOccurrences(of: "%problemReporting%", with: reporting)
     }
-    // Apply substitutions to the help
+    // Apply substitutions to the help (including in the reporting section)
     help = help.replacingOccurrences(of: "%appName%", with: handle.appName)
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
     help = help.replacingOccurrences(of: "%appSpecificTOC%", with: generateTOC(handle.appSpecificTOC))
     let reportingTOC = handle.email != nil ?  problemReportingTOC : ""
-    help = help.replacingOccurrences(of: "%problemReportingTOC", with: reportingTOC)
+    help = help.replacingOccurrences(of: "%problemReportingTOC%", with: reportingTOC)
     help = help.replacingOccurrences(of: "%appSpecificHelp%", with: handle.appSpecificHelp)
     // Fill in special actions section
     if handle.email != nil || handle.tipResetter != nil {
