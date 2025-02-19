@@ -361,6 +361,8 @@ public final class UnigameModel {
     }
 }
 
+fileprivate let problemReportingTOC="<li><a href=\"#Problems\">Reporting Problems</a></li>"
+
 // Compute the merged help using material provided by the HelpHandle and standard (templatized) Unigame Help
 fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     // Load the unigame help (templatized)
@@ -373,10 +375,23 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
         Logger.logFatalError("Unigame help could not be read")
         // This should not occur (packaging error)
     }
+    // Load the problem reporting section, if required (also templatized)
+    if handle.email != nil {
+        guard let url = Bundle.module.url(forResource: "problemReporting", withExtension: "html") else {
+            Logger.logFatalError("Unigame help problem reporting section not present in the bundle")
+        }
+        // Read the contents
+        guard let reporting = try? String(contentsOf: url, encoding: .utf8) else {
+            Logger.logFatalError("Unigame help problem reporting section could not be read")
+        }
+        help = help.appending(reporting)
+    }
     // Apply substitutions to the help
     help = help.replacingOccurrences(of: "%appName%", with: handle.appName)
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
     help = help.replacingOccurrences(of: "%appSpecificTOC%", with: generateTOC(handle.appSpecificTOC))
+    let reportingTOC = handle.email != nil ?  problemReportingTOC : ""
+    help = help.replacingOccurrences(of: "%problemReportingTOC", with: reportingTOC)
     help = help.replacingOccurrences(of: "%appSpecificHelp%", with: handle.appSpecificHelp)
     // Fill in special actions section
     if handle.email != nil || handle.tipResetter != nil {
