@@ -45,8 +45,8 @@ public protocol HelpHandle {
     // May be nil if not needed
     var baseURL: URL? { get }
     
-    // - The email address to which feedback should be sent.
-    var email: String { get }
+    // - (optional) The email address to which feedback should be sent.
+    var email: String? { get }
     
     // - The name to use when referring to the app.
     var appName: String { get }
@@ -65,7 +65,7 @@ struct NoHelpProvided: HelpHandle {
     
     var baseURL: URL? = nil
     
-    var email: String = "nobody@noplace.com"
+    var email: String? = nil
     
     var appName: String = "This App"
     

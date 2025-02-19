@@ -378,9 +378,24 @@ fileprivate func getMergedHelp(_ handle: HelpHandle) -> String {
     help = help.replacingOccurrences(of: "%generalDescription%", with: handle.generalDescription)
     help = help.replacingOccurrences(of: "%appSpecificTOC%", with: generateTOC(handle.appSpecificTOC))
     help = help.replacingOccurrences(of: "%appSpecificHelp%", with: handle.appSpecificHelp)
-    let tipResetString = handle.tipResetter == nil ? "" :
-            "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">Restore all tips</a>"
-    help = help.replacingOccurrences(of: "%resetAllTips%", with: tipResetString)
+    // Fill in special actions section
+    if handle.email != nil || handle.tipResetter != nil {
+        // Suppress entire section unless it has at least one action
+        let sendFeedbackString = handle.email == nil ? "" :
+        "<li><a href=\"javascript:window.webkit.messageHandlers.sendFeedback.postMessage('send')\">" +
+        "Report a Problem or Send Feedback</a>"
+        let tipResetString = handle.tipResetter == nil ? "" :
+        "<li><a href=\"javascript:window.webkit.messageHandlers.resetTips.postMessage('reset')\">" +
+        "Restore all tips</a>"
+        let specialActions = """
+    <h2>Special Actions</h2>
+    <ul>
+        \(sendFeedbackString)
+        \(tipResetString)
+    </ul>
+"""
+        help = help.replacingOccurrences(of: "%specialActions%", with: specialActions)
+    }
     return help
 }
 
