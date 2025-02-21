@@ -25,6 +25,9 @@ public protocol GameHandle {
     // The TokenProvider
     var tokenProvider: (any TokenProvider)? { get }
     
+    // The HelpHandle
+    var helpHandle: any HelpHandle { get }
+    
     // The possible range for number of players
     var numPlayerRange: ClosedRange<Int> { get }
     
@@ -66,6 +69,7 @@ public protocol GameHandle {
 struct DummyGameHandle: GameHandle {
     var model: UnigameModel?
     var tokenProvider: (any TokenProvider)? = nil
+    var helpHandle: any HelpHandle = NoHelpProvided()
     var numPlayerRange: ClosedRange<Int> = 1...6
     func reset(){}
     func stateChanged(_ data: [UInt8]) -> (any Error)? {

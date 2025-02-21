@@ -83,8 +83,10 @@ public final class UnigameModel {
         }
     }
     
-    // The HelpHandle supplied by the app (used to initiate a HelpController when needed)
-    public var helpHandle: HelpHandle = NoHelpProvided()
+    // A convenience accessor for the HelpHandle supplied with the GameHandle
+    public var helpHandle: HelpHandle {
+        gameHandle.helpHandle
+    }
     
     // The HelpController
     var helpController: HelpController {
