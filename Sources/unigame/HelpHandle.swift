@@ -57,6 +57,8 @@ public protocol HelpHandle {
 
 // Placeholder for the case when the app does not provide help
 public struct NoHelpProvided: HelpHandle {
+    public init() {}
+    
     public var appSpecificTOC: [HelpTOCEntry] = []
     
     public var generalDescription = "No Description Provided for this App"
