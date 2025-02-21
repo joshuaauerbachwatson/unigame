@@ -56,18 +56,18 @@ public protocol HelpHandle {
 }
 
 // Placeholder for the case when the app does not provide help
-struct NoHelpProvided: HelpHandle {
-    var appSpecificTOC: [HelpTOCEntry] = []
+public struct NoHelpProvided: HelpHandle {
+    public var appSpecificTOC: [HelpTOCEntry] = []
     
-    var generalDescription = "No Description Provided for this App"
+    public var generalDescription = "No Description Provided for this App"
     
-    var appSpecificHelp: String = "No Help Provided Specific to this App"
+    public var appSpecificHelp: String = "No Help Provided Specific to this App"
     
-    var baseURL: URL? = nil
+    public var baseURL: URL? = nil
     
-    var email: String? = nil
+    public var email: String? = nil
     
-    var appName: String = "This App"
+    public var appName: String = "This App"
     
-    var tipResetter: (any AuerbachLook.TipResetter)? = nil
+    public var tipResetter: (any AuerbachLook.TipResetter)? = nil
 }
