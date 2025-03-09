@@ -19,11 +19,6 @@ import UIKit
 import AuerbachLook
 import Observation   // Needed to support macro inspection in XCode
 
-// The main phases of a game.
-enum UnigamePhase {
-    case Players, Setup, Playing
-}
-
 // Random names for users who never set their own identity
 fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla", "Aden Nichols", "Aliyah Dennis",
                               "Emanuel Vargas", "Andrea Caldwell", "Rylan Hines", "Poppy Barber", "Solomon Terrell",
@@ -46,7 +41,8 @@ public final class UnigameModel {
 
     // Access to UserDefaults settings.
     // We can't (and don't) use @AppStorage here because @Observable doesn't accommodate property wrappers.
-    // We use stored properties with didSet (not computed properties) because we want direct observation of value changes.
+    // We use stored properties with didSet (not computed properties) because we want direct
+    // observation of value changes.
     var userName: String {
         didSet {
             defaults.set(userName, forKey: UserNameKey)
@@ -91,18 +87,20 @@ public final class UnigameModel {
     // The HelpController
     var helpController: HelpController {
         let mergedHelp = getMergedHelp(helpHandle)
-        return HelpController(html: mergedHelp, baseURL: helpHandle.baseURL, email: helpHandle.email, returnText: nil,
-                              appName: helpHandle.appName, tipReset: helpHandle.tipResetter)
+        return HelpController(html: mergedHelp, baseURL: helpHandle.baseURL, email: helpHandle.email,
+                              returnText: nil, appName: helpHandle.appName, tipReset: helpHandle.tipResetter)
     }
     
-    // The list of players.  Always starts with just 'this' player but expands during discovery until play starts.
-    // The array is ordered by Player.order fields, ascending.
+    // The list of players.  Always starts with just 'this' player but expands during discovery until
+    // play starts.  The array is ordered by Player.order fields, ascending.
     var players = [Player]()
 
-    // The index in the players array assigned to 'this' player (the user of the present device).  Initially zero.
-    public var thisPlayer : Int = 0    // Index may change since the order of players is determined by their order fields.
+    // The index in the players array assigned to 'this' player (the user of the present device).
+    // Initially zero.
+    public var thisPlayer : Int = 0 // Index may change; order of players determined by order fields.
 
-    // The index of the player whose turn it is (moves are allowed iff thisPlayer and activePlayer are the same)
+    // The index of the player whose turn it is (moves are allowed iff thisPlayer and activePlayer are
+    // the same).
     var activePlayer : Int = 0  // The player listed first always goes first but play rotates thereafter
     
     // Indicates the winner of the game (once a winner is determined, moves must stop but the
@@ -114,6 +112,7 @@ public final class UnigameModel {
         return thisPlayer == activePlayer && winner == nil
     }
     
+    // Predicate for "solitaire mode"
     var solitaireMode: Bool {
         leadPlayer && numPlayers == 1
     }
@@ -132,19 +131,21 @@ public final class UnigameModel {
         gameHandle.tokenProvider != nil
     }
 
-    // The Communicator (nil until player search begins; remains non-nil through player search and during actual play)
+    // The Communicator (nil until player search begins; remains non-nil through player search
+    // and during actual play)
     var communicator : Communicator? = nil
 
-    // Indicates that play has begun.  If communicator is non-nil and playBegun is false, the player list is still being
-    // constructed.  Game turns may not occur until play officially begins
+    // Indicates that play has begun.  If communicator is non-nil and playBegun is false, the player
+    // list is still being constructed.  Game turns may not occur until play officially begins.
     var playBegun = false
 
-    // Indicates that the first yield by the leader has occurred.  Until this happens, the leader is allowed to change the
-    // setup.  Afterwards, the setup is fixed.  This field is only meaningful in the leader's app instance.
+    // Indicates that the first yield by the leader has occurred.  Until this happens, the leader is
+    // allowed to change the setup.  Afterwards, the setup is fixed.  This field is only meaningful
+    // in the leader's app instance.
     var setupIsComplete = false
     
-    // Indicates that setup is in progress (the setup view should be shown and transmissions should be encoded with
-    // 'duringSetup' true).
+    // Indicates that setup is in progress (the setup view should be shown and transmissions should be
+    // encoded with 'duringSetup' true).
     var setupInProgress: Bool {
         leadPlayer && playBegun && !setupIsComplete && gameHandle.setupView != nil
     }
@@ -184,7 +185,8 @@ public final class UnigameModel {
         }
     }
 
-    // Call this function to display a simple error.  No control over the dialog details other than the message.
+    // Call this function to display a simple error.  No control over the dialog details other than
+    // the message.
     public func displayError(_ msg: String, terminal: Bool = false) {
         Logger.log("Displaying error, msg='\(msg)', terminal=\(terminal)")
         errorMessage = msg
@@ -258,9 +260,9 @@ public final class UnigameModel {
         self.init(gameHandle: DummyGameHandle(), defaults: defaults)
     }
     
-    // Establish the right number of players for the current value of leadPlayer at start of game.  If leadPlayer is true,
-    // then the number is whatever is in UserDefaults, unless that is zero, in which case it should be 1.
-    // If leadPlayer is false, the number must be zero (unknown).
+    // Establish the right number of players for the current value of leadPlayer at start of game.
+    // If leadPlayer is true, then the number is whatever is in UserDefaults, unless that is zero,
+    // in which case it should be 1.  If leadPlayer is false, the number must be zero (unknown).
     func ensureNumPlayers() {
         if leadPlayer {
             if numPlayers == 0 {
@@ -322,8 +324,9 @@ public final class UnigameModel {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: player, numPlayers: numPlayers,
-                                                  game: gameToken, appId: gameHandle.appId, 
+        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: player,
+                                                  numPlayers: numPlayers, game: gameToken,
+                                                  appId: gameHandle.appId,
                                                   accessToken: credentials?.accessToken)
         self.communicator = communicator
         Logger.log("Got back valid communicator")
@@ -450,7 +453,8 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
     // Respond to a new player list during game initiation.  We do not use this call later for lost players;
     // we use `lostPlayer` for that.  The received players array is already properly sorted.
     func newPlayerList(_ newNumPlayers: Int, _ newPlayers: [Player]) {
-        Logger.log("newPlayerList received, newNumPlayers=\(newNumPlayers), \(newPlayers.count) players present")
+        Logger.log(
+            "newPlayerList received, newNumPlayers=\(newNumPlayers), \(newPlayers.count) players present")
         self.players = newPlayers
         if players.count > 0 { // Should always be true, probably, but give communicators some slack
             // Recalculate thisPlayer based on new list
@@ -467,8 +471,9 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             }
             if numPlayers > 0 {
                 // Check whether we now have the right number of players.  It is an error to have too many.
-                // If we have exactly the right number, check that there is exactly one lead player and indicate an error
-                // if there is none or more than one.  If that test is passed, indicate that play can begin.
+                // If we have exactly the right number, check that there is exactly one lead player and
+                // indicate an error if there is none or more than one.  If that test is passed, indicate
+                // that play can begin.
                 if numPlayers < players.count {
                     displayError("Too Many Players", terminal: true)
                     return
