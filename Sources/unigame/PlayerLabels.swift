@@ -41,17 +41,18 @@ struct PlayerLabel: View, Identifiable {
         let text = id == model.thisPlayer ? "You" : name
         HStack {
             Label(text, systemImage: iconName)
-                .padding(.horizontal, 5)
-                .border(.black, width: 2)
                 .foregroundStyle(id == model.winner ? .yellow : .black)
             if model.scoring != .Off {
                 TextField("Score", text: $score)
                     .onSubmit {
                         scoreChanged()
                     }
+                    .fixedSize()
                     .disabled(!model.mayChangeScore(id))
             }
         }
+        .padding(.horizontal, 5)
+        .border(.black, width: 2)
     }
 }
 
