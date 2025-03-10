@@ -19,24 +19,60 @@ import SwiftUI
 fileprivate let MustFind = "[Missing]"
 fileprivate let Searching = "[Searching]"
 
-// Structure for information about players.
-struct PlayerName: Identifiable {
+// An individual player label.  May contain a Player or a placeholder value
+struct PlayerLabel: View, Identifiable {
+    @Environment(UnigameModel.self) var model
+
+    let name: String
+    @State var score: String
     let id: Int
-    let display: String
+    
+    private func scoreChanged() {
+        if let newScore = UInt32(score) {
+            model.changeScore(of: id, to: newScore)
+        } else {
+            model.displayError("'\(score)' is not a valid score")
+        }
+    }
+
+    var body: some View {
+        let iconName = id == model.winner ? "star.fill" :
+            id == model.activePlayer ? "figure.walk" : "figure.stand"
+        let text = id == model.thisPlayer ? "You" : name
+        HStack {
+            Label(text, systemImage: iconName)
+                .padding(.horizontal, 5)
+                .border(.black, width: 2)
+                .foregroundStyle(id == model.winner ? .yellow : .black)
+            if model.scoring != .Off {
+                TextField("Score", text: $score)
+                    .onSubmit {
+                        scoreChanged()
+                    }
+                    .disabled(!model.mayChangeScore(id))
+            }
+        }
+    }
 }
 
-// Function to calculate player name information to go in the labels
-fileprivate func playerNames(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerName] {
+// Function to calculate the PlayerLabel views to show.  Some of these are for real players and some
+// are placeholders.
+fileprivate func playerArray(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerLabel] {
     var names = players.map { $0.name }
+    var scores = players.map {$0.score }
     if numPlayers == 0 && communicating {
         // Non-lead player who does not yet know the player count but is expecting more
         names.append("...expecting more...")
+        scores.append(0)
     } else {
         while names.count < numPlayers {
             names.append(communicating ? Searching : MustFind)
+            scores.append(0)
         }
     }
-    return names.enumerated().map { PlayerName(id: $0.0, display: $0.1) }
+    return zip(names, scores).enumerated().map {
+        PlayerLabel(name: $0.1.0, score: String($0.1.1), id: $0.0)
+    }
 }
 
 // A subview to appear near the top of other views (Players, Playing) representing the
@@ -45,17 +81,11 @@ struct PlayerLabels: View {
     @Environment(UnigameModel.self) var model
     
     var body: some View {
-        let content = playerNames(model.players, numPlayers: model.numPlayers, communicating: model.communicator != nil)
+        let content = playerArray(model.players, numPlayers: model.numPlayers, communicating: model.communicator != nil)
         HStack {
             Spacer()
-            ForEach(content) { player in
-                let iconName = player.id == model.winner ? "star.fill" :
-                    player.id == model.activePlayer ? "figure.walk" : "figure.stand"
-                let text = player.id == model.thisPlayer ? "You" : player.display
-                Label(text, systemImage: iconName)
-                    .padding(.horizontal, 5)
-                    .border(.black, width: 2)
-                    .foregroundStyle(player.id == model.winner ? .yellow : .black)
+            ForEach(content) { playerLabel in
+                playerLabel
             }
             Spacer()
         }

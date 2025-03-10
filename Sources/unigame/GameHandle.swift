@@ -31,6 +31,10 @@ public protocol GameHandle {
     // The possible range for number of players
     var numPlayerRange: ClosedRange<Int> { get }
     
+    // The Scoring value to record in the model at the start of the game.
+    // The value in the model may subsequently be changed.
+    var initialScoring: Scoring { get }
+    
     // Called when a new game is started (old game state should be discarded)
     func reset()
 
@@ -71,6 +75,7 @@ struct DummyGameHandle: GameHandle {
     var tokenProvider: (any TokenProvider)? = nil
     var helpHandle: any HelpHandle = NoHelpProvided()
     var numPlayerRange: ClosedRange<Int> = 1...6
+    var initialScoring: Scoring = Scoring.Off
     func reset(){}
     func stateChanged(_ data: [UInt8]) -> (any Error)? {
         return nil

@@ -31,6 +31,19 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Bennett Cummings", "Nylah Manning", "Seth Burns", "Emerson Schmitt", "Murphy Pena",
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
+// Describes whether optional scoring is requested and, if so, under what groundrules
+public enum Scoring {
+    case Off, Open, ActiveOnly, SelfOnly, ActiveAndSelfOnly
+    
+    var activeOnly: Bool {
+        self == .ActiveOnly || self == .ActiveAndSelfOnly
+    }
+    
+    var selfOnly: Bool {
+        self == .SelfOnly || self == .ActiveAndSelfOnly
+    }
+}
+
 @Observable @MainActor @preconcurrency
 public final class UnigameModel {
     // The handle to the specific game, providing details which the core model does not.
@@ -106,6 +119,9 @@ public final class UnigameModel {
     // Indicates the winner of the game (once a winner is determined, moves must stop but the
     // game is not considered "Ended").
     public var winner : Int? = nil
+    
+    // Indicates form of scoring requested, if any
+    public var scoring: Scoring
 
     // Says whether it's this player's turn to make moves
     public var thisPlayersTurn : Bool {
@@ -159,6 +175,30 @@ public final class UnigameModel {
     // Indicates that chat is enabled
     var chatEnabled: Bool {
         communicator != nil && numPlayers > 1
+    }
+
+    // Determines whether the score of a particular player may be changed by the
+    // current player.
+    func mayChangeScore(_ player: Int) -> Bool {
+        if scoring == .Off {
+            return false
+        }
+        if scoring.activeOnly && !thisPlayersTurn {
+            return false
+        }
+        if scoring.selfOnly && player != thisPlayer {
+            return false
+        }
+        return true
+    }
+    
+    // Change the score of a player.  Note: `mayChangeScore` must be checked so that this method
+    // is not called when doing so would be illegal.
+    func changeScore(of: Int, to: UInt32) {
+        if !mayChangeScore(of) {
+            Logger.logFatalError("Changing a score when not permitted")
+        }
+        players[of].score = to
     }
 
     // Send a chat msg to all peers
@@ -238,6 +278,7 @@ public final class UnigameModel {
         Logger.log("Instantiating a new UnigameModel")
         self.gameHandle = gameHandle
         self.defaults = defaults
+        self.scoring = gameHandle.initialScoring
         // fakeNames is staticly non-empty, hence force unwrap of randomElement() is safe
         let userName = defaults.string(forKey: UserNameKey) ?? fakeNames.randomElement()!
         self.userName = userName // in case just generated
