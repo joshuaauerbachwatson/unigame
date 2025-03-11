@@ -28,7 +28,7 @@ struct PlayerLabel: View, Identifiable {
     let id: Int
     
     private func scoreChanged() {
-        if let newScore = UInt32(score) {
+        if let newScore = Int32(score) {
             model.changeScore(of: id, to: newScore)
         } else {
             model.displayError("'\(score)' is not a valid score")

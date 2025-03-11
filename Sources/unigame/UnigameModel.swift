@@ -194,11 +194,12 @@ public final class UnigameModel {
     
     // Change the score of a player.  Note: `mayChangeScore` must be checked so that this method
     // is not called when doing so would be illegal.
-    func changeScore(of: Int, to: UInt32) {
+    func changeScore(of: Int, to: Int32) {
         if !mayChangeScore(of) {
             Logger.logFatalError("Changing a score when not permitted")
         }
         players[of].score = to
+        transmit()
     }
 
     // Send a chat msg to all peers
@@ -401,8 +402,13 @@ public final class UnigameModel {
         }
         let activePlayer = newActivePlayer ?? self.activePlayer
         let gameInfo = [UInt8](gameHandle.encodeState(duringSetup: setupInProgress))
+        var scores = [Int32]()
+        if scoring != .Off {
+            scores = players.map { $0.score }
+        }
         let gameState =
-            GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, gameInfo: gameInfo)
+            GameState(sendingPlayer: thisPlayer, activePlayer: activePlayer, gameInfo: gameInfo,
+                      scores: scores)
         communicator.send(gameState)
     }
 }
