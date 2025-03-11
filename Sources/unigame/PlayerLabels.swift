@@ -46,6 +46,7 @@ struct PlayerLabel: View, Identifiable {
             if model.scoring != .Off {
                 Text(score)
                     .fixedSize()
+                    .foregroundStyle(.red)
                 Button("", systemImage: "pencil") {
                     showPopup = true
                 }
