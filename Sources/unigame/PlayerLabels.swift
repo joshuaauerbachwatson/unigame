@@ -26,6 +26,7 @@ struct PlayerLabel: View, Identifiable {
     let name: String
     @State var score: String
     let id: Int
+    @State var showPopup: Bool = false
     
     private func scoreChanged() {
         if let newScore = Int32(score) {
@@ -43,12 +44,24 @@ struct PlayerLabel: View, Identifiable {
             Label(text, systemImage: iconName)
                 .foregroundStyle(id == model.winner ? .yellow : .black)
             if model.scoring != .Off {
-                TextField("Score", text: $score)
-                    .onSubmit {
-                        scoreChanged()
-                    }
+                Text(score)
                     .fixedSize()
-                    .disabled(!model.mayChangeScore(id))
+                Button("", systemImage: "pencil") {
+                    showPopup = true
+                }
+                .disabled(!model.mayChangeScore(id))
+                .popover(isPresented: $showPopup) {
+                    TextField("score", text: $score)
+                    HStack {
+                        Button("Change", systemImage: "square.and.arrown.down") {
+                            scoreChanged()
+                            showPopup = false
+                        }
+                        Button("Cancel", systemImage: "x.square.fill") {
+                            showPopup = false
+                        }
+                    }
+                }
             }
         }
         .padding(.horizontal, 5)

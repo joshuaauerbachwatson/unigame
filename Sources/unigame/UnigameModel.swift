@@ -31,17 +31,10 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Bennett Cummings", "Nylah Manning", "Seth Burns", "Emerson Schmitt", "Murphy Pena",
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
-// Describes whether optional scoring is requested and, if so, under what groundrules
+// Describes whether optional scoring is requested and, if so, whether players are restricted to
+// changing only their own score.
 public enum Scoring {
-    case Off, Open, ActiveOnly, SelfOnly, ActiveAndSelfOnly
-    
-    var activeOnly: Bool {
-        self == .ActiveOnly || self == .ActiveAndSelfOnly
-    }
-    
-    var selfOnly: Bool {
-        self == .SelfOnly || self == .ActiveAndSelfOnly
-    }
+    case Off, Open, SelfOnly
 }
 
 @Observable @MainActor @preconcurrency
@@ -180,16 +173,10 @@ public final class UnigameModel {
     // Determines whether the score of a particular player may be changed by the
     // current player.
     func mayChangeScore(_ player: Int) -> Bool {
-        if scoring == .Off {
+        if scoring == .Off || !thisPlayersTurn {
             return false
         }
-        if scoring.activeOnly && !thisPlayersTurn {
-            return false
-        }
-        if scoring.selfOnly && player != thisPlayer {
-            return false
-        }
-        return true
+        return scoring == .Open || player == thisPlayer
     }
     
     // Change the score of a player.  Note: `mayChangeScore` must be checked so that this method
@@ -562,6 +549,12 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             return
         }
         activePlayer = gameState.activePlayer
+        for i in 0..<gameState.scores.count {
+            if i >= players.count {
+                return
+            }
+            players[i].score = gameState.scores[i]
+        }
     }
     
     // Handle an error detected by the communicator
