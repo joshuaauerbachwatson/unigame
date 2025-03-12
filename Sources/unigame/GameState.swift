@@ -16,9 +16,10 @@
 
 import UIKit
 
-// Represents the state of a game from the perspective of unigame-core.  This really comes down to which player is
-// sending and which is active (ie, whose turn it is).  The "real" game state is in the gameInfo field, which is
-// opaque in this context.
+// Represents the state of a game from the perspective of the unigame core.  This includes
+// which player is sending and which is active (ie, whose turn it is).  We also send the scores if
+// the game is being scored.  The game-specific state is in the gameInfo field, which is opaque in this
+// context.
 
 struct GameState: Equatable {
     let sendingPlayer : Int  // The index of the player constructing the GameState
@@ -38,21 +39,18 @@ struct GameState: Equatable {
     init(_ encoded: [UInt8]) {
         sendingPlayer = Int(encoded[0])
         activePlayer = Int(encoded[1])
-        let (scores, newIndex) = Self.decodeScores(encoded)
-        self.scores = scores
-        gameInfo = [UInt8](encoded.suffix(from: newIndex))
-    }
-    
-    // Parse the scores vector from received data
-    private static func decodeScores(_ encoded: [UInt8]) -> ([Int32], Int) {
         let scoreCount = Int(encoded[2])
-        if scoreCount == 0 {
-            return ([], 3)
+        var offset = 3
+        var scores = [Int32]()
+        for i in 0..<scoreCount {
+            let nextScore = encoded.withUnsafeBytes { rawBuffer in
+                rawBuffer.load(fromByteOffset: offset, as: Int32.self)
+            }
+            scores.append(nextScore)
+            offset += 4
         }
-        let newIndex = scoreCount * 4 + 3
-        let scoreBytes = encoded[3..<newIndex]
-        let scores = unsafeBitCast(scoreBytes, to: [Int32].self)
-        return (scores, newIndex)
+        self.scores = scores
+        gameInfo = [UInt8](encoded.suffix(from: offset))
     }
     
     // Conform to Equatable protocol
@@ -67,7 +65,11 @@ struct GameState: Equatable {
         if scores.count == 0 {
             return Data([UInt8(sendingPlayer), UInt8(activePlayer), UInt8(0)] + gameInfo)
         }
-        let scoreData = unsafeBitCast(scores, to: [UInt8].self)
+        var scoreData = [UInt8]()
+        for score in scores {
+            let array = withUnsafeBytes(of: score, Array.init)
+            scoreData += array
+        }
         return Data([UInt8(sendingPlayer), UInt8(activePlayer), UInt8(scores.count)] + scoreData + gameInfo)
     }
 }
