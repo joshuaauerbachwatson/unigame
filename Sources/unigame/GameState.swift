@@ -40,10 +40,11 @@ struct GameState: Equatable {
         sendingPlayer = Int(encoded[0])
         activePlayer = Int(encoded[1])
         let scoreCount = Int(encoded[2])
-        var offset = 3
+        var buffer = encoded.dropFirst(3)
+        var offset = 0
         var scores = [Int32]()
         for i in 0..<scoreCount {
-            let nextScore = encoded.withUnsafeBytes { rawBuffer in
+            let nextScore = buffer.withUnsafeBytes { rawBuffer in
                 rawBuffer.load(fromByteOffset: offset, as: Int32.self)
             }
             scores.append(nextScore)
