@@ -23,28 +23,25 @@ fileprivate let Searching = "[Searching]"
 struct PlayerLabel: View, Identifiable {
     @Environment(UnigameModel.self) var model
 
-    let name: String
-    @State var score: String
     let id: Int
     @State var showPopup: Bool = false
+    let dummyName: String?
     
-    private func scoreChanged() {
-        if let newScore = Int32(score) {
-            model.changeScore(of: id, to: newScore)
-        } else {
-            model.displayError("'\(score)' is not a valid score")
-        }
+    init(id: Int, dummyName: String? = nil) {
+        self.id = id
+        self.dummyName = dummyName
     }
-
+    
     var body: some View {
+        @Bindable var model = model
         let iconName = id == model.winner ? "star.fill" :
             id == model.activePlayer ? "figure.walk" : "figure.stand"
-        let text = id == model.thisPlayer ? "You" : name
+        let text = dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
         HStack {
             Label(text, systemImage: iconName)
                 .foregroundStyle(id == model.winner ? .yellow : .black)
-            if model.scoring != .Off {
-                Text(score)
+            if model.scoring != .Off && model.playBegun {
+                Text(model.players[id].score, format: IntegerFormatStyle())
                     .fixedSize()
                     .foregroundStyle(.red)
                 Button("", systemImage: "pencil") {
@@ -52,14 +49,14 @@ struct PlayerLabel: View, Identifiable {
                 }
                 .disabled(!model.mayChangeScore(id))
                 .popover(isPresented: $showPopup) {
-                    TextField("score", text: $score)
-                    HStack {
-                        Button("Change", systemImage: "square.and.arrown.down") {
-                            scoreChanged()
-                            showPopup = false
+                    VStack {
+                        Stepper(value: $model.players[id].score) {
+                            TextField("score", value: $model.players[id].score, format: IntegerFormatStyle())
                         }
-                        Button("Cancel", systemImage: "x.square.fill") {
-                            showPopup = false
+                        HStack {
+                            Button("Done", systemImage: "square.and.arrown.down") {
+                                showPopup = false
+                            }
                         }
                     }
                 }
@@ -72,22 +69,21 @@ struct PlayerLabel: View, Identifiable {
 
 // Function to calculate the PlayerLabel views to show.  Some of these are for real players and some
 // are placeholders.
+@MainActor
 fileprivate func playerArray(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerLabel] {
-    var names = players.map { $0.name }
-    var scores = players.map {$0.score }
+    var ans = [PlayerLabel]()
+    for i in 0..<players.count {
+        ans.append(PlayerLabel(id: i))
+    }
     if numPlayers == 0 && communicating {
         // Non-lead player who does not yet know the player count but is expecting more
-        names.append("...expecting more...")
-        scores.append(0)
+        ans.append(PlayerLabel(id: ans.count, dummyName: "...expecting more..."))
     } else {
-        while names.count < numPlayers {
-            names.append(communicating ? Searching : MustFind)
-            scores.append(0)
+        while ans.count < numPlayers {
+            ans.append(PlayerLabel(id: ans.count, dummyName: communicating ? Searching : MustFind))
         }
     }
-    return zip(names, scores).enumerated().map {
-        PlayerLabel(name: $0.1.0, score: String($0.1.1), id: $0.0)
-    }
+    return ans
 }
 
 // A subview to appear near the top of other views (Players, Playing) representing the
