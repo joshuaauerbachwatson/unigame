@@ -553,7 +553,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             if i >= players.count {
                 return
             }
-            Logger.log("Setting player \(i) score to gameState.scores[i]")
+            Logger.log("Setting player \(i) score to \(gameState.scores[i])")
             players[i].score = gameState.scores[i]
         }
     }
