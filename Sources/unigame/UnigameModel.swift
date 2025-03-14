@@ -239,7 +239,6 @@ public final class UnigameModel {
         }
         gameHandle.reset()
         // Set up new game
-        players = [Player(userName, leadPlayer)]
         thisPlayer = 0
         activePlayer = 0
         winner = nil
@@ -248,6 +247,7 @@ public final class UnigameModel {
         setupIsComplete = false
         chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
+        players = [Player(userName, leadPlayer)]
         if !hasTokenProvider {
             // Force nearby only when login is impossible
             nearbyOnly = true
