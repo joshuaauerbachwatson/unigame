@@ -242,6 +242,7 @@ public final class UnigameModel {
         players = [Player(userName, leadPlayer)]
         thisPlayer = 0
         activePlayer = 0
+        winner = nil
         communicator = nil
         playBegun = false
         setupIsComplete = false
