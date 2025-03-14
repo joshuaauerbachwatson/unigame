@@ -54,8 +54,9 @@ struct PlayerLabel: View, Identifiable {
                             TextField("score", value: $model.players[id].score, format: IntegerFormatStyle())
                         }
                         HStack {
-                            Button("Done", systemImage: "square.and.arrown.down") {
+                            Button("Done", systemImage: "square.and.arrow.down") {
                                 showPopup = false
+                                model.transmit()
                             }
                         }
                     }
