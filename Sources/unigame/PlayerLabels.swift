@@ -15,6 +15,7 @@
  */
 
 import SwiftUI
+import AuerbachLook
 
 fileprivate let MustFind = "[Missing]"
 fileprivate let Searching = "[Searching]"
@@ -72,15 +73,20 @@ struct PlayerLabel: View, Identifiable {
 // are placeholders.
 @MainActor
 fileprivate func playerArray(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerLabel] {
+    Logger.log("Building PlayerLabel array with \(players.count) players, numPlayers=\(numPlayers)," +
+               " and communicating=\(communicating)")
     var ans = [PlayerLabel]()
     for i in 0..<players.count {
+        Logger.log("Making PlayerLabel with id \(i)")
         ans.append(PlayerLabel(id: i))
     }
     if numPlayers == 0 && communicating {
+        Logger.log("Appending 'expecting more' indicator")
         // Non-lead player who does not yet know the player count but is expecting more
         ans.append(PlayerLabel(id: ans.count, dummyName: "...expecting more..."))
     } else {
         while ans.count < numPlayers {
+            Logger.log("Appending dummy PlayerLayer since player.count < numPlayers")
             ans.append(PlayerLabel(id: ans.count, dummyName: communicating ? Searching : MustFind))
         }
     }
