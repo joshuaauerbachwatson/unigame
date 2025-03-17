@@ -42,7 +42,6 @@ struct PlayerLabel: View, Identifiable {
     }
     
     var body: some View {
-        @Bindable var bmodel = model
         let iconName = id == model.winner ? "star.fill" :
             id == model.activePlayer ? "figure.walk" : "figure.stand"
         HStack {
@@ -58,6 +57,7 @@ struct PlayerLabel: View, Identifiable {
                 .disabled(!model.mayChangeScore(id))
                 .popover(isPresented: $showPopup) {
                     VStack {
+                        @Bindable var bmodel = model
                         Stepper(value: $bmodel.players[id].score) {
                             TextField("score", value: $bmodel.players[id].score, format: IntegerFormatStyle())
                         }
@@ -79,7 +79,10 @@ struct PlayerLabel: View, Identifiable {
 // Function to calculate the PlayerLabel views to show.  Some of these are for real players and some
 // are placeholders.
 @MainActor
-fileprivate func playerArray(_ players: [Player], numPlayers: Int, communicating: Bool) -> [PlayerLabel] {
+fileprivate func playerArray(_ model: UnigameModel) -> [PlayerLabel] {
+    let players = model.players
+    let numPlayers = model.numPlayers
+    let communicating = model.communicator != nil
     Logger.log("Building PlayerLabel array with \(players.count) players, numPlayers=\(numPlayers)," +
                " and communicating=\(communicating)")
     var ans = [PlayerLabel]()
@@ -106,11 +109,11 @@ struct PlayerLabels: View {
     @Environment(UnigameModel.self) var model
     
     var body: some View {
-        let content = playerArray(model.players, numPlayers: model.numPlayers, communicating: model.communicator != nil)
         HStack {
             Spacer()
-            ForEach(content) { playerLabel in
-                playerLabel
+            let labels = playerArray(model)
+            ForEach(0..<labels.count, id: \.self) { index in
+                labels[index]
             }
             Spacer()
         }
