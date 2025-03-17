@@ -34,7 +34,7 @@ struct PlayerLabel: View, Identifiable {
     }
     
     var body: some View {
-        @Bindable var model = model
+        @Bindable var bmodel = model
         let iconName = id == model.winner ? "star.fill" :
             id == model.activePlayer ? "figure.walk" : "figure.stand"
         let text = dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
@@ -51,8 +51,8 @@ struct PlayerLabel: View, Identifiable {
                 .disabled(!model.mayChangeScore(id))
                 .popover(isPresented: $showPopup) {
                     VStack {
-                        Stepper(value: $model.players[id].score) {
-                            TextField("score", value: $model.players[id].score, format: IntegerFormatStyle())
+                        Stepper(value: $bmodel.players[id].score) {
+                            TextField("score", value: $bmodel.players[id].score, format: IntegerFormatStyle())
                         }
                         HStack {
                             Button("Done", systemImage: "square.and.arrow.down") {
