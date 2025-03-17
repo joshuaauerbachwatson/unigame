@@ -29,17 +29,24 @@ struct PlayerLabel: View, Identifiable {
     let dummyName: String?
     
     init(id: Int, dummyName: String? = nil) {
+        Logger.log("Contructing PlayerLabel with id=\(id)")
         self.id = id
         self.dummyName = dummyName
+    }
+    
+    private func getText() -> String {
+        Logger.log("Getting label text for id=\(id)")
+        Logger.log("Model has numPlayers=\(model.numPlayers) with a player array count of" +x
+                   " \(model.players.count)")
+        return dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
     }
     
     var body: some View {
         @Bindable var bmodel = model
         let iconName = id == model.winner ? "star.fill" :
             id == model.activePlayer ? "figure.walk" : "figure.stand"
-        let text = dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
         HStack {
-            Label(text, systemImage: iconName)
+            Label(getText(), systemImage: iconName)
                 .foregroundStyle(id == model.winner ? .yellow : .black)
             if model.scoring != .Off && model.playBegun {
                 Text(model.players[id].score, format: IntegerFormatStyle())
