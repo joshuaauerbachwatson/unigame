@@ -36,7 +36,7 @@ struct PlayerLabel: View, Identifiable {
     
     private func getText() -> String {
         Logger.log("Getting label text for id=\(id)")
-        Logger.log("Model has numPlayers=\(model.numPlayers) with a player array count of" +x
+        Logger.log("Model has numPlayers=\(model.numPlayers) with a player array count of" +
                    " \(model.players.count)")
         return dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
     }
