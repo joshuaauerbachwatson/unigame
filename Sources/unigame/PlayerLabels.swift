@@ -29,7 +29,7 @@ struct PlayerLabel: View, Identifiable {
     let dummyName: String?
     
     init(id: Int, dummyName: String? = nil) {
-        Logger.log("Contructing PlayerLabel with id=\(id)")
+        Logger.log("Contructing\(dummyName == nil ? "" : " dummy") PlayerLabel with id=\(id)")
         self.id = id
         self.dummyName = dummyName
     }
@@ -76,33 +76,6 @@ struct PlayerLabel: View, Identifiable {
     }
 }
 
-// Function to calculate the PlayerLabel views to show.  Some of these are for real players and some
-// are placeholders.
-@MainActor
-fileprivate func playerArray(_ model: UnigameModel) -> [PlayerLabel] {
-    let players = model.players
-    let numPlayers = model.numPlayers
-    let communicating = model.communicator != nil
-    Logger.log("Building PlayerLabel array with \(players.count) players, numPlayers=\(numPlayers)," +
-               " and communicating=\(communicating)")
-    var ans = [PlayerLabel]()
-    for i in 0..<players.count {
-        Logger.log("Making PlayerLabel with id \(i)")
-        ans.append(PlayerLabel(id: i))
-    }
-    if numPlayers == 0 && communicating {
-        Logger.log("Appending 'expecting more' indicator")
-        // Non-lead player who does not yet know the player count but is expecting more
-        ans.append(PlayerLabel(id: ans.count, dummyName: "...expecting more..."))
-    } else {
-        while ans.count < numPlayers {
-            Logger.log("Appending dummy PlayerLayer since player.count < numPlayers")
-            ans.append(PlayerLabel(id: ans.count, dummyName: communicating ? Searching : MustFind))
-        }
-    }
-    return ans
-}
-
 // A subview to appear near the top of other views (Players, Playing) representing the
 // players of the game.  Populated from unigameModel.players and other information.
 struct PlayerLabels: View {
@@ -111,9 +84,8 @@ struct PlayerLabels: View {
     var body: some View {
         HStack {
             Spacer()
-            let labels = playerArray(model)
-            ForEach(0..<labels.count, id: \.self) { index in
-                labels[index]
+            ForEach(0..<model.numPlayerLabels, id: \.self) { index in
+                model.getPlayerLabel(index)
             }
             Spacer()
         }

@@ -31,6 +31,10 @@ fileprivate let fakeNames = [ "Evelyn Soto", "Barrett Velasquez", "Esme Bonilla"
                               "Bennett Cummings", "Nylah Manning", "Seth Burns", "Emerson Schmitt", "Murphy Pena",
                               "Rachel Adams", "Hudson O’Connor", "Charli Diaz", "Nathan Mack", "Nadia Conner" ]
 
+fileprivate let MustFind = "[Missing]"
+fileprivate let Searching = "[Searching]"
+fileprivate let ExpectingMore = "...expecting more..."
+
 // Describes whether optional scoring is requested and, if so, whether players are restricted to
 // changing only their own score.
 public enum Scoring {
@@ -100,7 +104,7 @@ public final class UnigameModel {
     // The list of players.  Always starts with just 'this' player but expands during discovery until
     // play starts.  The array is ordered by Player.order fields, ascending.
     var players = [Player]()
-
+    
     // The index in the players array assigned to 'this' player (the user of the present device).
     // Initially zero.
     public var thisPlayer : Int = 0 // Index may change; order of players determined by order fields.
@@ -143,6 +147,11 @@ public final class UnigameModel {
     // The Communicator (nil until player search begins; remains non-nil through player search
     // and during actual play)
     var communicator : Communicator? = nil
+    
+    // Convenience predicate for whether we are communicating
+    var communicating: Bool {
+        communicator != nil
+    }
 
     // Indicates that play has begun.  If communicator is non-nil and playBegun is false, the player
     // list is still being constructed.  Game turns may not occur until play officially begins.
@@ -167,7 +176,7 @@ public final class UnigameModel {
     
     // Indicates that chat is enabled
     var chatEnabled: Bool {
-        communicator != nil && numPlayers > 1
+        communicating && numPlayers > 1
     }
 
     // Determines whether the score of a particular player may be changed by the
@@ -301,6 +310,28 @@ public final class UnigameModel {
         } else {
             numPlayers = 0
         }
+    }
+    
+    // The number of player labels (based on players, numPlayers, and communicating)
+    var numPlayerLabels: Int {
+        if numPlayers == 0 && communicating {
+            // Non-lead player expecting an unknown number of additional players
+            return players.count + 1
+        }
+        // All other cases
+        return max(numPlayers, players.count)
+    }
+    
+    // Get the correct PlayerLabel view for a given player label index.
+    // Assumes without checking that the index is in the range 0..<numPlayerLabels
+    func getPlayerLabel(_ index: Int) -> PlayerLabel {
+        if index < players.count {
+            return PlayerLabel(id: index)
+        }
+        if numPlayers == 0 && communicating {
+            return PlayerLabel(id: index, dummyName: ExpectingMore)
+        }
+        return PlayerLabel(id: index, dummyName: communicating ? Searching : MustFind)
     }
     
     // Perform login function,
