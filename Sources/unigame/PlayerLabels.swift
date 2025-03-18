@@ -26,19 +26,15 @@ struct PlayerLabel: View, Identifiable {
 
     let id: Int
     @State var showPopup: Bool = false
-    let dummyName: String?
+    let name: String
     
-    init(id: Int, dummyName: String? = nil) {
-        Logger.log("Contructing\(dummyName == nil ? "" : " dummy") PlayerLabel with id=\(id)")
+    init(id: Int, name: String) {
         self.id = id
-        self.dummyName = dummyName
+        self.name = name
     }
     
     private func getText() -> String {
-        Logger.log("Getting label text for id=\(id)")
-        Logger.log("Model has numPlayers=\(model.numPlayers) with a player array count of" +
-                   " \(model.players.count)")
-        return dummyName ?? (id == model.thisPlayer ? "You" : model.players[id].name)
+        return id == model.thisPlayer ? "You" : name
     }
     
     var body: some View {

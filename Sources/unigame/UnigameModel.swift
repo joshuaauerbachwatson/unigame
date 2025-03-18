@@ -326,12 +326,12 @@ public final class UnigameModel {
     // Assumes without checking that the index is in the range 0..<numPlayerLabels
     func getPlayerLabel(_ index: Int) -> PlayerLabel {
         if index < players.count {
-            return PlayerLabel(id: index)
+            return PlayerLabel(id: index, name: players[index].name)
         }
         if numPlayers == 0 && communicating {
-            return PlayerLabel(id: index, dummyName: ExpectingMore)
+            return PlayerLabel(id: index, name: ExpectingMore)
         }
-        return PlayerLabel(id: index, dummyName: communicating ? Searching : MustFind)
+        return PlayerLabel(id: index, name: communicating ? Searching : MustFind)
     }
     
     // Perform login function,
