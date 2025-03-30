@@ -378,14 +378,15 @@ public final class UnigameModel {
 
     // Starts the communicator and begins the search for players
     func connect() async {
-        guard let player = players.first else {
+        if players.count < 1 {
             Logger.logFatalError("Communicator was asked to connect but the current player is not set")
         }
+        players[0] = Player(userName, leadPlayer) // Ensure using latest player name
         guard let gameToken = gameToken, gameToken != "" else {
             Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
-        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: player,
+        let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: players[0],
                                                   numPlayers: numPlayers, game: gameToken,
                                                   appId: gameHandle.appId,
                                                   accessToken: credentials?.accessToken)
