@@ -21,3 +21,7 @@ A communicator (whether using the server or not) takes care of assembling a suff
 Currently, the only substantial game that uses `unigame` is `anyCards`, which has been reworked to use the framework.  But, I have not found `anyCards` to be convenient to use (it is too open-ended).  So, I plan to rework `anyCards` so that it, itself, becomes a framework for building card game UIs.  Then there could be many specific card games that depend on `unigame` directly and use `anyCards` to aid in building the UI.  Each game would have its own model, containing the rules of the game.
 
 At present, there is also a [tictactoe](https://github.com/joshuaauerbachwatson/tictactoe) game which uses `unigame`.  This is a demo, a proof of concept.  I doubt very many people are that interested in playing tictactoe.  I also plan to develop more games (card games and non-card games) using `unigame` (and encourage others to do so).
+
+## License, contributions
+
+The code in the repository is covered by the [Apache license](http://www.apache.org/licenses/LICENSE-2.0).  There is an issue tracker but no policy about accepting contributions.   If you fork this repository, have useful changes, and wish to contribute them, please open an issue and I will come up with a policy for handling PRs.
