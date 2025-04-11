@@ -248,8 +248,12 @@ public final class UnigameModel {
     
     // Withdraw from the game (starts graceful termination sequence)
     public func withdraw() {
-        draining = true
-        communicator?.send(GameState(withdrawing: thisPlayer))
+        if playBegun {
+            draining = true
+            communicator?.send(GameState(withdrawing: thisPlayer))
+        } else {
+            newGame()
+        }
     }
     
     // Reset to new game
