@@ -271,6 +271,7 @@ public final class UnigameModel {
         chatTranscript = nil // TODO what is the real desired lifecycle of the chat transcript?
         ensureNumPlayers()
         players = [Player(userName, leadPlayer)]
+        draining = false
         if !hasTokenProvider {
             // Force nearby only when login is impossible
             nearbyOnly = true
@@ -597,7 +598,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             // and notify the user that the game is ending and which player has withdrawn
             if !draining {
                 communicator?.send(GameState(withdrawing: thisPlayer))
-                displayError("Player \(players[gameState.sendingPlayer]) is ending the game",
+                displayError("Player '\(players[gameState.sendingPlayer].name)' is ending the game",
                              terminal: true, title: "Note")
             }
             draining = true
@@ -626,7 +627,9 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
     // Handle an error detected by the communicator
     func error(_ error: any Error, _ deleteGame: Bool) {
         Logger.log("Received an error from the communicator")
-        displayError(error.localizedDescription, terminal: deleteGame)
+        if !draining {
+            displayError(error.localizedDescription, terminal: deleteGame)
+        }
     }
 
     // Handle lost player notification
