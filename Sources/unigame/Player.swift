@@ -76,6 +76,9 @@ struct Player : Equatable, Comparable {
     static func < (lhs: Player, rhs: Player) -> Bool {
         return lhs.order < rhs.order
     }
+    
+    // Special player value for a slot in the player list where a player has withdrawn
+    static let withdrawn = Player(name: "", order: 0)
 }
 
 // Encode an array of players, along with a "max players" number.  Note: by design numPlayers is

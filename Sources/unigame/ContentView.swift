@@ -48,7 +48,7 @@ public struct ContentView: View {
                     .disabled(model.communicator == nil)
                     Spacer()
                     Button("End Game", systemImage: "xmark.circle.fill") {
-                        model.newGame()
+                        model.withdraw()
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.roundedRectangle)
@@ -80,7 +80,8 @@ public struct ContentView: View {
                     Playing()
                 }
             }
-            .alert("Error", isPresented: $model.showingError) {
+            .disabled(model.draining)
+            .alert(model.errorTitle, isPresented: $model.showingError) {
                 Button("OK") {
                     model.resetError()
                 }

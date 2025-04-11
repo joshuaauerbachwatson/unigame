@@ -21,6 +21,8 @@ import UIKit
 // the game is being scored.  The game-specific state is in the gameInfo field, which is opaque in this
 // context.
 
+let WithdrawalIndicator = 0xff // maximum Int representable as UInt8
+
 struct GameState: Equatable {
     let sendingPlayer : Int  // The index of the player constructing the GameState
     let activePlayer: Int    // The index of the player whose turn it is (== previous except when yielding)
@@ -33,6 +35,14 @@ struct GameState: Equatable {
         self.activePlayer = activePlayer
         self.gameInfo = gameInfo
         self.scores = scores
+    }
+    
+    // Initialize with just the sendingPlayer and a special "withdrawing" value for activePlayer
+    init(withdrawing: Int) {
+        sendingPlayer = withdrawing
+        activePlayer = WithdrawalIndicator
+        gameInfo = []
+        scores = []
     }
     
     // Initialize GameState from received encoded data

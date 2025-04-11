@@ -105,6 +105,10 @@ public final class UnigameModel {
     // play starts.  The array is ordered by Player.order fields, ascending.
     var players = [Player]()
     
+    // Variable indicating that the player list is being drained (at least one player has withdrawn and
+    // others are expected to withdraw)
+    var draining = false
+    
     // The index in the players array assigned to 'this' player (the user of the present device).
     // Initially zero.
     public var thisPlayer : Int = 0 // Index may change; order of players determined by order fields.
@@ -209,12 +213,14 @@ public final class UnigameModel {
     
     // For error alert presentation
     var errorMessage: String? = nil
+    var errorTitle: String = "Error"
     var showingError: Bool = false
     var errorIsTerminal: Bool = false
     func resetError() {
         Logger.log("Resetting error")
         showingError = false
         errorMessage = nil
+        errorTitle = "Error"
         if errorIsTerminal {
             Logger.log("Error was terminal")
             errorIsTerminal = false
@@ -224,9 +230,10 @@ public final class UnigameModel {
 
     // Call this function to display a simple error.  No control over the dialog details other than
     // the message.
-    public func displayError(_ msg: String, terminal: Bool = false) {
+    public func displayError(_ msg: String, terminal: Bool = false, title: String = "Error") {
         Logger.log("Displaying error, msg='\(msg)', terminal=\(terminal)")
         errorMessage = msg
+        errorTitle = title
         errorIsTerminal = terminal
         showingError = true
     }
@@ -237,6 +244,13 @@ public final class UnigameModel {
             return players[index].name
         }
         return "Player #\(index+1)"
+    }
+    
+    // Withdraw from the game (starts graceful termination sequence)
+    public func withdraw() {
+        let withdrawingState = GameState(withdrawing: thisPlayer)
+        communicator?.send(withdrawingState)
+        draining = true
     }
     
     // Reset to new game
@@ -577,6 +591,24 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             Logger.log("Play has not begun so not processing game state")
             return
         }
+        // Determine if this is a withdrawal and handle specially
+        if gameState.activePlayer == WithdrawalIndicator {
+            // If this is the first indication that the game is draining, send your own withdrawal
+            // and notify the user that the game is ending and which player has withdrawn
+            if !draining {
+                communicator?.send(GameState(withdrawing: thisPlayer))
+                displayError("Player \(players[gameState.sendingPlayer]) is ending the game",
+                             terminal: true, title: "Note")
+            }
+            draining = true
+            // Mark the player as withdrawn
+            players[gameState.sendingPlayer] = Player.withdrawn
+            // If all players have withdrawn, start a new game from scratch
+            if players.dropFirst().allSatisfy( { $0 == Player.withdrawn } ) {
+                newGame()
+            }
+        }
+        // Otherwise, not a withdrawal so process as a move in the game
         if let err = gameHandle.stateChanged(gameState.gameInfo) {
             displayError(err.localizedDescription, terminal: false)
             return
