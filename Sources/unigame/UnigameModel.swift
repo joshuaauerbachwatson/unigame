@@ -248,9 +248,8 @@ public final class UnigameModel {
     
     // Withdraw from the game (starts graceful termination sequence)
     public func withdraw() {
-        let withdrawingState = GameState(withdrawing: thisPlayer)
-        communicator?.send(withdrawingState)
         draining = true
+        communicator?.send(GameState(withdrawing: thisPlayer))
     }
     
     // Reset to new game
@@ -598,7 +597,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             // and notify the user that the game is ending and which player has withdrawn
             if !draining {
                 communicator?.send(GameState(withdrawing: thisPlayer))
-                displayError("Player '\(players[gameState.sendingPlayer].name)' is ending the game",
+                displayError("Player \(players[gameState.sendingPlayer]) is ending the game",
                              terminal: true, title: "Note")
             }
             draining = true
