@@ -19,6 +19,8 @@ import AuerbachLook
 
 // Manage access credentials (using an auth provider such as Auth0).
 
+// This support may be used without necessarily using the rest of the unigame framework.
+
 fileprivate let CredentialsFile = "credentials"
 
 // The stored credentials
@@ -35,8 +37,11 @@ public struct Credentials: Codable, Sendable {
 }
 
 // A provider for the token when an unexpired one is not found stored locally.
-// The token must be valid for audience https://unigame.com and must be issued by the
-// same Auth0 tenant as is used by the server.
+// The token must be valid for the servers you will employ.  For the Auth0 implemention:
+//   -- the token must claim the same audience as the servers expect
+//   -- the servers must use the domain specified in Auth0.plist.
+// When using the full unigame framework (with unigame-server), and retaining the Auth0
+//   implementation, the default audience must be used.
 public protocol TokenProvider: Sendable {
     func login() async -> Result<Credentials, Error>
     func logout() async -> Error?
