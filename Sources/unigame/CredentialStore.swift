@@ -48,7 +48,7 @@ public protocol TokenProvider: Sendable {
 }
 
 // Provides load and store operations for Credentials.
-class CredentialStore {
+public class CredentialStore {
     static let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
 
     // Load function.  Returns accessToken, manages expiration and serialization errors internally
@@ -81,5 +81,38 @@ class CredentialStore {
         guard let encoded = try? encoder.encode(creds) else { return false }
         FileManager.default.createFile(atPath: storageFile.path, contents: encoded, attributes: nil)
         return true
+    }
+    
+    // Do the login operation
+    public class func login(_ tokenProvider: TokenProvider) async -> Result<Credentials, Error> {
+        Logger.log("Logging in")
+        let result = await tokenProvider.login()
+        switch result {
+        case let .success(creds):
+            Logger.log("Login was successful")
+            if !CredentialStore.store(creds) {
+                Logger.log("Failed to store apparently valid credentials when performing login")
+            }
+            return .success(creds)
+        case let.failure(error):
+            Logger.log("Login failed: \(error)")
+            return .failure(error)
+        }
+    }
+    
+    // Do the logout operation
+    public class func logout(_ tokenProvider: TokenProvider) async -> Error? {
+        Logger.log("Logging out")
+        // Try to logout from the token provider
+        if let err = await tokenProvider.logout() {
+            Logger.log("Logout failed: \(err)")
+            return err
+        }
+        // Logout succeeded.  Try to remove credential store
+        if let err = remove() {
+            Logger.log("Credential store could not be removed")
+            return err
+        }
+        return nil
     }
 }

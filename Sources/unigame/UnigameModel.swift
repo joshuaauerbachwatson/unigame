@@ -357,17 +357,11 @@ public final class UnigameModel {
         guard let tokenProvider else {
             Logger.logFatalError("Login called when it should have been disabled")
         }
-        Logger.log("Logging in")
-        let result = await tokenProvider.login()
+        let result = await CredentialStore.login(tokenProvider)
         switch result {
         case let .success(creds):
-            Logger.log("Login was successful")
-            if !CredentialStore.store(creds) {
-                Logger.log("Failed to store apparently valid credentials when performing login")
-            }
             credentials = creds
         case let.failure(error):
-            Logger.log("Login failed: \(error)")
             displayError(error.localizedDescription)
         }
     }
@@ -377,16 +371,8 @@ public final class UnigameModel {
         guard let tokenProvider else {
             return // Not really an error since logout is only present as a development aid
         }
-        Logger.log("Logging out")
-        // Try to logout from the token provider
-        if let err = await tokenProvider.logout() {
+        if let err = await CredentialStore.logout(tokenProvider) {
             Logger.log("Logout failed: \(err)")
-            displayError(err.localizedDescription)
-            return
-        }
-        // Logout succeeded.  Try to remove credential store
-        if let err = CredentialStore.remove() {
-            Logger.log("Credential store could not be removed")
             displayError(err.localizedDescription)
             return
         }
