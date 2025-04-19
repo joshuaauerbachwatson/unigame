@@ -51,8 +51,8 @@ public protocol TokenProvider: Sendable {
 public class CredentialStore {
     static let storageFile = getDocDirectory().appendingPathComponent(CredentialsFile)
 
-    // Load function.  Returns accessToken, manages expiration and serialization errors internally
-    class func load() -> Credentials? {
+    // Load function.  Returns the current stored credentials or nil.
+    public class func load() -> Credentials? {
         do {
             let archived = try Data(contentsOf: storageFile)
             Logger.log("Credentials loaded from disk")
@@ -65,7 +65,7 @@ public class CredentialStore {
         return nil
     }
     
-    // Remove the credential store (as part of logout)
+    // Remove the credential store (usually as part of logout)
     class func remove() -> Error? {
         do {
             try FileManager.default.removeItem(at: storageFile)
@@ -75,7 +75,7 @@ public class CredentialStore {
         }
     }
     
-    // Store a new set of credentials
+    // Store a new set of credentials (usually as part of login)
     class func store(_ creds: Credentials) -> Bool {
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(creds) else { return false }
