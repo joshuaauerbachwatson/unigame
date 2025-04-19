@@ -27,7 +27,7 @@ fileprivate let CredentialsFile = "credentials"
 public struct Credentials: Codable, Sendable {
     public let accessToken: String
     public let expires: Date
-    var valid: Bool {
+    public var valid: Bool {
         expires > Date.now
     }
     public init(accessToken: String, expires: Date) {
