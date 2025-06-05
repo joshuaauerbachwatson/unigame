@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Auth0
+@preconcurrency import Auth0
 import AuerbachLook
 
 // An Auth0 implementation of unigame TokenProvider.  An app that wishes to use this TokenProvider
@@ -20,18 +20,23 @@ import AuerbachLook
 // The audience claim expected by unigame-server
 fileprivate let DefaultAudience = "https://unigame.com"
 
+extension Auth0.Credentials: Credentials, @retroactive @unchecked Sendable {
+    public var expires: Date {
+        expiresIn
+    }
+}
+
 public final class Auth0TokenProvider: TokenProvider {
     let audience: String
-    public init(audience: String) {
-        self.audience = audience
+    let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
+    
+    public init(audience: String? = nil) {
+        self.audience = audience ?? DefaultAudience
     }
-    public convenience init() {
-        self.init(audience: DefaultAudience)
-    }
+
     public func login() async -> Result<Credentials, Error> {
         do {
-            let auth0creds = try await Auth0.webAuth().useHTTPS().audience(audience).start()
-            let credentials = Credentials(accessToken: auth0creds.accessToken, expires: auth0creds.expiresIn)
+            let credentials = try await Auth0.webAuth().useHTTPS().audience(audience).start()
             return .success(credentials)
         } catch {
             return .failure(error)
@@ -44,6 +49,29 @@ public final class Auth0TokenProvider: TokenProvider {
             return nil
         } catch {
             return error
+        }
+    }
+
+    public func store(_ creds: any Credentials) -> (any Error)? {
+        if let credentials = creds as? Auth0.Credentials {
+            if credentialsManager.store(credentials: credentials) {
+                return nil
+            }
+            return CredentialError.CouldNotStore
+        }
+        return CredentialError.WrongCredentialsType
+    }
+    
+    public func hasValid() -> Bool {
+        credentialsManager.hasValid()
+    }
+    
+    public func credentials() async -> Result<any Credentials, Error> {
+        do {
+            let creds = try await credentialsManager.credentials()
+            return .success(creds)
+        } catch {
+            return .failure(error)
         }
     }
 }

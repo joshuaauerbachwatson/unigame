@@ -133,10 +133,8 @@ public final class UnigameModel {
     var solitaireMode: Bool {
         leadPlayer && numPlayers == 1
     }
-    
-    // The credentials to use with server based communicator (not used by multipeer communicator)
-    // If meeded but not present, or not valid (expired), login is required.
-    var credentials = CredentialStore.load()
+
+    var credentials: Credentials? = nil
 
     // Indicates that valid credentials are present
     var hasValidCredentials: Bool {
@@ -145,7 +143,7 @@ public final class UnigameModel {
     
     // Indicates that a token provider is available
     var hasTokenProvider: Bool {
-        gameHandle.tokenProvider != nil
+        tokenProvider != nil
     }
 
     // The Communicator (nil until player search begins; remains non-nil through player search
@@ -256,6 +254,20 @@ public final class UnigameModel {
         }
     }
     
+    // Initialize the credentials field if needed and credentials available
+    func reconcileCredentials() {
+        if !hasValidCredentials, let tokenProvider {
+            Task { @MainActor in
+                switch await tokenProvider.credentials() {
+                case .success(let creds):
+                    credentials = creds
+                case .failure(let err):
+                    displayError(err.localizedDescription)
+                }
+            }
+        }
+    }
+    
     // Reset to new game
     public func newGame(dueToError: Bool = false) {
         // Clean up old game
@@ -275,6 +287,7 @@ public final class UnigameModel {
         ensureNumPlayers()
         players = [Player(userName, leadPlayer)]
         draining = false
+        reconcileCredentials()
         if !hasTokenProvider {
             // Force nearby only when login is impossible
             nearbyOnly = true
@@ -357,11 +370,15 @@ public final class UnigameModel {
         guard let tokenProvider else {
             Logger.logFatalError("Login called when it should have been disabled")
         }
-        let result = await CredentialStore.login(tokenProvider)
+        let result = await tokenProvider.login()
         switch result {
         case let .success(creds):
+            if let err = tokenProvider.store(creds) {
+                displayError(err.localizedDescription)
+                return
+            }
             credentials = creds
-        case let.failure(error):
+        case let .failure(error):
             displayError(error.localizedDescription)
         }
     }
@@ -371,7 +388,7 @@ public final class UnigameModel {
         guard let tokenProvider else {
             return // Not really an error since logout is only present as a development aid
         }
-        if let err = await CredentialStore.logout(tokenProvider) {
+        if let err = await tokenProvider.logout() {
             Logger.log("Logout failed: \(err)")
             displayError(err.localizedDescription)
             return
