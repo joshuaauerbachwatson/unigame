@@ -256,7 +256,7 @@ public final class UnigameModel {
     
     // Initialize the credentials field if needed and credentials available
     func reconcileCredentials() {
-        if !hasValidCredentials, let tokenProvider {
+        if !hasValidCredentials, let tokenProvider, tokenProvider.hasValid() {
             Task { @MainActor in
                 switch await tokenProvider.credentials() {
                 case .success(let creds):
