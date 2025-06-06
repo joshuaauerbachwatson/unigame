@@ -36,7 +36,8 @@ public final class Auth0TokenProvider: TokenProvider {
 
     public func login() async -> Result<Credentials, Error> {
         do {
-            let credentials = try await Auth0.webAuth().useHTTPS().audience(audience).start()
+            let credentials = try await Auth0.webAuth()
+                .useEphemeralSession().useHTTPS().audience(audience).start()
             return .success(credentials)
         } catch {
             return .failure(error)
@@ -44,12 +45,10 @@ public final class Auth0TokenProvider: TokenProvider {
     }
     
     public func logout() async -> Error? {
-        do {
-            try await Auth0.webAuth().useHTTPS().clearSession(federated: false)
+        if credentialsManager.clear() {
             return nil
-        } catch {
-            return error
         }
+        return CredentialError.LogoutFailure
     }
 
     public func store(_ creds: any Credentials) -> (any Error)? {

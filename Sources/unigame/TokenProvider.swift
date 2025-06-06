@@ -43,6 +43,7 @@ struct CredentialError: LocalizedError {
     
     static let WrongCredentialsType = CredentialError("Attempt to store credentials of Wrong type")
     static let CouldNotStore = CredentialError("Could not store credentials")
+    static let LogoutFailure = CredentialError("Failure during logout")
 }
 
 // A provider for access tokens (capable of being used as bearer tokens when contacting the server)
