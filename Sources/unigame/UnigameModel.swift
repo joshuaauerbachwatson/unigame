@@ -386,7 +386,8 @@ public final class UnigameModel {
     // Perform Logout function
     func logout() async {
         guard let tokenProvider else {
-            return // Not really an error since logout is only present as a development aid
+            return // Not an error since not having a tokenProvider is equivalent to being logged out
+            // However, it shouldn't happen since the UI should only provide logout when appropriate.
         }
         if let err = await tokenProvider.logout() {
             Logger.log("Logout failed: \(err)")

@@ -83,14 +83,13 @@ struct Players: View {
                         }
                     }
                     .disabled(mayNotJoin)
-                    // Uncomment when logout is needed for testing
-//                    Button("Logout") {
-//                        Task { @MainActor in
-//                            await model.logout()
-//                        }
-//                    }
-//                    .foregroundStyle(.red)
-//                    .disabled(!model.mayConnect || !model.mayLogin)
+                    Button("Logout") {
+                        Task { @MainActor in
+                            await model.logout()
+                        }
+                    }
+                    .foregroundStyle(.red)
+                    .disabled(!model.hasTokenProvider)
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
