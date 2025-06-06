@@ -88,7 +88,7 @@ struct Players: View {
                             await model.logout()
                         }
                     }
-                    .disabled(!model.hasTokenProvider || model.hasValidCredentials)
+                    .disabled(model.nearbyOnly || !model.hasTokenProvider || !model.hasValidCredentials)
                 }
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
