@@ -19,6 +19,9 @@ import SwiftUI
 // Each game that uses unigame-model must provide its implementation of this protocol
 @MainActor @preconcurrency
 public protocol GameHandle {
+    // Game handles must have a no-argument initializer
+    init()
+    
     // A back-pointer to the model (should be a weak reference to avoid memory issues)
     var model: UnigameModel? { get set }
     
