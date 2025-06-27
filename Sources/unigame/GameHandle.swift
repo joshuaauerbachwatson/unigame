@@ -23,7 +23,7 @@ public protocol GameHandle {
     init()
     
     // A back-pointer to the model (should be a weak reference to avoid memory issues)
-    var model: UnigameModel? { get set }
+    var model: UnigameModel<Self>? { get set }
     
     // The TokenProvider
     var tokenProvider: (any TokenProvider)? { get }
@@ -74,7 +74,7 @@ public protocol GameHandle {
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
 // There is no real game logic.
 struct DummyGameHandle: GameHandle {
-    var model: UnigameModel?
+    var model: UnigameModel<DummyGameHandle>?
     var tokenProvider: (any TokenProvider)? = nil
     var helpHandle: any HelpHandle = NoHelpProvided()
     var numPlayerRange: ClosedRange<Int> = 1...6

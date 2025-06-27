@@ -16,8 +16,8 @@
 
 import SwiftUI
 
-public struct ContentView: View {
-    @Environment(UnigameModel.self) var model
+public struct ContentView<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     
     public init() {}
 
@@ -27,7 +27,7 @@ public struct ContentView: View {
             VStack {
                 HStack {
                     Label("Players:", systemImage: "person.3.sequence")
-                    PlayerLabels()
+                    PlayerLabels<T>()
                 }
                 HStack {
                     if let lastChat = model.chatTranscript?.last, let lastTime =  model.lastChatMsgTime {
@@ -63,9 +63,9 @@ public struct ContentView: View {
                 .navigationDestination(for: String.self) { value in
                     switch value {
                     case "chat":
-                        Chat()
+                        Chat<T>()
                     case "help":
-                        Help()
+                        Help<T>()
                     default:
                         EmptyView()
                     }
@@ -73,11 +73,11 @@ public struct ContentView: View {
                 .padding(.horizontal)
                 
                 if !model.playBegun {
-                    Players()
+                    Players<T>()
                 } else if model.setupInProgress {
-                    Setup()
+                    Setup<T>()
                 } else {
-                    Playing()
+                    Playing<T>()
                 }
             }
             .disabled(model.draining)
@@ -96,6 +96,6 @@ public struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .environment(UnigameModel())
+    ContentView<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>())
 }

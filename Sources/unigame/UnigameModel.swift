@@ -42,9 +42,9 @@ public enum Scoring {
 }
 
 @Observable @MainActor @preconcurrency
-public final class UnigameModel {
+public final class UnigameModel<T> where T: GameHandle {
     // The handle to the specific game, providing details which the core model does not.
-    public var gameHandle: any GameHandle
+    public var gameHandle: T
     
     // The defaults object (usually UserDefaults.standard but can be mocked for testing)
     private let defaults: UserDefaults
@@ -303,7 +303,7 @@ public final class UnigameModel {
     
     // Main initializer.  A GameHandle class is supplied, to be instantiated dynamically.
     // Things start out in the "new game" state.  It is also possible to override the UserDefaults object.
-    public init<T>(gameHandle: T.Type, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
+    public init(gameHandle: T.Type, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
         Logger.log("Instantiating a new UnigameModel")
         let gameHandle = gameHandle.init()
         self.gameHandle = gameHandle
@@ -324,11 +324,11 @@ public final class UnigameModel {
     
     // Dummy initializers for previews etc.
     convenience init() {
-        self.init(gameHandle: DummyGameHandle.self)
+        self.init(gameHandle: DummyGameHandle.self as! T.Type)
     }
     
     convenience init(defaults: UserDefaults) {
-        self.init(gameHandle: DummyGameHandle.self, defaults: defaults)
+        self.init(gameHandle: DummyGameHandle.self as! T.Type, defaults: defaults)
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.
@@ -356,7 +356,7 @@ public final class UnigameModel {
     
     // Get the correct PlayerLabel view for a given player label index.
     // Assumes without checking that the index is in the range 0..<numPlayerLabels
-    func getPlayerLabel(_ index: Int) -> PlayerLabel {
+    func getPlayerLabel(_ index: Int) -> PlayerLabel<T> {
         if index < players.count {
             return PlayerLabel(id: index, name: players[index].name)
         }

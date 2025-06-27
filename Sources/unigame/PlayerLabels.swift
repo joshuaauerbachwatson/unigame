@@ -21,8 +21,8 @@ fileprivate let MustFind = "[Missing]"
 fileprivate let Searching = "[Searching]"
 
 // An individual player label.  May contain a Player or a placeholder value
-struct PlayerLabel: View, Identifiable {
-    @Environment(UnigameModel.self) var model
+struct PlayerLabel<T: GameHandle>: View, Identifiable {
+    @Environment(UnigameModel<T>.self) var model
 
     let id: Int
     @State var showPopup: Bool = false
@@ -74,8 +74,8 @@ struct PlayerLabel: View, Identifiable {
 
 // A subview to appear near the top of other views (Players, Playing) representing the
 // players of the game.  Populated from unigameModel.players and other information.
-struct PlayerLabels: View {
-    @Environment(UnigameModel.self) var model
+struct PlayerLabels<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     
     var body: some View {
         HStack {
@@ -89,6 +89,6 @@ struct PlayerLabels: View {
 }
 
 #Preview {
-    PlayerLabels()
-        .environment(UnigameModel())
+    PlayerLabels<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>())
 }

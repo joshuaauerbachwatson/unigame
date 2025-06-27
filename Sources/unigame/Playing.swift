@@ -16,8 +16,8 @@
 
 import SwiftUI
 
-struct Playing: View {
-    @Environment(UnigameModel.self) var model
+struct Playing<T>: View where T: GameHandle {
+    @Environment(UnigameModel<T>.self) var model
     var body: some View {
         if !model.solitaireMode {
             Button("End My Turn", systemImage: "hand.wave") {
@@ -30,6 +30,6 @@ struct Playing: View {
 }
 
 #Preview {
-    Playing()
-        .environment(UnigameModel())
+    Playing<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>())
 }

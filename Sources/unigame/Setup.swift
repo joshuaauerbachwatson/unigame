@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *s
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,8 @@
 
 import SwiftUI
 
-struct Setup: View {
-    @Environment(UnigameModel.self) var model
+struct Setup<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     var body: some View {
         Button("Setup Complete", systemImage: "hand.wave") {
             model.transmit()
@@ -29,6 +29,6 @@ struct Setup: View {
 }
 
 #Preview {
-    Setup()
-        .environment(UnigameModel())
+    Setup<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>())
 }

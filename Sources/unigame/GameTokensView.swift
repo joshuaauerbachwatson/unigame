@@ -10,8 +10,8 @@ import AuerbachLook
 
 fileprivate let minTokenLength = 6
 
-struct GameTokensView: View {
-    @Environment(UnigameModel.self) var model
+struct GameTokensView<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     @State private var showingAlert = false
     @State private var newToken = ""
     @State private var tooShort = false
@@ -76,6 +76,6 @@ struct GameTokensView: View {
     let defaults = MockDefaults()
     defaults.set(tokens, forKey: SavedTokensKey)
     defaults.set("wox", forKey: GameTokenKey)
-    return GameTokensView()
-        .environment(UnigameModel(defaults: defaults))
+    return GameTokensView<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>(defaults: defaults))
 }

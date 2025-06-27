@@ -16,8 +16,8 @@
 
 import SwiftUI
 
-struct Chat: View {
-    @Environment(UnigameModel.self) var model
+struct Chat<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     @State private var message = ""
     @FocusState private var sendIsFocused: Bool
 
@@ -60,9 +60,9 @@ struct Chat: View {
 }
 
 #Preview {
-    let model = UnigameModel()
+    let model = UnigameModel<DummyGameHandle>()
     model.chatTranscript = ["[Bob] Hi there", "[Ray] Hello yourself"]
     model.lastChatMsgTime = Date.now
-    return Chat()
+    return Chat<DummyGameHandle>()
         .environment(model)
 }

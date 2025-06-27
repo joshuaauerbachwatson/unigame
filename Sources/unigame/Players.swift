@@ -19,8 +19,8 @@ import SwiftUI
 // This View contains the (unigame standard, game-agnostic) controls for defining yourself
 // as a player and connecting with other players in your group.
 
-struct Players: View {
-    @Environment(UnigameModel.self) var model
+struct Players<T: GameHandle>: View {
+    @Environment(UnigameModel<T>.self) var model
     var body: some View {
         @Bindable var model = model
         let scope = model.hasTokenProvider ? AnyView(Toggle(isOn: $model.nearbyOnly) {
@@ -66,7 +66,7 @@ struct Players: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             } else {
-                GameTokensView()
+                GameTokensView<T>()
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
@@ -102,6 +102,6 @@ struct Players: View {
     let defaults = MockDefaults()
     defaults.setValue(true, forKey: LeadPlayerKey)
     defaults.setValue(2, forKey: NumPlayersKey)
-    return Players()
-        .environment(UnigameModel(defaults: defaults))
+    return Players<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>(defaults: defaults))
 }

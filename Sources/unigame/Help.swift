@@ -18,9 +18,9 @@ import SwiftUI
 import AuerbachLook
 
 
-struct HelpWrapper: UIViewControllerRepresentable {
+struct HelpWrapper<T: GameHandle>: UIViewControllerRepresentable {
     typealias UIViewControllerType = HelpController
-    @Environment(UnigameModel.self) var model
+    @Environment(UnigameModel<T>.self) var model
 
     func makeUIViewController(context: Context) -> HelpController {
         return model.helpController
@@ -31,11 +31,11 @@ struct HelpWrapper: UIViewControllerRepresentable {
     }
 }
 
-struct Help: View {
+struct Help<T: GameHandle>: View {
     var body: some View {
         ZStack {
             Color.brown
-            HelpWrapper()
+            HelpWrapper<T>()
                 .padding()
         }
 
@@ -43,6 +43,6 @@ struct Help: View {
 }
 
 #Preview {
-    Help()
-        .environment(UnigameModel())
+    Help<DummyGameHandle>()
+        .environment(UnigameModel<DummyGameHandle>())
 }
