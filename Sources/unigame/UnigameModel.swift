@@ -301,10 +301,11 @@ public final class UnigameModel {
         Logger.log("There are \(savedTokens.count) saved tokens")
     }
     
-    // Main initializer.  The GameModel is supplied and things start out in the "new game" state
-    // It is also possible to override the UserDefaults object.
-    public init(gameHandle: GameHandle, defaults: UserDefaults = UserDefaults.standard){
+    // Main initializer.  A GameHandle class is supplied, to be instantiated dynamically.
+    // Things start out in the "new game" state.  It is also possible to override the UserDefaults object.
+    public init<T>(gameHandle: T.Type, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
         Logger.log("Instantiating a new UnigameModel")
+        let gameHandle = gameHandle.init()
         self.gameHandle = gameHandle
         self.defaults = defaults
         self.scoring = gameHandle.initialScoring
@@ -323,11 +324,11 @@ public final class UnigameModel {
     
     // Dummy initializers for previews etc.
     convenience init() {
-        self.init(gameHandle: DummyGameHandle())
+        self.init(gameHandle: DummyGameHandle.self)
     }
     
     convenience init(defaults: UserDefaults) {
-        self.init(gameHandle: DummyGameHandle(), defaults: defaults)
+        self.init(gameHandle: DummyGameHandle.self, defaults: defaults)
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.
