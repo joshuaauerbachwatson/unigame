@@ -103,5 +103,5 @@ struct Players<T: GameHandle>: View {
     defaults.setValue(true, forKey: LeadPlayerKey)
     defaults.setValue(2, forKey: NumPlayersKey)
     return Players<DummyGameHandle>()
-        .environment(UnigameModel<DummyGameHandle>(defaults: defaults))
+        .environment(DummyGameHandle.makeModel(defaults: defaults))
 }

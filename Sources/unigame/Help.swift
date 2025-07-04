@@ -44,5 +44,5 @@ struct Help<T: GameHandle>: View {
 
 #Preview {
     Help<DummyGameHandle>()
-        .environment(UnigameModel<DummyGameHandle>())
+        .environment(DummyGameHandle.makeModel())
 }

@@ -30,5 +30,5 @@ struct Setup<T: GameHandle>: View {
 
 #Preview {
     Setup<DummyGameHandle>()
-        .environment(UnigameModel<DummyGameHandle>())
+        .environment(DummyGameHandle.makeModel())
 }

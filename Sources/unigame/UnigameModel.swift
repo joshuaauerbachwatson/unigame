@@ -303,9 +303,8 @@ public final class UnigameModel<T> where T: GameHandle {
     
     // Main initializer.  A GameHandle class is supplied, to be instantiated dynamically.
     // Things start out in the "new game" state.  It is also possible to override the UserDefaults object.
-    public init(gameHandle: T.Type, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
+    public init(gameHandle: T, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
         Logger.log("Instantiating a new UnigameModel")
-        let gameHandle = gameHandle.init()
         self.gameHandle = gameHandle
         self.defaults = defaults
         self.scoring = gameHandle.initialScoring
@@ -320,15 +319,6 @@ public final class UnigameModel<T> where T: GameHandle {
         self.savedTokens = defaults.stringArray(forKey: SavedTokensKey) ?? []
         self.gameHandle.model = self // GameHandle implementations expected to use 'weak'
         newGame()
-    }
-    
-    // Dummy initializers for previews etc.
-    convenience init() {
-        self.init(gameHandle: DummyGameHandle.self as! T.Type)
-    }
-    
-    convenience init(defaults: UserDefaults) {
-        self.init(gameHandle: DummyGameHandle.self as! T.Type, defaults: defaults)
     }
     
     // Establish the right number of players for the current value of leadPlayer at start of game.

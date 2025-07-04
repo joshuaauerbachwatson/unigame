@@ -90,5 +90,5 @@ struct PlayerLabels<T: GameHandle>: View {
 
 #Preview {
     PlayerLabels<DummyGameHandle>()
-        .environment(UnigameModel<DummyGameHandle>())
+        .environment(DummyGameHandle.makeModel())
 }

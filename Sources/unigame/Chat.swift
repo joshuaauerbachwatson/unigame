@@ -60,7 +60,7 @@ struct Chat<T: GameHandle>: View {
 }
 
 #Preview {
-    let model = UnigameModel<DummyGameHandle>()
+    let model = DummyGameHandle.makeModel()
     model.chatTranscript = ["[Bob] Hi there", "[Ray] Hello yourself"]
     model.lastChatMsgTime = Date.now
     return Chat<DummyGameHandle>()

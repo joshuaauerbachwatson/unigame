@@ -77,5 +77,5 @@ struct GameTokensView<T: GameHandle>: View {
     defaults.set(tokens, forKey: SavedTokensKey)
     defaults.set("wox", forKey: GameTokenKey)
     return GameTokensView<DummyGameHandle>()
-        .environment(UnigameModel<DummyGameHandle>(defaults: defaults))
+        .environment(DummyGameHandle.makeModel())
 }

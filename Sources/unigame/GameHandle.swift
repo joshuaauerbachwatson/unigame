@@ -19,8 +19,8 @@ import SwiftUI
 // Each game that uses unigame-model must provide its implementation of this protocol
 @MainActor @preconcurrency
 public protocol GameHandle {
-    // Game handles must have a no-argument initializer
-    init()
+    // Must have a method that makes a model holding an instance of the GameHandle class
+    static func makeModel() -> UnigameModel<Self>
     
     // A back-pointer to the model (should be a weak reference to avoid memory issues)
     var model: UnigameModel<Self>? { get set }
@@ -74,6 +74,14 @@ public protocol GameHandle {
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
 // There is no real game logic.
 struct DummyGameHandle: GameHandle {
+    static func makeModel() -> UnigameModel<DummyGameHandle> {
+        let handle = self.init()
+        return UnigameModel(gameHandle: handle)
+    }
+    static func makeModel(defaults: UserDefaults) -> UnigameModel<DummyGameHandle> {
+        let handle = self.init()
+        return UnigameModel(gameHandle: handle, defaults: defaults)
+    }
     var model: UnigameModel<DummyGameHandle>?
     var tokenProvider: (any TokenProvider)? = nil
     var helpHandle: any HelpHandle = NoHelpProvided()
