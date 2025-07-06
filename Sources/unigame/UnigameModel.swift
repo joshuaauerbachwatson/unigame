@@ -35,6 +35,11 @@ fileprivate let MustFind = "[Missing]"
 fileprivate let Searching = "[Searching]"
 fileprivate let ExpectingMore = "...expecting more..."
 
+// The token provider.  Although we provide the `TokenProvider` abstraction to hide some Auth0-specific
+// details, we actually hardcode the Auth0 provider here.  There are no immediate plans to cover
+// providers other than Auth0.
+let tokenProvider: TokenProvider = Auth0TokenProvider()
+
 // Describes whether optional scoring is requested and, if so, whether players are restricted to
 // changing only their own score.
 public enum Scoring {
@@ -256,7 +261,7 @@ public final class UnigameModel<T> where T: GameHandle {
     
     // Initialize the credentials field if needed and credentials available
     func reconcileCredentials() {
-        if !hasValidCredentials, let tokenProvider, tokenProvider.hasValid() {
+        if !hasValidCredentials, tokenProvider.hasValid() {
             Task { @MainActor in
                 switch await tokenProvider.credentials() {
                 case .success(let creds):
@@ -358,9 +363,6 @@ public final class UnigameModel<T> where T: GameHandle {
     
     // Perform login function,
     func login() async {
-        guard let tokenProvider else {
-            Logger.logFatalError("Login called when it should have been disabled")
-        }
         let result = await tokenProvider.login()
         switch result {
         case let .success(creds):
@@ -376,10 +378,6 @@ public final class UnigameModel<T> where T: GameHandle {
     
     // Perform Logout function
     func logout() async {
-        guard let tokenProvider else {
-            return // Not an error since not having a tokenProvider is equivalent to being logged out
-            // However, it shouldn't happen since the UI should only provide logout when appropriate.
-        }
         if let err = await tokenProvider.logout() {
             Logger.log("Logout failed: \(err)")
             displayError(err.localizedDescription)
@@ -526,10 +524,6 @@ fileprivate func generateTOC(_ pairs: [HelpTOCEntry]) -> String {
 // The CommunicatorDelegate portion of the logic
 fileprivate let LostPlayerTemplate = "Lost contact with '%@'"
 extension UnigameModel: @preconcurrency CommunicatorDispatcher {
-    var tokenProvider: (any TokenProvider)? {
-        return gameHandle.tokenProvider
-    }
-    
     // Respond to a new player list during game initiation.  We do not use this call later for lost players;
     // we use `lostPlayer` for that.  The received players array is already properly sorted.
     func newPlayerList(_ newNumPlayers: Int, _ newPlayers: [Player]) {

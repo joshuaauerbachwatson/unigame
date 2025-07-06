@@ -22,11 +22,9 @@ public protocol GameHandle {
     // Must have a method that makes a model holding an instance of the GameHandle class
     static func makeModel() -> UnigameModel<Self>
     
-    // A back-pointer to the model (should be a weak reference to avoid memory issues)
+    // A back-pointer to the model to be filled in during model initialization.
+    // It should be a weak reference to avoid memory issues.
     var model: UnigameModel<Self>? { get set }
-    
-    // The TokenProvider
-    var tokenProvider: (any TokenProvider)? { get }
     
     // The HelpHandle
     var helpHandle: any HelpHandle { get }
