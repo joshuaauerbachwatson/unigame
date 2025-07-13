@@ -15,11 +15,14 @@
  */
 
 import SwiftUI
+import AuerbachLook
 
 public struct ContentView<T: GameHandle>: View {
     @Environment(UnigameModel<T>.self) var model
     
-    public init() {}
+    public init() {
+        Logger.log("New unigame content view created")
+    }
 
     public var body: some View {
         @Bindable var model = model

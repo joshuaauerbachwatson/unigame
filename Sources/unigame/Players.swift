@@ -15,12 +15,16 @@
  */
 
 import SwiftUI
+import AuerbachLook
 
 // This View contains the (unigame standard, game-agnostic) controls for defining yourself
 // as a player and connecting with other players in your group.
 
 struct Players<T: GameHandle>: View {
     @Environment(UnigameModel<T>.self) var model
+    init() {
+        Logger.log("New players view created")
+    }
     var body: some View {
         @Bindable var model = model
         let scope = model.hasTokenProvider ? AnyView(Toggle(isOn: $model.nearbyOnly) {
