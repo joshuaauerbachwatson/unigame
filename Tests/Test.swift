@@ -20,13 +20,24 @@ import SwiftUI
 @testable import unigame
 
 @Suite(.serialized) @MainActor struct UnigameModelTests {
-    let model: UnigameModel
+    let model: UnigameModel<TestGameHandle>
     
-    class TestGameHandle: GameHandle {
+    final class TestGameHandle: GameHandle {
+        init() {}
+        
+        static func makeModel() -> unigame.UnigameModel<TestGameHandle> {
+            UnigameModel<TestGameHandle>(gameHandle: TestGameHandle())
+        }
+        
+        var model: unigame.UnigameModel<UnigameModelTests.TestGameHandle>?
+        
+        var helpHandle: any unigame.HelpHandle = NoHelpProvided()
+        
+        var initialScoring: unigame.Scoring = .Off
+        
         var resetCalled = false
         var lastState: [UInt8]? = nil
         var encodedState: [UInt8] = []
-        let tokenProvider: any unigame.TokenProvider = DummyTokenProvider()
         let numPlayerRange: ClosedRange<Int> = 1...2
         let setupView: (any View)? = DummySetup()
         let playingView: any View = DummyPlaying()
@@ -76,7 +87,6 @@ import SwiftUI
         #expect(!model.showingError)
         #expect(model.thisPlayersTurn)
         #expect(model.communicator == nil)
-        #expect(model.gameHandle is TestGameHandle)
         #expect(model.activePlayer == 0)
         #expect(model.players == [Player("Elmer Fudd", true)])
         #expect(model.thisPlayer == 0)
@@ -84,6 +94,5 @@ import SwiftUI
         #expect(model.credentials == nil)
         #expect(model.errorMessage == nil)
         #expect(model.helpHandle is NoHelpProvided)
-        #expect(model.tokenProvider is DummyTokenProvider)
     }
 }
