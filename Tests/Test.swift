@@ -41,7 +41,7 @@ import SwiftUI
         let numPlayerRange: ClosedRange<Int> = 1...2
         let setupView: (any View)? = DummySetup()
         let playingView: any View = DummyPlaying()
-        let appId: String = "unigametestapp"
+        let gameId: String = "unigametestapp"
 
         func reset() {
             resetCalled = true

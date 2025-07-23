@@ -46,7 +46,7 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     }()
     
     // Initializer
-    init(player: Player, numPlayers: Int, groupToken: String, appId: String) {
+    init(player: Player, numPlayers: Int, groupToken: String, gameId: String) {
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
         self.groupToken = groupToken
@@ -55,12 +55,12 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
             self.numPlayers = numPlayers
             info[NumPlayersKey] = String(numPlayers)
         }
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: appId)
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: appId)
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: info, serviceType: gameId)
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: peerId, serviceType: gameId)
         super.init()
         serviceBrowser.delegate = self
         serviceAdvertiser.delegate = self
-        Logger.log("Multipeer: starting advertiser and browser with appId \(appId)")
+        Logger.log("Multipeer: starting advertiser and browser with gameId \(gameId)")
         serviceAdvertiser.startAdvertisingPeer()
         serviceBrowser.startBrowsingForPeers()
     }

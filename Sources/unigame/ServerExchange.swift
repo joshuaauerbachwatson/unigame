@@ -57,9 +57,9 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     var continuation: AsyncStream<CommunicatorEvent>.Continuation?
     
     // The initializer to use for this Communicator.  Accepts a groupToken and player and starts listening
-    init(player: Player, numPlayers: Int, groupToken: String, appId: String, accessToken: String) {
+    init(player: Player, numPlayers: Int, groupToken: String, gameId: String, accessToken: String) {
         self.accessToken = accessToken
-        self.group = appId + "_" + groupToken
+        self.group = gameId + "_" + groupToken
         self.player = player
         super.init()
         self.webSocketTask = connectWebsocket(group: groupToken, player: player, numPlayers: numPlayers, accessToken: accessToken)

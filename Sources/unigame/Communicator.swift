@@ -84,16 +84,16 @@ func makeCommunicator(nearbyOnly: Bool,
                       player: Player,
                       numPlayers: Int,
                       groupToken: String,
-                      appId: String,
+                      gameId: String,
                       accessToken: String?) async -> Communicator {
     if nearbyOnly {
         return MultiPeerCommunicator(player: player, numPlayers: numPlayers, groupToken: groupToken,
-                                     appId: appId)
+                                     gameId: gameId)
     } else {
         guard let accessToken = accessToken else {
             Logger.logFatalError("Server communicator construction attempted with no accessToken available")
         }
         return ServerBasedCommunicator(player: player, numPlayers: numPlayers, groupToken: groupToken,
-                                       appId: appId, accessToken: accessToken)
+                                       gameId: gameId, accessToken: accessToken)
     }
 }

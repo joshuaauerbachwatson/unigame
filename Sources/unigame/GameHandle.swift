@@ -54,7 +54,7 @@ public protocol GameHandle {
     // The SwiftUI view to use as the main subview during play
     var playingView: any View { get }
 
-    // The appId.  When using the server, this is prepended to the group token.
+    // The gameId.  When using the server, this is prepended to the group token.
     // When using MultiPeer, this becomes the serviceType, so that group tokens
     // are interpreted only within the scope of a single app.  In both cases it
     // cuts down on the likelihood of collision between unrelated groups.
@@ -63,10 +63,12 @@ public protocol GameHandle {
     //     <string>Communicate with other players nearby</string>
     //     <key>NSBonjourServices</key>
     //     <array>
-    //       <string>_theAppId._tcp</string>
-    //       <string>_theAppId._udp</string>
+    //       <string>_theGameId._tcp</string>
+    //       <string>_theGameId._udp</string>
+    //       ... repeat for other games in the app
     //     </array>
-    var appId: String { get }
+    // gameId need not be human-friendly.  The gameName field exists for UI purposes.
+    var gameId: String { get }
 }
 
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
@@ -94,5 +96,5 @@ struct DummyGameHandle: GameHandle {
     }
     var setupView: (any View)? = DummySetup()
     var playingView: any View = DummyPlaying()
-    var appId: String = "dummyApp"
+    var gameId: String = "dummyGame"
 }

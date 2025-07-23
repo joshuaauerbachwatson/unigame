@@ -409,7 +409,7 @@ public final class UnigameModel<T> where T: GameHandle {
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
         let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: players[0],
                                                   numPlayers: numPlayers, groupToken: groupToken,
-                                                  appId: gameHandle.appId,
+                                                  gameId: gameHandle.gameId,
                                                   accessToken: credentials?.accessToken)
         self.communicator = communicator
         Logger.log("Got back valid communicator")
