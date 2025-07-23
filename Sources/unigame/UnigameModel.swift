@@ -77,9 +77,9 @@ public final class UnigameModel<T> where T: GameHandle {
         }
     }
     
-    var gameToken: String? {
+    var groupToken: String? {
         didSet {
-            defaults.set(gameToken, forKey: GameTokenKey)
+            defaults.set(groupToken, forKey: GroupTokenKey)
         }
     }
     
@@ -308,7 +308,7 @@ public final class UnigameModel<T> where T: GameHandle {
         Logger.log("leadPlayer=\(leadPlayer)")
         Logger.log("numPlayers=\(numPlayers)")
         Logger.log("nearbyOnly=\(nearbyOnly)")
-        Logger.log("gameToken=\(gameToken ?? "<missing>")")
+        Logger.log("groupToken=\(groupToken ?? "<missing>")")
         Logger.log("There are \(savedTokens.count) saved tokens")
     }
     
@@ -326,7 +326,7 @@ public final class UnigameModel<T> where T: GameHandle {
         self.leadPlayer = defaults.bool(forKey: LeadPlayerKey)
         self.numPlayers  = defaults.integer(forKey: NumPlayersKey)
         self.nearbyOnly = defaults.bool(forKey: NearbyOnlyKey)
-        self.gameToken = defaults.string(forKey: GameTokenKey)
+        self.groupToken = defaults.string(forKey: GroupTokenKey)
         self.savedTokens = defaults.stringArray(forKey: SavedTokensKey) ?? []
         self.gameHandle.model = self // GameHandle implementations expected to use 'weak'
         newGame()
@@ -403,12 +403,12 @@ public final class UnigameModel<T> where T: GameHandle {
             Logger.logFatalError("Communicator was asked to connect but the current player is not set")
         }
         players[0] = Player(userName, leadPlayer) // Ensure using latest player name
-        guard let gameToken = gameToken, gameToken != "" else {
-            Logger.logFatalError("Communicator was asked to connect but gameToken was not initialized")
+        guard let groupToken, groupToken != "" else {
+            Logger.logFatalError("Communicator was asked to connect but groupToken was not initialized")
         }
         Logger.log("Making communicator with nearbyOnly=\(nearbyOnly)")
         let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: players[0],
-                                                  numPlayers: numPlayers, game: gameToken,
+                                                  numPlayers: numPlayers, groupToken: groupToken,
                                                   appId: gameHandle.appId,
                                                   accessToken: credentials?.accessToken)
         self.communicator = communicator

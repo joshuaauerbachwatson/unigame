@@ -1,5 +1,5 @@
 //
-//  GameTokensView.swift
+//  GroupTokensView.swift
 //  unigame-core
 //
 //  Created by Josh Auerbach on 9/28/24.
@@ -10,7 +10,7 @@ import AuerbachLook
 
 fileprivate let minTokenLength = 6
 
-struct GameTokensView<T: GameHandle>: View {
+struct GroupTokensView<T: GameHandle>: View {
     @Environment(UnigameModel<T>.self) var model
     @State private var showingAlert = false
     @State private var newToken = ""
@@ -19,20 +19,20 @@ struct GameTokensView<T: GameHandle>: View {
         @Bindable var model = model
         VStack {
             HStack {
-                Text("Game token:")
-                Text(model.gameToken ?? "").bold()
+                Text("Group token:")
+                Text(model.groupToken ?? "").bold()
                 Spacer()
                 Button("Delete", systemImage: "trash") {
-                    model.savedTokens.removeAll(where: { $0 == model.gameToken })
-                    model.gameToken = ""
+                    model.savedTokens.removeAll(where: { $0 == model.groupToken })
+                    model.groupToken = ""
                 }
                 .foregroundStyle(.red)
                 Button("Add", systemImage: "plus") {
                     newToken = ""
                     showingAlert = true
                 }
-                .alert("Enter new game token", isPresented: $showingAlert) {
-                    TextField("Enter new game token", text: $newToken)
+                .alert("Enter new group token", isPresented: $showingAlert) {
+                    TextField("Enter new group token", text: $newToken)
                         .onChange(of: newToken, initial: false) { former, current in
                             if !validChars(current) {
                                 newToken = former
@@ -40,28 +40,28 @@ struct GameTokensView<T: GameHandle>: View {
                         }
                     Button("OK") {
                         if newToken.count >= minTokenLength {
-                            model.gameToken = newToken
+                            model.groupToken = newToken
                             model.savedTokens.append(newToken)
                         } else {
                             tooShort = true
                         }
                     }
                 }
-                .alert("Game tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
+                .alert("Group tokens must be at least \(minTokenLength) characters", isPresented: $tooShort) {
                 }
             }.padding()
-            if (model.gameToken ?? "").isEmpty {
-                Text("A game token is required")
+            if (model.groupToken ?? "").isEmpty {
+                Text("A group token is required")
                     .foregroundStyle(.red)
             }
             Menu {
                 ForEach(model.savedTokens, id: \.self) { token in
                     Button(token) {
-                        model.gameToken = token
+                        model.groupToken = token
                     }
                 }
             } label: {
-                Label("Saved Game Tokens", systemImage: "square.and.arrow.up.fill")
+                Label("Saved Group Tokens", systemImage: "square.and.arrow.up.fill")
             }.padding()
         }
     }
@@ -75,7 +75,7 @@ struct GameTokensView<T: GameHandle>: View {
     let tokens = ["wox123", "flox123", "boxesofbeans"]
     let defaults = MockDefaults()
     defaults.set(tokens, forKey: SavedTokensKey)
-    defaults.set("wox", forKey: GameTokenKey)
-    return GameTokensView<DummyGameHandle>()
+    defaults.set("wox", forKey: GroupTokenKey)
+    return GroupTokensView<DummyGameHandle>()
         .environment(DummyGameHandle.makeModel())
 }

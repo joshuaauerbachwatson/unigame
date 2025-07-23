@@ -18,13 +18,13 @@ import Foundation
 import AuerbachLook
 
 // Constants mimic those in the backend
-fileprivate let argGameToken   = "gameToken"
+fileprivate let argGroupToken   = "gameToken" // historical name retained for compatibility
 fileprivate let argPlayer      = "player"
 fileprivate let argPlayers     = "players"
 fileprivate let argGameState   = "gameState"
 fileprivate let argError       = "argError"
 fileprivate let playerKey      = "Player"
-fileprivate let gameKey        = "GameToken"
+fileprivate let groupKey        = "GameToken" // historical name retained for compatibility
 fileprivate let numPlayersKey  = "NumPlayers"
 fileprivate let websocketURL   = "wss://unigame-befsi.ondigitalocean.app/websocket"
 fileprivate let ignoredReceiveErrors: [Int] = [ Int(ENOTCONN), Int(ECANCELED) ]
@@ -41,7 +41,7 @@ fileprivate let ignoredReceiveErrors: [Int] = [ Int(ENOTCONN), Int(ECANCELED) ]
 // server and other players.
 final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocketDelegate, @unchecked Sendable {
     // Internal state
-    private let gameToken: String
+    private let group: String
     private let accessToken: String
     private let player: Player
     private var webSocketTask: URLSessionWebSocketTask! // Initialized after super call
@@ -56,13 +56,13 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     
     var continuation: AsyncStream<CommunicatorEvent>.Continuation?
     
-    // The initializer to use for this Communicator.  Accepts a gameToken and player and starts listening
-    init(player: Player, numPlayers: Int, game: String, appId: String, accessToken: String) {
+    // The initializer to use for this Communicator.  Accepts a groupToken and player and starts listening
+    init(player: Player, numPlayers: Int, groupToken: String, appId: String, accessToken: String) {
         self.accessToken = accessToken
-        self.gameToken = appId + "_" + game
+        self.group = appId + "_" + groupToken
         self.player = player
         super.init()
-        self.webSocketTask = connectWebsocket(game: gameToken, player: player, numPlayers: numPlayers, accessToken: accessToken)
+        self.webSocketTask = connectWebsocket(group: groupToken, player: player, numPlayers: numPlayers, accessToken: accessToken)
     }
 
     // Process a new Received state
@@ -96,16 +96,16 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     }
 
     // Subroutine to initialize the websocket connection
-    private func connectWebsocket(game: String, player: Player, numPlayers: Int,
+    private func connectWebsocket(group: String, player: Player, numPlayers: Int,
                                   accessToken: String) -> URLSessionWebSocketTask {
-        Logger.log("New websocket connection with game=\(game), player=\(player.token)")
+        Logger.log("New websocket connection with group=\(group), player=\(player.token)")
         var numPlayersQuery = ""
         if player.order == UInt32(1) {
             // Leader
             Logger.log("This player is the leader.  Adding number of players to the request")
             numPlayersQuery = "&\(numPlayersKey)=\(numPlayers)"
         }
-        let url = URL(string: "\(websocketURL)?\(gameKey)=\(game)&\(playerKey)=\(player.token)\(numPlayersQuery)")!
+        let url = URL(string: "\(websocketURL)?\(groupKey)=\(group)&\(playerKey)=\(player.token)\(numPlayersQuery)")!
         Logger.log("Request URL is \(url)")
         var request = URLRequest(url: url)
         request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

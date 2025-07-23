@@ -35,8 +35,8 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     // the leader.
     var numPlayers: Int
     
-    // The gameToken.  Only peers presenting the matching token in their browser discoveryInfo will be invited.
-    private let gameToken: String
+    // The groupToken.  Only peers presenting the matching token in their browser discoveryInfo will be invited.
+    private let groupToken: String
     
     // The session as a lazily initialized private property
     private lazy var session : MCSession = {
@@ -46,11 +46,11 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     }()
     
     // Initializer
-    init(player: Player, numPlayers: Int, game: String, appId: String) {
+    init(player: Player, numPlayers: Int, groupToken: String, appId: String) {
         self.peerId = MCPeerID(displayName: player.token)
         self.numPlayers = 0
-        self.gameToken = game
-        var info: [String:String] = [ GameTokenKey: gameToken ]
+        self.groupToken = groupToken
+        var info: [String:String] = [ GroupTokenKey: groupToken ]
         if player.order == UInt32(1) { // leader
             self.numPlayers = numPlayers
             info[NumPlayersKey] = String(numPlayers)
@@ -139,12 +139,12 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
             return
         }
         Logger.log("discoveryInfo is \(info)")
-        // If the peer is using the same game token as we are, invite the peer to join.  Otherwise, ignore.
-        if info[GameTokenKey] == self.gameToken {
+        // If the peer is using the same group token as we are, invite the peer to join.  Otherwise, ignore.
+        if info[GroupTokenKey] == self.groupToken {
             Logger.log("Matching peer: inviting to join")
             browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
         } else {
-            Logger.log("Ignoring peer, different game token")
+            Logger.log("Ignoring peer, different group token")
         }
         // If the peer is the leader, it will have sent along the correct numPlayers value
         if let numPlayersString = info[NumPlayersKey], let numPlayers = Int(numPlayersString) {

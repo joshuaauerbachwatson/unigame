@@ -70,7 +70,7 @@ struct Players<T: GameHandle>: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
             } else {
-                GameTokensView<T>()
+                GroupTokensView<T>()
                 HStack {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
@@ -78,7 +78,7 @@ struct Players<T: GameHandle>: View {
                         }
                     }
                     .disabled(model.nearbyOnly || !model.hasTokenProvider || model.hasValidCredentials)
-                    let mayNotJoin = (model.gameToken ?? "").isEmpty
+                    let mayNotJoin = (model.groupToken ?? "").isEmpty
                     || (model.communicator != nil) // already joined
                     || (!model.nearbyOnly && !model.hasValidCredentials)
                     Button("Join", systemImage: "person.line.dotted.person") {

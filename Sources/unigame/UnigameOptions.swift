@@ -24,5 +24,5 @@ let UserNameKey = "UserName"
 let NearbyOnlyKey = "NearbyOnly"
 let NumPlayersKey = "NumPlayers"
 let LeadPlayerKey = "LeadPlayer"
-let GameTokenKey = "GameToken"
+let GroupTokenKey = "GameToken" // historical, preserved for compatibility
 let SavedTokensKey = "SavedTokens"

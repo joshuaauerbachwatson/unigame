@@ -64,7 +64,7 @@ import SwiftUI
         ud.set(true, forKey: LeadPlayerKey)
         ud.set(2, forKey: NumPlayersKey)
         ud.set(true, forKey: NearbyOnlyKey)
-        ud.set("Test_Token", forKey: GameTokenKey)
+        ud.set("Test_Token", forKey: GroupTokenKey)
         ud.set(["Test_Token"], forKey: SavedTokensKey)
         model = UnigameModel(gameHandle: TestGameHandle(), defaults: ud)
     }
@@ -75,7 +75,7 @@ import SwiftUI
         #expect(model.leadPlayer)
         #expect(model.numPlayers == 2)
         #expect(model.nearbyOnly)
-        #expect(model.gameToken == "Test_Token")
+        #expect(model.groupToken == "Test_Token")
         #expect(model.savedTokens == ["Test_Token"])
         #expect(!model.setupIsComplete)
         #expect(!model.chatEnabled)
