@@ -29,7 +29,10 @@ public struct ContentView<T: GameHandle>: View {
         NavigationStack(path: $model.presentedViews) {
             VStack {
                 Text(model.gameHandle.gameName)
-                    .bold()
+                    .frame(maxWidth: .infinity)
+                    .bold().font(.largeTitle)
+                    .border(.black, width: 3)
+                Spacer()
                 HStack {
                     Label("Players:", systemImage: "person.3.sequence")
                     PlayerLabels<T>()
