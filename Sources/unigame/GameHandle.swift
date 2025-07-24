@@ -69,6 +69,9 @@ public protocol GameHandle {
     //     </array>
     // gameId need not be human-friendly.  The gameName field exists for UI purposes.
     var gameId: String { get }
+    
+    // The human-friendly name for the game
+    var gameName: String { get }
 }
 
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
@@ -97,4 +100,5 @@ struct DummyGameHandle: GameHandle {
     var setupView: (any View)? = DummySetup()
     var playingView: any View = DummyPlaying()
     var gameId: String = "dummyGame"
+    var gameName: String = "Dummy Game"
 }

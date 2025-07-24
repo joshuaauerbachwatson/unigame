@@ -28,6 +28,8 @@ public struct ContentView<T: GameHandle>: View {
         @Bindable var model = model
         NavigationStack(path: $model.presentedViews) {
             VStack {
+                Text(model.gameHandle.gameName)
+                    .bold()
                 HStack {
                     Label("Players:", systemImage: "person.3.sequence")
                     PlayerLabels<T>()
