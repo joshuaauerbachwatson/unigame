@@ -31,8 +31,8 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
     private let serviceBrowser : MCNearbyServiceBrowser
     
     // The number of players.  In the leader instance, this is set to its true value during initialization.
-    // For non-leaders, it is initially zero (meaning unknown) and is learned as part of discoveryInfo sent by
-    // the leader.
+    // For non-leaders, it is initially zero (meaning unknown) and is learned as part of discoveryInfo
+    // sent by the leader.
     var numPlayers: Int
     
     // The groupToken.  Only peers presenting the matching token in their browser discoveryInfo will be invited.

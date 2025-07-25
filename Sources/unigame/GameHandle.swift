@@ -56,7 +56,7 @@ public protocol GameHandle {
 
     // The gameId.  When using the server, this is prepended to the group token.
     // When using MultiPeer, this becomes the serviceType, so that group tokens
-    // are interpreted only within the scope of a single app.  In both cases it
+    // are interpreted only within the scope of a single game.  In both cases it
     // cuts down on the likelihood of collision between unrelated groups.
     // But, because it is also the official MultiPeer service type, it must be declared in InfoPlist:
     //     <key>NSLocalNetworkUsageDescription</key>
