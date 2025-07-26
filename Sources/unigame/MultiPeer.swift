@@ -60,9 +60,10 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
         super.init()
         serviceBrowser.delegate = self
         serviceAdvertiser.delegate = self
-        Logger.log("Multipeer: starting advertiser and browser with gameId \(gameId)")
         serviceAdvertiser.startAdvertisingPeer()
         serviceBrowser.startBrowsingForPeers()
+        Logger.log("Multipeer initialized with player=\(player), numPlayers=\(numPlayers)," +
+                   " groupToken=\(groupToken), info=\(info), serviceType=\(gameId)")
     }
 
     var events: AsyncStream<CommunicatorEvent> {
@@ -115,6 +116,7 @@ final class MultiPeerCommunicator : NSObject, Communicator, @unchecked Sendable 
 // Conformance to protocol MCNearbyServiceAdvertiserDelegate
 extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+        Logger.log("advertiser did not start. Error: \(error)")
         continuation?.yield(.error(error, true))
     }
     
@@ -129,6 +131,7 @@ extension MultiPeerCommunicator: MCNearbyServiceAdvertiserDelegate {
 extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     // React to error in browsing
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
+        Logger.log("browser did not start. Error: \(error)")
         continuation?.yield(.error(error, true))
     }
     
@@ -136,6 +139,7 @@ extension MultiPeerCommunicator: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         Logger.log("Peer found: \(peerID)")
         guard let info = info else {
+            Logger.log("no info, doing nothing")
             return
         }
         Logger.log("discoveryInfo is \(info)")
