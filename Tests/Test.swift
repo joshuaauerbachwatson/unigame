@@ -42,6 +42,7 @@ import SwiftUI
         let setupView: (any View)? = DummySetup()
         let playingView: any View = DummyPlaying()
         let gameId: String = "unigametestapp"
+        let gameName: String = "Unigame Test App"
 
         func reset() {
             resetCalled = true
