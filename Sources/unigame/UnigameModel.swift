@@ -610,6 +610,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             if players.dropFirst().allSatisfy( { $0 == Player.withdrawn } ) {
                 newGame()
             }
+            return
         }
         // Otherwise, not a withdrawal so process as a move in the game
         if let err = gameHandle.stateChanged(gameState.gameInfo) {
