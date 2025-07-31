@@ -103,9 +103,6 @@ struct Players<T: GameHandle>: View {
 }
 
 #Preview {
-    let defaults = MockDefaults()
-    defaults.setValue(true, forKey: LeadPlayerKey)
-    defaults.setValue(2, forKey: NumPlayersKey)
-    return Players<DummyGameHandle>()
-        .environment(DummyGameHandle.makeModel(defaults: defaults))
+    Players<DummyGameHandle>()
+        .environment(DummyGameHandle.model)
 }

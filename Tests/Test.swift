@@ -25,9 +25,7 @@ import SwiftUI
     final class TestGameHandle: GameHandle {
         init() {}
         
-        static func makeModel() -> unigame.UnigameModel<TestGameHandle> {
-            UnigameModel<TestGameHandle>(gameHandle: TestGameHandle())
-        }
+        static var instance: UnigameModel<TestGameHandle>? = nil
         
         var model: unigame.UnigameModel<UnigameModelTests.TestGameHandle>?
         
@@ -35,7 +33,7 @@ import SwiftUI
         
         var initialScoring: unigame.Scoring = .Off
         
-        var resetCalled = false
+        var endGameCalled = false
         var lastState: [UInt8]? = nil
         var encodedState: [UInt8] = []
         let numPlayerRange: ClosedRange<Int> = 1...2
@@ -44,8 +42,8 @@ import SwiftUI
         let gameId: String = "unigametestapp"
         let gameName: String = "Unigame Test App"
 
-        func reset() {
-            resetCalled = true
+        func endGame() {
+            endGameCalled = true
         }
         
         func stateChanged(_ data: [UInt8]) -> (any Error)? {

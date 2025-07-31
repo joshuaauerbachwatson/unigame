@@ -19,12 +19,19 @@ import SwiftUI
 // Each game that uses unigame-model must provide its implementation of this protocol
 @MainActor @preconcurrency
 public protocol GameHandle {
-    // Must have a method that makes a model holding an instance of the GameHandle class
-    static func makeModel() -> UnigameModel<Self>
+    // Must return the identical model instance each time until endGame is called
+    // A default implementation is provided.
+    static var model: UnigameModel<Self> { get }
     
     // A back-pointer to the model to be filled in during model initialization.
     // It should be a weak reference to avoid memory issues.
     var model: UnigameModel<Self>? { get set }
+    
+    // A place to cache a model instance for the static model variable
+    static var instance: UnigameModel<Self>? { get set }
+    
+    // Must have a no-argument initializer
+    init()
     
     // The HelpHandle
     var helpHandle: any HelpHandle { get }
@@ -36,8 +43,11 @@ public protocol GameHandle {
     // The value in the model may subsequently be changed.
     var initialScoring: Scoring { get }
     
-    // Called when a new game is started (old game state should be discarded)
-    func reset()
+    // Called when a game ends.  Implementations must set instance to nil and may do other things
+    // to cleanup game-specific state.  It is not necessary to return either the model nor the game handle
+    // to the initial state because these objects are only reused within a game and are discarded when the
+    // game ends.
+    func endGame()
 
     // Called when another player has transmitted new state.
     func stateChanged(_ data: [UInt8]) -> Error?
@@ -74,23 +84,27 @@ public protocol GameHandle {
     var gameName: String { get }
 }
 
+extension GameHandle {
+    static var model: UnigameModel<Self> {
+        if let instance {
+            return instance
+        }
+        let instance = UnigameModel<Self>(gameHandle: Self.init())
+        Self.instance = instance
+        return instance
+    }
+}
+
 // A Dummy GameHandle allowing UnigameModel to be instantiated in previews, etc.
 // There is no real game logic.
 struct DummyGameHandle: GameHandle {
-    static func makeModel() -> UnigameModel<DummyGameHandle> {
-        let handle = self.init()
-        return UnigameModel(gameHandle: handle)
-    }
-    static func makeModel(defaults: UserDefaults) -> UnigameModel<DummyGameHandle> {
-        let handle = self.init()
-        return UnigameModel(gameHandle: handle, defaults: defaults)
-    }
     var model: UnigameModel<DummyGameHandle>?
+    static var instance: UnigameModel<DummyGameHandle>? = nil
     var tokenProvider: (any TokenProvider)? = nil
     var helpHandle: any HelpHandle = NoHelpProvided()
     var numPlayerRange: ClosedRange<Int> = 1...6
     var initialScoring: Scoring = Scoring.Off
-    func reset(){}
+    func endGame(){}
     func stateChanged(_ data: [UInt8]) -> (any Error)? {
         return nil
     }

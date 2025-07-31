@@ -105,5 +105,5 @@ public struct ContentView<T: GameHandle>: View {
 
 #Preview {
     ContentView<DummyGameHandle>()
-        .environment(DummyGameHandle.makeModel())
+        .environment(DummyGameHandle.model)
 }

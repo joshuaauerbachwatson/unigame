@@ -233,7 +233,7 @@ public final class UnigameModel<T> where T: GameHandle {
         if errorIsTerminal {
             Logger.log("Error was terminal")
             errorIsTerminal = false
-            newGame()
+            endGame(dueToError: true)
         }
     }
 
@@ -261,7 +261,7 @@ public final class UnigameModel<T> where T: GameHandle {
             draining = true
             communicator?.send(GameState(withdrawing: thisPlayer))
         } else {
-            newGame()
+            endGame(dueToError: false)
         }
     }
     
@@ -279,14 +279,17 @@ public final class UnigameModel<T> where T: GameHandle {
         }
     }
     
-    // Reset to new game
-    public func newGame(dueToError: Bool = false) {
-        // Clean up old game
+    // End the current game
+    public func endGame(dueToError: Bool = false) {
         if let communicator = self.communicator {
             Logger.log("Shutting down communicator \(dueToError ? "due to error" : "as requested")")
             communicator.shutdown(dueToError)
         }
-        gameHandle.reset()
+        gameHandle.endGame()
+    }
+    
+    // Start a new game
+    func newGame() {
         // Set up new game
         thisPlayer = 0
         activePlayer = 0
@@ -608,7 +611,7 @@ extension UnigameModel: @preconcurrency CommunicatorDispatcher {
             players[gameState.sendingPlayer] = Player.withdrawn
             // If all players have withdrawn, start a new game from scratch
             if players.dropFirst().allSatisfy( { $0 == Player.withdrawn } ) {
-                newGame()
+                endGame(dueToError: false)
             }
             return
         }

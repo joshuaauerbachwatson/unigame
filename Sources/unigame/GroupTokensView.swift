@@ -77,5 +77,5 @@ struct GroupTokensView<T: GameHandle>: View {
     defaults.set(tokens, forKey: SavedTokensKey)
     defaults.set("wox", forKey: GroupTokenKey)
     return GroupTokensView<DummyGameHandle>()
-        .environment(DummyGameHandle.makeModel())
+        .environment(DummyGameHandle.model)
 }

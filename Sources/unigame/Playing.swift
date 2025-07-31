@@ -31,5 +31,5 @@ struct Playing<T>: View where T: GameHandle {
 
 #Preview {
     Playing<DummyGameHandle>()
-        .environment(DummyGameHandle.makeModel())
+        .environment(DummyGameHandle.model)
 }
