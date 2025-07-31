@@ -60,7 +60,7 @@ public struct ContentView<T: GameHandle>: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.roundedRectangle)
-                        Spacer()
+                    Spacer()
                     NavigationLink(value: "help") {
                         Label("Help", systemImage: "questionmark.circle")
                     }
