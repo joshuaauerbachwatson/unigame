@@ -85,7 +85,7 @@ public protocol GameHandle {
 }
 
 extension GameHandle {
-    static var model: UnigameModel<Self> {
+    public static var model: UnigameModel<Self> {
         if let instance {
             return instance
         }
