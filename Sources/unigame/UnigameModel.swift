@@ -161,6 +161,9 @@ public final class UnigameModel<T> where T: GameHandle {
     // and during actual play)
     var communicator : Communicator? = nil
     
+    // The terminator, used to clean up the entire game when it ends
+    var terminator: (()->Void)?
+    
     // Convenience predicate for whether we are communicating
     var communicating: Bool {
         communicator != nil
@@ -286,6 +289,7 @@ public final class UnigameModel<T> where T: GameHandle {
             communicator.shutdown(dueToError)
         }
         gameHandle.endGame()
+        terminator?()
     }
     
     // Start a new game
@@ -317,9 +321,11 @@ public final class UnigameModel<T> where T: GameHandle {
     
     // Main initializer.  A GameHandle class is supplied, to be instantiated dynamically.
     // Things start out in the "new game" state.  It is also possible to override the UserDefaults object.
-    public init(gameHandle: T, defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
+    public init(gameHandle: T, terminator: (()->Void)? = nil,
+                defaults: UserDefaults = UserDefaults.standard) where T: GameHandle {
         Logger.log("Instantiating a new UnigameModel")
         self.gameHandle = gameHandle
+        self.terminator = terminator
         self.defaults = defaults
         self.scoring = gameHandle.initialScoring
         // fakeNames is staticly non-empty, hence force unwrap of randomElement() is safe
