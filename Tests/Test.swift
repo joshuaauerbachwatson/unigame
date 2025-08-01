@@ -25,7 +25,7 @@ import SwiftUI
     final class TestGameHandle: GameHandle {
         init() {}
         
-        static var instance: UnigameModel<TestGameHandle>? = nil
+        static var savedModel: UnigameModel<TestGameHandle>? = nil
         
         var model: unigame.UnigameModel<UnigameModelTests.TestGameHandle>?
         

@@ -20,15 +20,15 @@ import SwiftUI
 @MainActor @preconcurrency
 public protocol GameHandle {
     // Must return the identical model instance each time until endGame is called
-    // A default implementation is provided.
+    // A default implementation is provided and should usually be used.
     static var model: UnigameModel<Self> { get }
     
-    // A back-pointer to the model to be filled in during model initialization.
-    // It should be a weak reference to avoid memory issues.
-    var model: UnigameModel<Self>? { get set }
+    // A convenient instance method that also gets the model.  A default implementation is
+    // provided and should usually be used.
+    var model: UnigameModel<Self>? { get }
     
-    // A place to cache a model instance for the static model variable
-    static var instance: UnigameModel<Self>? { get set }
+    // A place to cache a model instance for the static model variable to use.  Must be implemented.
+    static var savedModel: UnigameModel<Self>? { get set }
     
     // Must have a no-argument initializer
     init()
@@ -86,12 +86,15 @@ public protocol GameHandle {
 
 extension GameHandle {
     public static var model: UnigameModel<Self> {
-        if let instance {
-            return instance
+        if let savedModel {
+            return savedModel
         }
         let instance = UnigameModel<Self>(gameHandle: Self.init())
-        Self.instance = instance
+        Self.savedModel = instance
         return instance
+    }
+    public var model: UnigameModel<Self>? {
+        Self.model
     }
 }
 
@@ -99,7 +102,7 @@ extension GameHandle {
 // There is no real game logic.
 struct DummyGameHandle: GameHandle {
     var model: UnigameModel<DummyGameHandle>?
-    static var instance: UnigameModel<DummyGameHandle>? = nil
+    static var savedModel: UnigameModel<DummyGameHandle>? = nil
     var tokenProvider: (any TokenProvider)? = nil
     var helpHandle: any HelpHandle = NoHelpProvided()
     var numPlayerRange: ClosedRange<Int> = 1...6
