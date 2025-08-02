@@ -17,8 +17,13 @@
 import SwiftUI
 import AuerbachLook
 
+extension EnvironmentValues {
+    @Entry var endGame: ()->Void = { }
+}
+
 public struct ContentView<T: GameHandle>: View {
     @Environment(UnigameModel<T>.self) var model
+    @Environment(\.endGame) var endGame
     
     public init() {
         Logger.log("New unigame content view created")
@@ -57,6 +62,7 @@ public struct ContentView<T: GameHandle>: View {
                     Spacer()
                     Button("End Game", systemImage: "xmark.circle.fill") {
                         model.withdraw()
+                        endGame()
                     }
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.roundedRectangle)
@@ -88,7 +94,9 @@ public struct ContentView<T: GameHandle>: View {
             .disabled(model.draining)
             .alert(model.errorTitle, isPresented: $model.showingError) {
                 Button("OK") {
-                    model.resetError()
+                    if model.resetError() {
+                        endGame()
+                    }
                 }
             } message: {
                 Text(model.errorMessage ?? "Unknown Error")

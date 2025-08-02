@@ -225,7 +225,7 @@ public final class UnigameModel<T> where T: GameHandle {
     var errorTitle: String = "Error"
     var showingError: Bool = false
     var errorIsTerminal: Bool = false
-    func resetError() {
+    func resetError() -> Bool {
         Logger.log("Resetting error")
         showingError = false
         errorMessage = nil
@@ -234,7 +234,9 @@ public final class UnigameModel<T> where T: GameHandle {
             Logger.log("Error was terminal")
             errorIsTerminal = false
             endGame(dueToError: true)
+            return true
         }
+        return false
     }
 
     // Call this function to display a simple error.  No control over the dialog details other than
