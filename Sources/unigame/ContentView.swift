@@ -17,7 +17,7 @@
 import SwiftUI
 import AuerbachLook
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     @Entry var endGame: ()->Void = { }
 }
 
