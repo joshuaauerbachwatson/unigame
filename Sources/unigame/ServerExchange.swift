@@ -41,9 +41,6 @@ fileprivate let ignoredReceiveErrors: [Int] = [ Int(ENOTCONN), Int(ECANCELED) ]
 // server and other players.
 final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocketDelegate, @unchecked Sendable {
     // Internal state
-    private let group: String
-    private let accessToken: String
-    private let player: Player
     private var webSocketTask: URLSessionWebSocketTask! // Initialized after super call
 
     private var lastGameState: GameState? = nil
@@ -58,11 +55,9 @@ final class ServerBasedCommunicator : NSObject, Communicator, URLSessionWebSocke
     
     // The initializer to use for this Communicator.  Accepts a groupToken and player and starts listening
     init(player: Player, numPlayers: Int, groupToken: String, gameId: String, accessToken: String) {
-        self.accessToken = accessToken
-        self.group = gameId + "_" + groupToken
-        self.player = player
         super.init()
-        self.webSocketTask = connectWebsocket(group: groupToken, player: player, numPlayers: numPlayers, accessToken: accessToken)
+        let group = gameId + "_" + groupToken
+        self.webSocketTask = connectWebsocket(group: group, player: player, numPlayers: numPlayers, accessToken: accessToken)
     }
 
     // Process a new Received state
