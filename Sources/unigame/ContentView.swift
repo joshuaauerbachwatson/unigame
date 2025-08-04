@@ -67,6 +67,12 @@ public struct ContentView<T: GameHandle>: View {
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.roundedRectangle)
                     Spacer()
+                    #if DEBUG
+                    Button("Error", systemImage: "exclamationmark.warninglight") {
+                        model.displayError("Something is wrong", terminal: true)
+                    }
+                    Spacer()
+                    #endif
                     NavigationLink(value: "help") {
                         Label("Help", systemImage: "questionmark.circle")
                     }
