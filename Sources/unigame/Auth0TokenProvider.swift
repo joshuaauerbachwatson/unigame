@@ -54,6 +54,7 @@ public final class Auth0TokenProvider: TokenProvider {
 
     public func store(_ creds: any Credentials) -> (any Error)? {
         if let credentials = creds as? Auth0.Credentials {
+            Logger.log("Storing Auth0 credentials: \(credentials)")
             if credentialsManager.store(credentials: credentials) {
                 return nil
             }
