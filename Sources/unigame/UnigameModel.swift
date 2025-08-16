@@ -383,6 +383,9 @@ public final class UnigameModel<T> where T: GameHandle {
                 displayError(err.localizedDescription)
                 return
             }
+            if  !tokenProvider.canRenew() {
+                Logger.log("Warning: Credentials are not self-renewing")
+            }
             credentials = creds
         case let .failure(error):
             displayError(error.localizedDescription)

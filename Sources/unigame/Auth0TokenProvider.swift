@@ -37,7 +37,8 @@ public final class Auth0TokenProvider: TokenProvider {
     public func login() async -> Result<Credentials, Error> {
         do {
             let credentials = try await Auth0.webAuth()
-                .useEphemeralSession().useHTTPS().audience(audience).start()
+                .useEphemeralSession().useHTTPS().audience(audience)
+                .scope("openid profile offline_access").start()
             return .success(credentials)
         } catch {
             return .failure(error)
@@ -63,6 +64,10 @@ public final class Auth0TokenProvider: TokenProvider {
     
     public func hasValid() -> Bool {
         credentialsManager.hasValid()
+    }
+    
+    public func canRenew() -> Bool {
+        credentialsManager.canRenew()
     }
     
     public func credentials() async -> Result<any Credentials, Error> {

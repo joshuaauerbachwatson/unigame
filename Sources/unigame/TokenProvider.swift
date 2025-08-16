@@ -65,6 +65,9 @@ public protocol TokenProvider: Sendable {
     // Check if stored credentials are valid
     func hasValid() -> Bool
     
+    // Check if credentials are renewable
+    func canRenew() -> Bool
+    
     // Retrieve stored credentials (check first with hasValid())
     func credentials() async -> Result<any Credentials, Error>
 }
