@@ -21,14 +21,6 @@ import Foundation
 // A minimal view of retrieved or stored credentials sufficient for our purposes
 public protocol Credentials: Codable, Sendable {
     var accessToken: String { get }
-    var expires: Date { get }
-    var valid: Bool { get }
-}
-
-extension Credentials {
-    public var valid: Bool {
-        expires > Date.now
-     }
 }
 
 // Errors during token provider operations
