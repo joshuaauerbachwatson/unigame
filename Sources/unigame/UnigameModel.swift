@@ -139,11 +139,9 @@ public final class UnigameModel<T> where T: GameHandle {
         leadPlayer && numPlayers == 1
     }
 
-    var credentials: Credentials? = nil
-
     // Indicates that valid credentials are present
     var hasValidCredentials: Bool {
-        return credentials != nil
+        tokenProvider?.hasValid ?? false
     }
     
     // Indicates that a token provider is available
@@ -267,20 +265,6 @@ public final class UnigameModel<T> where T: GameHandle {
         }
     }
     
-    // Initialize the credentials field if needed and credentials available
-    func reconcileCredentials() {
-        if !hasValidCredentials, let tokenProvider, tokenProvider.hasValid() {
-            Task { @MainActor in
-                switch await tokenProvider.credentials() {
-                case .success(let creds):
-                    credentials = creds
-                case .failure(let err):
-                    displayError(err.localizedDescription)
-                }
-            }
-        }
-    }
-    
     // End the current game
     public func endGame(dueToError: Bool = false) {
         if let communicator = self.communicator {
@@ -303,7 +287,6 @@ public final class UnigameModel<T> where T: GameHandle {
         ensureNumPlayers()
         players = [Player(userName, leadPlayer)]
         draining = false
-        reconcileCredentials()
         if !hasTokenProvider {
             // Force nearby only when login is impossible
             nearbyOnly = true
@@ -376,19 +359,12 @@ public final class UnigameModel<T> where T: GameHandle {
         guard let tokenProvider else {
             Logger.logFatalError("login function executed when it should have been inaccessible")
         }
-        let result = await tokenProvider.login()
-        switch result {
-        case let .success(creds):
-            if let err = tokenProvider.store(creds) {
-                displayError(err.localizedDescription)
-                return
-            }
-            if  !tokenProvider.canRenew() {
-                Logger.log("Warning: Credentials are not self-renewing")
-            }
-            credentials = creds
-        case let .failure(error):
-            displayError(error.localizedDescription)
+        if let err = await tokenProvider.login() {
+            displayError(err.localizedDescription)
+            return
+        }
+        if !tokenProvider.canRenew{
+            Logger.log("Warning: Credentials are not self-renewing")
         }
     }
     
@@ -398,10 +374,7 @@ public final class UnigameModel<T> where T: GameHandle {
         if let err = await tokenProvider.logout() {
             Logger.log("Logout failed: \(err)")
             displayError(err.localizedDescription)
-            return
         }
-        // Logout succeeded and credential store removed.  Nullify credentials in the model.
-        credentials = nil
     }
 
     // Starts the communicator and begins the search for players
@@ -417,7 +390,7 @@ public final class UnigameModel<T> where T: GameHandle {
         let communicator = await makeCommunicator(nearbyOnly: nearbyOnly, player: players[0],
                                                   numPlayers: numPlayers, groupToken: groupToken,
                                                   gameId: gameHandle.gameId,
-                                                  accessToken: credentials?.accessToken)
+                                                  tokenProvider: tokenProvider)
         self.communicator = communicator
         Logger.log("Got back valid communicator")
         for await event in communicator.events {

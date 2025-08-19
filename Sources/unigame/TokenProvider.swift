@@ -18,11 +18,6 @@ import Foundation
 
 // Support for secure authentication and authorization to the server
 
-// A minimal view of retrieved or stored credentials sufficient for our purposes
-public protocol Credentials: Codable, Sendable {
-    var accessToken: String { get }
-}
-
 // Errors during token provider operations
 struct CredentialError: LocalizedError {
     let message: String
@@ -41,25 +36,23 @@ struct CredentialError: LocalizedError {
 // A provider for access tokens (capable of being used as bearer tokens when contacting the server)
 // The tokens must be valid for the servers you will employ.  For the Auth0 implemention:
 //   -- the token must claim the same audience as the servers expect
-//   -- the servers must use the domain specified in Auth0.plist.
-// When using the full unigame framework (with unigame-server), and retaining the Auth0
-//   implementation, the default audience must be used.
+//   -- the servers must use the Auth0 domain specified in Auth0.plist.
+// When using the full unigame framework (with my provided unigame-server), the Auth0
+//   implementation is required and the default audience must be used.
 public protocol TokenProvider: Sendable {
-    // Get new Credentials when you have none or the old ones are expired
-    func login() async -> Result<Credentials, Error>
+    // Get new Credentials when you have none
+    func login() async -> Error?
     
     // Drop any stored credentials and remove any session cookies
     func logout() async -> Error?
     
-    // Store credentials after login
-    func store(_ creds: Credentials) -> Error?
-    
-    // Check if stored credentials are valid
-    func hasValid() -> Bool
+    // Check if you have valid stored credentials.  If this returns false, use 'login' to recover.
+    var hasValid: Bool { get }
     
     // Check if credentials are renewable
-    func canRenew() -> Bool
+    // (This is used as a sanity-check.  Normally, credentials _must_ be renewable).
+    var canRenew: Bool { get }
     
-    // Retrieve stored credentials (check first with hasValid())
-    func credentials() async -> Result<any Credentials, Error>
+    // Retrieve a stored valid access token.  Should work iff hasValid is true
+    func accessToken() async -> Result<String, Error>
 }

@@ -90,7 +90,7 @@ import SwiftUI
         #expect(model.players == [Player("Elmer Fudd", true)])
         #expect(model.thisPlayer == 0)
         #expect(model.chatTranscript == nil)
-        #expect(model.credentials == nil)
+        #expect(model.tokenProvider == nil)
         #expect(model.errorMessage == nil)
         #expect(model.helpHandle is NoHelpProvided)
     }

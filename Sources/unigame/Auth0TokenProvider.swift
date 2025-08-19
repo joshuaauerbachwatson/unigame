@@ -20,12 +20,6 @@ import AuerbachLook
 // The audience claim expected by unigame-server
 fileprivate let DefaultAudience = "https://unigame.com"
 
-extension Auth0.Credentials: Credentials, @retroactive @unchecked Sendable {
-    public var expires: Date {
-        expiresIn
-    }
-}
-
 public final class Auth0TokenProvider: TokenProvider {
     let audience: String
     let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
@@ -34,14 +28,17 @@ public final class Auth0TokenProvider: TokenProvider {
         self.audience = audience ?? DefaultAudience
     }
 
-    public func login() async -> Result<Credentials, Error> {
+    public func login() async -> Error? {
         do {
             let credentials = try await Auth0.webAuth()
                 .useEphemeralSession().useHTTPS().audience(audience)
                 .scope("openid profile offline_access").start()
-            return .success(credentials)
+            if !credentialsManager.store(credentials: credentials) {
+                return CredentialError.CouldNotStore
+            }
+            return nil
         } catch {
-            return .failure(error)
+            return error
         }
     }
     
@@ -51,30 +48,19 @@ public final class Auth0TokenProvider: TokenProvider {
         }
         return CredentialError.LogoutFailure
     }
-
-    public func store(_ creds: any Credentials) -> (any Error)? {
-        if let credentials = creds as? Auth0.Credentials {
-            Logger.log("Storing Auth0 credentials: \(credentials)")
-            if credentialsManager.store(credentials: credentials) {
-                return nil
-            }
-            return CredentialError.CouldNotStore
-        }
-        return CredentialError.WrongCredentialsType
-    }
     
-    public func hasValid() -> Bool {
+    public var hasValid: Bool {
         credentialsManager.hasValid()
     }
     
-    public func canRenew() -> Bool {
+    public var canRenew: Bool {
         credentialsManager.canRenew()
     }
     
-    public func credentials() async -> Result<any Credentials, Error> {
+    public func accessToken() async -> Result<String, Error> {
         do {
             let creds = try await credentialsManager.credentials()
-            return .success(creds)
+            return .success(creds.accessToken)
         } catch {
             return .failure(error)
         }
