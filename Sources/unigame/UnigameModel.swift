@@ -141,7 +141,7 @@ public final class UnigameModel<T> where T: GameHandle {
 
     // Indicates that valid credentials are present
     var hasValidCredentials: Bool {
-        tokenProvider?.hasValid ?? false
+        tokenProvider?.canRenew ?? false
     }
     
     // Indicates that a token provider is available

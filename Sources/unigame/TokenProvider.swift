@@ -46,13 +46,9 @@ public protocol TokenProvider: Sendable {
     // Drop any stored credentials and remove any session cookies
     func logout() async -> Error?
     
-    // Check if you have valid stored credentials.  If this returns false, use 'login' to recover.
-    var hasValid: Bool { get }
-    
-    // Check if credentials are renewable
-    // (This is used as a sanity-check.  Normally, credentials _must_ be renewable).
+    // Check if credentials are renewable.   If not, login is required.
     var canRenew: Bool { get }
     
-    // Retrieve a stored valid access token.  Should work iff hasValid is true
+    // Retrieve a stored valid access token.  Should work iff canRenew is true
     func accessToken() async -> Result<String, Error>
 }

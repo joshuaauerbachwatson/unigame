@@ -49,10 +49,6 @@ public final class Auth0TokenProvider: TokenProvider {
         return CredentialError.LogoutFailure
     }
     
-    public var hasValid: Bool {
-        credentialsManager.hasValid()
-    }
-    
     public var canRenew: Bool {
         credentialsManager.canRenew()
     }
