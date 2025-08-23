@@ -17,6 +17,9 @@
 import SwiftUI
 import AuerbachLook
 
+fileprivate let showError = false // set True to display the "Error" button
+// The error button will not show even if set to true unless DEBUG is also true.
+
 public extension EnvironmentValues {
     @Entry var endGame: ()->Void = { }
 }
@@ -68,10 +71,12 @@ public struct ContentView<T: GameHandle>: View {
                     .buttonBorderShape(.roundedRectangle)
                     Spacer()
                     #if DEBUG
-                    Button("Error", systemImage: "exclamationmark.warninglight") {
-                        model.displayError("Something is wrong", terminal: true)
+                    if showError {
+                        Button("Error", systemImage: "exclamationmark.warninglight") {
+                            model.displayError("Something is wrong", terminal: true)
+                        }
+                        Spacer()
                     }
-                    Spacer()
                     #endif
                     NavigationLink(value: "help") {
                         Label("Help", systemImage: "questionmark.circle")
