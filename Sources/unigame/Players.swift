@@ -75,7 +75,6 @@ struct Players<T: GameHandle>: View {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
                             await model.login()
-                            Logger.log("After login, hasValidCredentials=\(model.hasValidCredentials)")
                         }
                     }
                     .disabled(model.nearbyOnly || !model.hasTokenProvider || model.hasValidCredentials)
@@ -91,7 +90,6 @@ struct Players<T: GameHandle>: View {
                     Button("Logout") {
                         Task { @MainActor in
                             await model.logout()
-                            Logger.log("After logout, hasValidCredentials=\(model.hasValidCredentials)")
                         }
                     }
                     .disabled(model.nearbyOnly || !model.hasTokenProvider || !model.hasValidCredentials)

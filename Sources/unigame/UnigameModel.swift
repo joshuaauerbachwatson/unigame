@@ -104,7 +104,7 @@ public final class UnigameModel<T> where T: GameHandle {
     // The token provider.  Although we provide the `TokenProvider` abstraction to hide some Auth0-specific
     // details, we actually hardcode the Auth0 provider here.  There are no immediate plans to cover
     // providers other than Auth0.
-    let tokenProvider: TokenProvider? = hasNeededPlist ? Auth0TokenProvider() : nil
+    let tokenProvider: TokenProvider?
 
     // The list of players.  Always starts with just 'this' player but expands during discovery until
     // play starts.  The array is ordered by Player.order fields, ascending.
@@ -140,9 +140,7 @@ public final class UnigameModel<T> where T: GameHandle {
     }
 
     // Indicates that valid credentials are present
-    var hasValidCredentials: Bool {
-        tokenProvider?.canRenew ?? false
-    }
+    var hasValidCredentials: Bool
     
     // Indicates that a token provider is available
     var hasTokenProvider: Bool {
@@ -287,9 +285,12 @@ public final class UnigameModel<T> where T: GameHandle {
         ensureNumPlayers()
         players = [Player(userName, leadPlayer)]
         draining = false
-        if !hasTokenProvider {
+        if let tokenProvider {
+            hasValidCredentials = tokenProvider.canRenew
+        } else  {
             // Force nearby only when login is impossible
             nearbyOnly = true
+            hasValidCredentials = false
         }
         Logger.log("New game initialized")
         Logger.log("userName=\(userName)")
@@ -316,6 +317,9 @@ public final class UnigameModel<T> where T: GameHandle {
         self.nearbyOnly = defaults.bool(forKey: NearbyOnlyKey)
         self.groupToken = defaults.string(forKey: GroupTokenKey)
         self.savedTokens = defaults.stringArray(forKey: SavedTokensKey) ?? []
+        let tokenProvider = Self.hasNeededPlist ? Auth0TokenProvider() : nil
+        self.tokenProvider = tokenProvider
+        self.hasValidCredentials = tokenProvider?.canRenew ?? false
         newGame()
     }
     
@@ -363,9 +367,7 @@ public final class UnigameModel<T> where T: GameHandle {
             displayError(err.localizedDescription)
             return
         }
-        if !tokenProvider.canRenew{
-            Logger.log("Warning: Credentials are not self-renewing")
-        }
+        hasValidCredentials = tokenProvider.canRenew
     }
     
     // Perform Logout function
@@ -374,7 +376,9 @@ public final class UnigameModel<T> where T: GameHandle {
         if let err = await tokenProvider.logout() {
             Logger.log("Logout failed: \(err)")
             displayError(err.localizedDescription)
+            return
         }
+        hasValidCredentials = false
     }
 
     // Starts the communicator and begins the search for players
