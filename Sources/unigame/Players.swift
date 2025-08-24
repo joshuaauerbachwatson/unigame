@@ -26,19 +26,19 @@ struct Players<T: GameHandle>: View {
         Logger.log("New players view created")
     }
     var body: some View {
-        @Bindable var model = model
-        let scope = model.hasTokenProvider ? AnyView(Toggle(isOn: $model.nearbyOnly) {
+        @Bindable var bmodel = model
+        let scope = model.hasTokenProvider ? AnyView(Toggle(isOn: $bmodel.nearbyOnly) {
             Text("Nearby Only")
         }) : AnyView(Text("Nearby Only, Remote Disabled"))
         VStack {
             Spacer()
             HStack {
                 Text("I am:").font(.headline)
-                TextField("Player name", text: $model.userName)
+                TextField("Player name", text: $bmodel.userName)
                     .onSubmit {
                         model.players[0] = Player(model.userName, model.leadPlayer)
                     }
-                Toggle(isOn: $model.leadPlayer) {
+                Toggle(isOn: $bmodel.leadPlayer) {
                     Text("Leader")
                 }
                 .onChange(of: model.leadPlayer, initial: false) {
@@ -50,7 +50,7 @@ struct Players<T: GameHandle>: View {
             if model.leadPlayer {
                 HStack {
                     let stepperMsg = model.solitaireMode ? "single player" : "\(model.numPlayers) players"
-                    Stepper(value: $model.numPlayers,
+                    Stepper(value: $bmodel.numPlayers,
                             in: model.gameHandle.numPlayerRange) {
                         Text(stepperMsg)
                     }
@@ -75,6 +75,7 @@ struct Players<T: GameHandle>: View {
                     Button("Login", systemImage: "dot.radiowaves.left.and.right") {
                         Task { @MainActor in
                             await model.login()
+                            Logger.log("After login, hasValidCredentials=\(model.hasValidCredentials)")
                         }
                     }
                     .disabled(model.nearbyOnly || !model.hasTokenProvider || model.hasValidCredentials)
@@ -90,6 +91,7 @@ struct Players<T: GameHandle>: View {
                     Button("Logout") {
                         Task { @MainActor in
                             await model.logout()
+                            Logger.log("After logout, hasValidCredentials=\(model.hasValidCredentials)")
                         }
                     }
                     .disabled(model.nearbyOnly || !model.hasTokenProvider || !model.hasValidCredentials)
