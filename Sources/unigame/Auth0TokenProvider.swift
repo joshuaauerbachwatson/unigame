@@ -58,6 +58,7 @@ public final class Auth0TokenProvider: TokenProvider {
             let creds = try await credentialsManager.credentials()
             return .success(creds.accessToken)
         } catch {
+            _ = credentialsManager.clear()
             return .failure(error)
         }
     }
