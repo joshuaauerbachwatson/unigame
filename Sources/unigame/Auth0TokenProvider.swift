@@ -20,6 +20,24 @@ import AuerbachLook
 // The audience claim expected by unigame-server
 fileprivate let DefaultAudience = "https://unigame.com"
 
+// TODO the following may need refinement
+struct LoginLogger: Auth0.Logger {
+    func trace(request: URLRequest, session: URLSession) {
+        Logger.log("Auth0 request \(request) on session \(session)")
+    }
+    
+    func trace(response: URLResponse, data: Data?) {
+        Logger.log("Auth0 response \(response)")
+        if let data {
+            Logger.log("Response data: \(data)")
+        }
+    }
+    
+    func trace(url: URL, source: String?) {
+        Logger.log("Auth0 url \(url) with source \(source ?? "none")")
+    }
+}
+
 public final class Auth0TokenProvider: TokenProvider {
     let audience: String
     let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
@@ -31,6 +49,7 @@ public final class Auth0TokenProvider: TokenProvider {
     public func login() async -> Error? {
         do {
             let credentials = try await Auth0.webAuth()
+                .logging(enabled: true).using(logger: LoginLogger())
                 .useEphemeralSession().useHTTPS().audience(audience)
                 .scope("openid profile offline_access").start()
             if !credentialsManager.store(credentials: credentials) {
